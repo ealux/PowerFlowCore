@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerFlowCore", "PowerFlowCore\PowerFlowCore.csproj", "{465A5877-6F05-49CF-9F75-6AE22AAABAB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCalc", "TestCalc\TestCalc.csproj", "{AAEB2899-3CFB-429E-A345-E26F2B09618E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{465A5877-6F05-49CF-9F75-6AE22AAABAB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{465A5877-6F05-49CF-9F75-6AE22AAABAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{465A5877-6F05-49CF-9F75-6AE22AAABAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{465A5877-6F05-49CF-9F75-6AE22AAABAB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAEB2899-3CFB-429E-A345-E26F2B09618E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAEB2899-3CFB-429E-A345-E26F2B09618E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAEB2899-3CFB-429E-A345-E26F2B09618E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAEB2899-3CFB-429E-A345-E26F2B09618E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43B962BE-C82D-4367-8CA4-8F26A4049E59}
+	EndGlobalSection
+EndGlobal
