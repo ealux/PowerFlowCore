@@ -14,7 +14,7 @@ using Complex = System.Numerics.Complex;
 namespace PowerFlowCore.Data
 {
     /// <summary>
-    /// PF-task basic Parameters Description calculated from network topology and characteristics
+    /// PF-problem basic Parameters Description calculated from network topology and characteristics
     /// </summary>
     class NetDescriptionAlternative
     {       

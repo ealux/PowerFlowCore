@@ -8,7 +8,7 @@ using Complex = System.Numerics.Complex;
 namespace PowerFlowCore.Data
 {
     /// <summary>
-    /// PF-task basic Parameters Description calculated from network topology and characteristics
+    /// PF-problem basic Parameters Description calculated from network topology and characteristics
     /// </summary>
     public class NetDescription
     {
@@ -273,7 +273,10 @@ namespace PowerFlowCore.Data
         /// <param name="accuracy">Minimal voltage convergence threshold to stop computing</param>
         /// <param name="iterations">Maximum  number iterations</param>
         /// <returns></returns>
-        public Vector<Complex> GaussSeidelSolver(Vector<Complex> initialGuess, double accuracy = 1e-6, int iterations = 1500,  double voltageRatio = 0.25)
+        public Vector<Complex> GaussSeidelSolver(Vector<Complex> initialGuess, 
+                                                double accuracy     = 1e-6, 
+                                                int iterations      = 1500,  
+                                                double voltageRatio = 0.25)
         {
 
             var Um = initialGuess.Map(x => x.Magnitude).ToArray();

@@ -21,7 +21,7 @@ namespace TestCalc
     {
         static void Main(string[] args)
         {
-            var timer = new Stopwatch(); timer.Start();
+            var timer = Stopwatch.StartNew();
 
             //===========================================
 
@@ -46,30 +46,30 @@ namespace TestCalc
 
             var branches = new List<Branch>()
             {
-                new Branch(){Start=1, End=3, Y=1/(new Complex(3.6, 12.15)), Ktr=1, Ysh=new Complex(0, 84.3e-6)},
-                new Branch(){Start=1, End=3, Y=1/(new Complex(3.6, 12.15)), Ktr=1, Ysh=new Complex(0, 84.3e-6)},
-                new Branch(){Start=1, End=5, Y=1/(new Complex(10.69, 22.68)), Ktr=1, Ysh=new Complex(0, 145.8e-6)},
-                new Branch(){Start=3, End=7, Y=1/(new Complex(3.6, 12.15)), Ktr=1, Ysh=new Complex(0, 84.3e-6)},
-                new Branch(){Start=3, End=7, Y=1/(new Complex(3.6, 12.15)), Ktr=1, Ysh=new Complex(0, 84.3e-6)},
-                new Branch(){Start=5, End=7, Y=1/(new Complex(11.95, 20.5)), Ktr=1, Ysh=new Complex(0, 127.7e-6)},
-                new Branch(){Start=2, End=7, Y=1/(new Complex(11.95, 20.5)), Ktr=1, Ysh=new Complex(0, 127.7e-6)},
-                new Branch(){Start=2, End=7, Y=1/(new Complex(11.95, 20.5)), Ktr=1, Ysh=new Complex(0, 127.7e-6)},
-                new Branch(){Start=2, End=200, Y=1/(new Complex(2.16, 7.29)), Ktr=1, Ysh=new Complex(0, 50.6e-6)},
-                new Branch(){Start=2, End=6, Y=1/(new Complex(7.47, 12.81)), Ktr=1, Ysh=new Complex(0, 79.8e-6)},
-                new Branch(){Start=6, End=200, Y=1/(new Complex(10.46, 17.93)), Ktr=1, Ysh=new Complex(0, 117.7e-6)},
-                new Branch(){Start=200, End=201, Y=1/(new Complex(1.46, 38.4)), Ktr=0.087, Ysh=new Complex(3.4e-6, -17.8e-6)},
-                new Branch(){Start=200, End=202, Y=1/(new Complex(1.46, 38.4)), Ktr=0.087, Ysh=new Complex(3.4e-6, -17.8e-6)},
-                new Branch(){Start=200, End=203, Y=1/(new Complex(1.46, 38.4)), Ktr=0.087, Ysh=new Complex(3.4e-6, -17.8e-6)},
-                new Branch(){Start=2, End=21, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=2, End=21, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=3, End=31, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=3, End=31, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=5, End=51, Y=1/(new Complex(7.95, 139)), Ktr=0.096, Ysh=new Complex(1.06e-6, -5.03e-6)},
-                new Branch(){Start=5, End=51, Y=1/(new Complex(7.95, 139)), Ktr=0.096, Ysh=new Complex(1.06e-6, -5.03e-6)},
-                new Branch(){Start=6, End=61, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=6, End=61, Y=1/(new Complex(2.54, 55.9)), Ktr=0.091, Ysh=new Complex(2e-6, -13.2e-6)},
-                new Branch(){Start=7, End=71, Y=1/(new Complex(1.4, 34.7)), Ktr=0.091, Ysh=new Complex(2.72e-6, -19.66e-6)},
-                new Branch(){Start=7, End=71, Y=1/(new Complex(1.4, 34.7)), Ktr=0.091, Ysh=new Complex(2.72e-6, -19.66e-6)}
+                new Branch(){Start=1, End=3,    Y=1/(new Complex(3.6, 12.15)),  Ktr=1,      Ysh=new Complex(0, 84.3e-6)},
+                new Branch(){Start=1, End=3,    Y=1/(new Complex(3.6, 12.15)),  Ktr=1,      Ysh=new Complex(0, 84.3e-6)},
+                new Branch(){Start=1, End=5,    Y=1/(new Complex(10.69, 22.68)),Ktr=1,      Ysh=new Complex(0, 145.8e-6)},
+                new Branch(){Start=3, End=7,    Y=1/(new Complex(3.6, 12.15)),  Ktr=1,      Ysh=new Complex(0, 84.3e-6)},
+                new Branch(){Start=3, End=7,    Y=1/(new Complex(3.6, 12.15)),  Ktr=1,      Ysh=new Complex(0, 84.3e-6)},
+                new Branch(){Start=5, End=7,    Y=1/(new Complex(11.95, 20.5)), Ktr=1,      Ysh=new Complex(0, 127.7e-6)},
+                new Branch(){Start=2, End=7,    Y=1/(new Complex(11.95, 20.5)), Ktr=1,      Ysh=new Complex(0, 127.7e-6)},
+                new Branch(){Start=2, End=7,    Y=1/(new Complex(11.95, 20.5)), Ktr=1,      Ysh=new Complex(0, 127.7e-6)},
+                new Branch(){Start=2, End=200,  Y=1/(new Complex(2.16, 7.29)),  Ktr=1,      Ysh=new Complex(0, 50.6e-6)},
+                new Branch(){Start=2, End=6,    Y=1/(new Complex(7.47, 12.81)), Ktr=1,      Ysh=new Complex(0, 79.8e-6)},
+                new Branch(){Start=6, End=200,  Y=1/(new Complex(10.46, 17.93)),Ktr=1,      Ysh=new Complex(0, 117.7e-6)},
+                new Branch(){Start=200, End=201,Y=1/(new Complex(1.46, 38.4)),  Ktr=0.087,  Ysh=new Complex(3.4e-6, -17.8e-6)},
+                new Branch(){Start=200, End=202,Y=1/(new Complex(1.46, 38.4)),  Ktr=0.087,  Ysh=new Complex(3.4e-6, -17.8e-6)},
+                new Branch(){Start=200, End=203,Y=1/(new Complex(1.46, 38.4)),  Ktr=0.087,  Ysh=new Complex(3.4e-6, -17.8e-6)},
+                new Branch(){Start=2, End=21,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=2, End=21,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=3, End=31,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=3, End=31,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=5, End=51,   Y=1/(new Complex(7.95, 139)),   Ktr=0.096,  Ysh=new Complex(1.06e-6, -5.03e-6)},
+                new Branch(){Start=5, End=51,   Y=1/(new Complex(7.95, 139)),   Ktr=0.096,  Ysh=new Complex(1.06e-6, -5.03e-6)},
+                new Branch(){Start=6, End=61,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=6, End=61,   Y=1/(new Complex(2.54, 55.9)),  Ktr=0.091,  Ysh=new Complex(2e-6, -13.2e-6)},
+                new Branch(){Start=7, End=71,   Y=1/(new Complex(1.4, 34.7)),   Ktr=0.091,  Ysh=new Complex(2.72e-6, -19.66e-6)},
+                new Branch(){Start=7, End=71,   Y=1/(new Complex(1.4, 34.7)),   Ktr=0.091,  Ysh=new Complex(2.72e-6, -19.66e-6)}
             };
 
             var e = new Engine(nodes, branches);
@@ -193,14 +193,6 @@ namespace TestCalc
             //===========================================
 
 
-
-
-
-
-
-
-
-
             //var desc = DataExtentions.GetDescription(nodes, branches);
 
             //Console.WriteLine("MATRIX Y: " + timer.ElapsedMilliseconds + "\n");
@@ -271,38 +263,5 @@ namespace TestCalc
 
             Console.ReadKey();
         }
-    }
-
-    class Node : INode
-    {
-        public int Num { get; set; }
-        public int Num_calc { get; set; }
-        public NodeType Type { get; set; }
-        public Complex U { get; set; }
-        public Complex Unom { get; set; }
-        public Complex Ysh { get; set; }
-        public Complex S_load { get; set; }
-        public Complex S_gen { get; set; }
-        public double Q_min { get; set; }
-        public double Q_max { get; set; }
-        public double Vpre { get; set; }
-    }
-
-    class Branch : IBranch
-    {
-        public int Start { get; set; }
-        public int Start_calc { get; set; }
-        public int End { get; set; }
-        public int End_calc { get; set; }
-        public Complex Y { get; set; }
-        public Complex Ysh { get; set; }
-        public double Ktr { get; set; }
-        public int Count { get; set; }
-
-
-        public Complex S_start { get; set; }
-        public Complex S_end { get; set; }
-        public Complex I_start { get; set; }
-        public Complex I_end { get; set; }
     }
 }

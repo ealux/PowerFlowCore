@@ -11,24 +11,39 @@ namespace PowerFlowCore
         /// Gauss-Seidel:   Voltage step defference;
         /// Newton-Raphson: Power residual tolerance.
         /// </summary>
-        public double accuracy { get; set; } = 1e-6;
+        public double Accuracy { get; set; } = 1e-6;
 
 
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int iterations { get; set; } = 150;
+        public int IterationsCount { get; set; } = 150;
 
 
         /// <summary>
         /// Voltage tolerance evaluation towards the nominal one
         /// </summary>
-        public double votageRatio { get; set; } = 0.25;
+        public double VotageRatio { get; set; } = 0.25;
 
 
         /// <summary>
         /// Voltage convergence criteria for Newton-Raphson method
         /// </summary>
-        public double voltageConvergence { get; set; } = 1e-6;
+        public double VoltageConvergence { get; set; } = 1e-6;
+
+        /// <summary>
+        /// Choosen calculation method (def.: Newton-Raphson)
+        /// </summary>
+        public CalculationMethod CalculationMethod { get; set; } = CalculationMethod.Newton;
+    }
+
+
+    /// <summary>
+    /// Method to calculate power flow problem
+    /// </summary>
+    public enum CalculationMethod
+    {
+        Newton, 
+        Gauss
     }
 }

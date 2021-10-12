@@ -66,19 +66,19 @@ namespace PowerFlowCore
                 if (desc.Nodes.Any(n => n.Type == NodeType.PV))
                 {
                     this.desc.U_calc = desc.GaussSeidelSolver(initialGuess: desc.U_init,
-                                                              accuracy: options.accuracy,
-                                                              iterations: options.iterations,
-                                                              voltageRatio: options.votageRatio);
+                                                              accuracy: options.Accuracy,
+                                                              iterations: options.IterationsCount,
+                                                              voltageRatio: options.VotageRatio);
                     this.desc.CalculatePowerMatrix();
                     this.NeedsToCalc = false;
                 }
                 else
                 {
                     this.desc.U_calc = desc.NewtonRaphsonSolver(initialGuess: desc.U_init,
-                                                                accuracy: options.accuracy,
-                                                                voltageConvergence: options.voltageConvergence,
-                                                                iterations: options.iterations,
-                                                                voltageRatio: options.votageRatio);
+                                                                accuracy: options.Accuracy,
+                                                                voltageConvergence: options.VoltageConvergence,
+                                                                iterations: options.IterationsCount,
+                                                                voltageRatio: options.VotageRatio);
                     this.desc.CalculatePowerMatrix();
                     this.NeedsToCalc = false;
                 }
