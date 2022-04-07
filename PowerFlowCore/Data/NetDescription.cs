@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
@@ -535,10 +536,15 @@ namespace PowerFlowCore.Data
         /// <param name="voltageConvergence">Minimal voltage convergence threshold to stop computing</param>
         /// <param name="iterations">Maximum  number iterations</param>
         /// <returns></returns>
-        public Vector<Complex> NewtonRaphsonSolver(Vector<Complex> initialGuess, double accuracy = 1e-12, double voltageConvergence = 1e-12, int iterations = 1500, double voltageRatio = 0.5)
+        public Vector<Complex> NewtonRaphsonSolver(Vector<Complex> initialGuess, 
+                                                    double  accuracy            = 1e-12, 
+                                                    double  voltageConvergence  = 1e-12, 
+                                                    int     iterations          = 1500, 
+                                                    double  voltageRatio        = 0.5)
         {
             var dim = PQ_Count + PV_Count;
 
+            //throw if "accuracy" criteria is less or equal zero
             if (accuracy <= 0) throw new ArgumentException("Iterations amount can not be less or equal 0!");
 
             var Um = initialGuess.Map(x => x.Magnitude).ToArray();
@@ -546,6 +552,7 @@ namespace PowerFlowCore.Data
 
             var U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u1, u2) => Complex.FromPolarCoordinates(u1, u2)));
 
+            //PreCalc (G-s)
             //U = GaussSeidelSolver(U, accuracy: 0.001, iterations: 5);
             //Um = U.Map(x => x.Magnitude).ToArray();
             //ph = U.Map(x => x.Phase).ToArray();

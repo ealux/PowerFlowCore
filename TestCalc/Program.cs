@@ -72,14 +72,24 @@ namespace TestCalc
                 new Branch(){Start=7, End=71,   Y=1/(new Complex(1.4, 34.7)),   Ktr=0.091,  Ysh=new Complex(2.72e-6, -19.66e-6)}
             };
 
-            var e = new Engine(nodes, branches);
-            e.Calculate();
-            var calc = e.desc.U_calc;
-            Console.WriteLine(e.desc.U_calc.Map(x => x.Magnitude));
-            e.desc.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));
-            Console.WriteLine(e.desc.U_calc.Map(x => x.Phase * 180 / Math.PI));
-            Console.WriteLine(e.desc.S);
-            Console.WriteLine(timer.ElapsedMilliseconds);
+            timer.Restart();                                                           //Start timer
+
+            for (int i = 0; i < 100; i++)
+            {
+                
+                var e = new Engine(nodes, branches);                                    //Create engine
+                e.Calculate();                                                          //Performe calculations
+                var calc = e.desc.U_calc;                                               //Take calculated U values
+                //Console.WriteLine(e.desc.U_calc.Map(x => x.Magnitude));               //Show U magnitudes
+                e.desc.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));         //Show Nodes numbers
+                //Console.WriteLine(e.desc.U_calc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
+                //Console.WriteLine(e.desc.S);                                          //Show vector of calculated S
+                
+            }
+
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");        //Stop timer and show result
+
+
 
             //Console.WriteLine(e.desc.);
 
