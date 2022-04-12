@@ -23,7 +23,6 @@ namespace PowerFlowCore.Data
         /// </summary>
         int Start_calc { get; set; }
 
-
         /// <summary>
         /// End node
         /// </summary>
@@ -33,7 +32,6 @@ namespace PowerFlowCore.Data
         /// End node (for calculation)
         /// </summary>
         int End_calc { get; set; }
-
 
         /// <summary>
         /// Admittance
@@ -45,18 +43,15 @@ namespace PowerFlowCore.Data
         /// </summary>
         Complex Ysh { get; set; }
 
-
         /// <summary>
         /// Count of parralel branches
         /// </summary>
         int Count { get; set; }
 
-
         /// <summary>
         /// Transformation ratio
         /// </summary>
         double Ktr { get; set; }
-
 
         /// <summary>
         /// Power on branch start
