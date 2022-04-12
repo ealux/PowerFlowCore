@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Solvers\" />
+    <Folder Include="Data\Events\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 
 </Project>

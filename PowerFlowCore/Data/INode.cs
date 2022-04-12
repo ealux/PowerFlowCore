@@ -66,5 +66,6 @@ namespace PowerFlowCore.Data
         /// Admittance (shunt)
         /// </summary>
         Complex Ysh { get; set; }
+                
     }
 }

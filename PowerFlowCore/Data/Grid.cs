@@ -11,7 +11,7 @@ namespace PowerFlowCore.Data
     /// <summary>
     /// PF-problem basic Parameters Description calculated from network topology and characteristics
     /// </summary>
-    public class NetDescription
+    public class Grid
     {
         /// <summary>
         /// Transformed (renumbered) collection of Nodes
@@ -25,13 +25,16 @@ namespace PowerFlowCore.Data
         /// </summary>
         public List<IBranch> Branches { get; set; }
 
+
         /// <summary>
         /// Admittance matrix
         /// </summary>
         public Matrix<Complex> Y { get; set; }
 
+
+
         /// <summary>
-        /// Vector of Initial Voltage levels (for Voltage Angle and Voltage Magnitude decomposition)
+        /// Vector of Initial (nominal) Voltage levels (for Voltage Angle and Voltage Magnitude decomposition)
         /// </summary>
         public Vector<Complex> U_init { get; set; }
 
@@ -40,13 +43,14 @@ namespace PowerFlowCore.Data
         /// </summary>
         public Vector<Complex> U_calc { get; set; } = null;
 
+
+
         /// <summary>
         /// Vector of Powers in Nodes (Load - Generation)
         /// </summary>
         public Vector<Complex> S { get; set; }
 
 
-        public Matrix<Complex> S_calc { get; set; } 
 
         /// <summary>
         /// PQ nodes amount
@@ -64,13 +68,18 @@ namespace PowerFlowCore.Data
         public int Slack_Count { get; set; }
 
 
+
+        /// <summary>
+        /// Private ctor for healper methods
+        /// </summary>
+        private Grid() { }
+
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
         /// </summary>
         /// <param name="nodes">Enumerable source of raw-view Nodes</param>
         /// <param name="branches">Enumerable source of raw-view Branches</param>
-        public NetDescription(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) => InitParameters(nodes, branches); //ctor               
-
+        public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) => InitParameters(nodes, branches); //ctor               
 
 
 
@@ -173,19 +182,19 @@ namespace PowerFlowCore.Data
 
             //!переименование номеров ветви
             this.Nodes.ForEach(_n => 
-            { this.Branches.ForEach(b => 
-                {
-                    b.Count = 1;
-                    if (b.Start == _n.Num)
+                { this.Branches.ForEach(b => 
                     {
-                        b.Start_calc = _n.Num_calc;
-                    }
-                    else if (b.End == _n.Num)
-                    {
-                        b.End_calc = _n.Num_calc;
-                    }
-                }); 
-            });
+                        b.Count = 1;
+                        if (b.Start == _n.Num)
+                        {
+                            b.Start_calc = _n.Num_calc;
+                        }
+                        else if (b.End == _n.Num)
+                        {
+                            b.End_calc = _n.Num_calc;
+                        }
+                    }); 
+                });
 
 
             for (int i = 0; i < this.Branches.Count; i++)
@@ -264,6 +273,125 @@ namespace PowerFlowCore.Data
 
 
 
+        #region [Helpers]
+
+        /// <summary>
+        /// Make full copy of Grid object
+        /// </summary>
+        /// <returns>New Grid object</returns>
+        public Grid DeepCopy()
+        {
+            Grid new_grid = new Grid(); //Create new empty Grid object
+
+            new_grid.Nodes      = new List<INode>(this.Nodes.Count);
+            new_grid.Branches   = new List<IBranch>(this.Branches.Count);
+
+            //Fill new Nodes
+            foreach (var node in this.Nodes)
+            {
+                new_grid.Nodes.Add((INode)(new Node()
+                {
+                    Num = node.Num,
+                    Num_calc = node.Num_calc,
+                    Q_max = node.Q_max,
+                    Q_min = node.Q_min,
+                    S_gen = node.S_gen,
+                    S_load = node.S_load,
+                    Type = node.Type,
+                    U = node.U,
+                    Unom = node.Unom,
+                    Vpre = node.Vpre,
+                    Ysh = node.Ysh
+                }));
+            }
+            //Fill new Branches
+            foreach (var branch in this.Branches)
+            {
+                new_grid.Branches.Add((IBranch)(new Branch()
+                {
+                    Count = branch.Count,
+                    Start = branch.Start,
+                    End = branch.End,
+                    Start_calc = branch.Start_calc,
+                    End_calc = branch.End_calc,
+                    Y = branch.Y,
+                    Ysh = branch.Ysh,
+                    Ktr = branch.Ktr,
+                    I_start = branch.I_start,
+                    I_end = branch.I_end,
+                    S_start = branch.S_start,
+                    S_end = branch.S_end,                    
+                }));
+            }
+
+            //New Y matrix
+            new_grid.Y = this.Y.Clone();
+
+            //New U_init vector
+            new_grid.U_init = this.U_init.Clone();
+
+            //New U_calc vector
+            new_grid.U_calc = this.U_calc.Clone();
+
+            //New S vector
+            new_grid.S = this.S.Clone();
+
+
+            //Statistic
+            new_grid.PQ_Count = this.PQ_Count;
+            new_grid.PV_Count = this.PV_Count;
+            new_grid.Slack_Count = this.Slack_Count;
+
+            return new_grid;
+        }
+
+        #region [Helpers classes Node and Branch]
+
+        /// <summary>
+        /// Node realese for Healpers
+        /// </summary>
+        private sealed class Node : INode
+        {
+            public int Num { get; set; }
+            public int Num_calc { get; set; }
+            public NodeType Type { get; set; }
+            public Complex U { get; set; }
+            public double Vpre { get; set; }
+            public Complex Unom { get; set; }
+            public Complex S_load { get; set; }
+            public Complex S_gen { get; set; }
+            public double Q_min { get; set; }
+            public double Q_max { get; set; }
+            public Complex Ysh { get; set; }
+        }
+
+        /// <summary>
+        /// Branch realese for Healpers
+        /// </summary>
+        private sealed class Branch : IBranch
+        {
+            public int Start { get; set; }
+            public int Start_calc { get; set; }
+            public int End { get; set; }
+            public int End_calc { get; set; }
+            public Complex Y { get; set; }
+            public Complex Ysh { get; set; }
+            public int Count { get; set; }
+            public double Ktr { get; set; }
+            public Complex S_start { get; set; }
+            public Complex S_end { get; set; }
+            public Complex I_start { get; set; }
+            public Complex I_end { get; set; }
+        }
+
+        #endregion
+
+        #endregion
+
+
+
+
+        #region [Solvers]
 
         #region [Gauss-Seidel]
 
@@ -274,25 +402,25 @@ namespace PowerFlowCore.Data
         /// <param name="accuracy">Minimal voltage convergence threshold to stop computing</param>
         /// <param name="iterations">Maximum  number iterations</param>
         /// <returns></returns>
-        public Vector<Complex> GaussSeidelSolver(Vector<Complex> initialGuess, 
-                                                double accuracy     = 1e-6, 
-                                                int iterations      = 1500,  
+        public Vector<Complex> GaussSeidelSolver(Vector<Complex> initialGuess,
+                                                double accuracy = 1e-6,
+                                                int iterations = 1500,
                                                 double voltageRatio = 0.25)
         {
 
             var Um = initialGuess.Map(x => x.Magnitude).ToArray();
             var ph = initialGuess.Map(x => x.Phase).ToArray();
 
-            var U    = Vector<Complex>.Build.Dense(initialGuess.Count);
+            var U = Vector<Complex>.Build.Dense(initialGuess.Count);
             var Uold = Vector<Complex>.Build.Dense(initialGuess.Count);
             var dU = Vector<Complex>.Build.Dense(initialGuess.Count);
 
             var diff = 1000000.0;
 
             U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u1, u2) => Complex.FromPolarCoordinates(u1, u2)));
-            U.CopyTo(Uold);            
+            U.CopyTo(Uold);
 
-            var sum  = new Complex();
+            var sum = new Complex();
 
             int counter = 0;
 
@@ -302,13 +430,13 @@ namespace PowerFlowCore.Data
                 for (int i = 0; i < Nodes.Count; i++)
                 {
                     //PQ
-                    if(Nodes[i].Type == NodeType.PQ)
+                    if (Nodes[i].Type == NodeType.PQ)
                     {
                         for (int j = 0; j < Nodes.Count; j++) if (i != j) sum += Y[i, j] * U[j];
-                        U[i] = (1 / Y[i, i]) * ((S[i].Conjugate()/U[i].Conjugate()) - sum);
+                        U[i] = (1 / Y[i, i]) * ((S[i].Conjugate() / U[i].Conjugate()) - sum);
 
                         dU = U - Uold;
-                        U = Uold + dU; 
+                        U = Uold + dU;
                     }
 
                     sum = 0;
@@ -317,7 +445,7 @@ namespace PowerFlowCore.Data
                     ph = U.Map(u => u.Phase).ToArray();
 
                     //PV
-                    if(Nodes[i].Type == NodeType.PV)
+                    if (Nodes[i].Type == NodeType.PV)
                     {
                         Um[i] = U[i].Magnitude;
 
@@ -339,7 +467,7 @@ namespace PowerFlowCore.Data
                     ph = U.Map(u => u.Phase).ToArray();
                 }
 
-                counter++;                
+                counter++;
 
                 U.CopyTo(Uold);
                 diff = dU.AbsoluteMaximum().Real;
@@ -367,7 +495,7 @@ namespace PowerFlowCore.Data
                     var qmin = Nodes[pv].Q_min;
                     var qmax = Nodes[pv].Q_max;
 
-                    var q = - Nodes[pv].S_load.Imaginary + S[pv].Imaginary;
+                    var q = -Nodes[pv].S_load.Imaginary + S[pv].Imaginary;
 
                     if (q <= qmin)
                     {
@@ -388,7 +516,7 @@ namespace PowerFlowCore.Data
                 if (flag == true) //On node type change to PQ
                 {
                     InitParameters(Nodes, Branches);
-                    var new_U = GaussSeidelSolver(U_init, accuracy: accuracy, iterations:iterations, voltageRatio:voltageRatio);
+                    var new_U = GaussSeidelSolver(U_init, accuracy: accuracy, iterations: iterations, voltageRatio: voltageRatio);
                     return new_U;
                 }
             }
@@ -536,11 +664,11 @@ namespace PowerFlowCore.Data
         /// <param name="voltageConvergence">Minimal voltage convergence threshold to stop computing</param>
         /// <param name="iterations">Maximum  number iterations</param>
         /// <returns></returns>
-        public Vector<Complex> NewtonRaphsonSolver(Vector<Complex> initialGuess, 
-                                                    double  accuracy            = 1e-12, 
-                                                    double  voltageConvergence  = 1e-12, 
-                                                    int     iterations          = 1500, 
-                                                    double  voltageRatio        = 0.5)
+        public Vector<Complex> NewtonRaphsonSolver(Vector<Complex> initialGuess,
+                                                    double accuracy = 1e-12,
+                                                    double voltageConvergence = 1e-12,
+                                                    int iterations = 1500,
+                                                    double voltageRatio = 0.5)
         {
             var dim = PQ_Count + PV_Count;
 
@@ -561,9 +689,9 @@ namespace PowerFlowCore.Data
             {
                 var dPQ = Resuduals_Polar(U);   //Power residuals                       
                 var J = Jacobian_Polar(U);      //Jacoby matrix                
-       
+
                 //Calculation of increments
-                var dx = J.Solve(-dPQ);                   
+                var dx = J.Solve(-dPQ);
 
                 //Voltage residual
                 var Udx = Vector<double>.Build.Dense(PQ_Count);
@@ -614,7 +742,7 @@ namespace PowerFlowCore.Data
         private void CheckVoltage(Vector<Complex> Uinit, Vector<Complex> U, double ratio = 0.25)
         {
             var init = Uinit.Map(vol => vol.Magnitude);
-            var u    = U.Map(vol => vol.Magnitude);
+            var u = U.Map(vol => vol.Magnitude);
 
             var init_max = u * (1 + ratio);
             var init_min = u * (1 - ratio);
@@ -622,23 +750,28 @@ namespace PowerFlowCore.Data
             var diff_max = init_max - init;    //normal - when only positives
             var diff_min = init_min - init;    //normal - when only negatives
 
-            if(diff_max.Any(i => i < 0))
+            if (diff_max.Any(i => i < 0))
             {
                 for (int i = 0; i < diff_max.Count; i++)
                 {
-                    if(diff_max[i] < 0) throw new VoltageLackException(Nodes[i].Num.ToString());
+                    if (diff_max[i] < 0) throw new VoltageLackException(Nodes[i].Num.ToString());
                 }
-                
+
             }
             else if (diff_min.Any(i => i > 0))
             {
                 for (int i = 0; i < diff_min.Count; i++)
                 {
-                    if (diff_min[i] > 0) throw new VoltageOverflowException(Nodes[i].Num.ToString());
+                    if (diff_min[i] > 0) 
+                        throw new VoltageOverflowException(Nodes[i].Num.ToString());
                 }
             }
         }
 
         #endregion [Checks]
+
+        #endregion
+
+
     }
 }

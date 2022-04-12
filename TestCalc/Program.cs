@@ -74,26 +74,62 @@ namespace TestCalc
 
             timer.Restart();                                                           //Start timer
 
-            for (int i = 0; i < 100; i++)
-            {
-                
-                var e = new Engine(nodes, branches);                                    //Create engine
-                e.Calculate();                                                          //Performe calculations
-                var calc = e.desc.U_calc;                                               //Take calculated U values
-                //Console.WriteLine(e.desc.U_calc.Map(x => x.Magnitude));               //Show U magnitudes
-                e.desc.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));         //Show Nodes numbers
-                //Console.WriteLine(e.desc.U_calc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
-                //Console.WriteLine(e.desc.S);                                          //Show vector of calculated S
-                
-            }
+            var e = new Engine(nodes, branches);                                    //Create engine
+
+            e.Calculate();                                                          //Performe calculations
+            var calc = e.desc.U_calc;                                               //Take calculated U values
+            //Console.WriteLine(e.desc.U_calc.Map(x => x.Magnitude));               //Show U magnitudes
+            e.desc.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));         //Show Nodes numbers
+            //Console.WriteLine(e.desc.U_calc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
+            //Console.WriteLine(e.desc.S);                                          //Show vector of calculated S
 
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");        //Stop timer and show result
+
+            //=====================================
+            //=====================================
+
+            var ee = new Grid(nodes, branches);
+
+
+            //=====================================
+
+            var newGrid = e.desc;               //create new grid
+            var opts = new CalculationOptions();     //calc options
+            var opts2 = new CalculationOptions();    //calc options 2
+
+            //=====================================
+
+            //Variant 1 (class)
+
+            var solverGS = new SolverGS(opts: opts);
+            var solverNR = new SolverNR(opts: opts2);
+
+
+            newGrid.U_calc = solverGS.Calculate(grid: newGrid,
+                                                Unominal: newGrid.U_init,
+                                                Uinitial: newGrid.U_init);
+
+            newGrid.U_calc = solverNR.Calculate(grid: newGrid,
+                                                Unominal: newGrid.U_init,
+                                                Uinitial: newGrid.U_calc);
+
+
+            //=====================================
+
+
+            //Variant 2 (static)
+
+            var resultGrid = newGrid.SolverGS(opts).SolverNR(opts2);
+            //or
+            newGrid.SolverGS(opts).SolverNR(opts2);
+
+
 
 
 
             //Console.WriteLine(e.desc.);
 
-            //var d = DataExtentions.GetDescription(nodes, branches);
+            //var d = ExtensionMethods.GetDescription(nodes, branches);
 
             ////var U = d.NewtonRaphsonSolver(d.U_init);
             //var U = d.GaussSeidelSolver(d.U_init, iterations: 150);
@@ -125,7 +161,7 @@ namespace TestCalc
             //    new Branch(){Start=2, End=4, Y=1/(new Complex(20, 40)), Ktr=1,}
             //};
 
-            //var d = DataExtentions.GetDescription(nodes, branches);
+            //var d = ExtensionMethods.GetDescription(nodes, branches);
 
             //var U = d.NewtonRaphsonSolver(d.U_init, accuracy: 1e-6, iterations: 1500);
             //Console.WriteLine(timer.ElapsedMilliseconds);
@@ -163,7 +199,7 @@ namespace TestCalc
             //    new Branch(){Start=1, End=3, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
             //};
 
-            //var d = DataExtentions.GetDescription(nodes, branches);
+            //var d = ExtensionMethods.GetDescription(nodes, branches);
 
             //var U = d.NewtonRaphsonSolver(d.U_init);
             //Console.WriteLine(timer.ElapsedMilliseconds);
@@ -203,7 +239,7 @@ namespace TestCalc
             //===========================================
 
 
-            //var desc = DataExtentions.GetDescription(nodes, branches);
+            //var desc = ExtensionMethods.GetDescription(nodes, branches);
 
             //Console.WriteLine("MATRIX Y: " + timer.ElapsedMilliseconds + "\n");
 

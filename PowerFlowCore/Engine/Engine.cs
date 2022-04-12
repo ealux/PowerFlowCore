@@ -10,6 +10,7 @@ using MathNet.Numerics.LinearAlgebra.Complex;
 using Complex = System.Numerics.Complex;
 
 using PowerFlowCore.Data;
+using PowerFlowCore.Extensions;
 using System.Linq;
 
 namespace PowerFlowCore
@@ -25,9 +26,9 @@ namespace PowerFlowCore
         public bool NeedsToCalc { get; set; } = true;
 
         /// <summary>
-        /// NetDescription item
+        /// Grid item
         /// </summary>
-        public NetDescription desc { get; private set; }
+        public Grid desc { get; private set; }
 
         /// <summary>
         /// Engine calc parameters
@@ -43,7 +44,7 @@ namespace PowerFlowCore
             IEnumerable<INode> nodes = converter.Nodes;
             IEnumerable<IBranch> branches = converter.Branches;
 
-            this.desc = new NetDescription(nodes, branches);
+            this.desc = new Grid(nodes, branches);
             //Set options
             if (options != null) this.options = options; 
         }
@@ -52,7 +53,7 @@ namespace PowerFlowCore
         //TO TEST  !!!
         public Engine(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {
-            this.desc = new NetDescription(nodes, branches);
+            this.desc = new Grid(nodes, branches);
         }
 
 
