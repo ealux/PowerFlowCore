@@ -267,12 +267,8 @@ namespace PowerFlowCore.Data
                     Y[end, end] += -(y + ysh);
                 }
             }
-
-            for (int i = 0; i < nodes.Count; i++) Y[i, i] += -nodes[i].Ysh; //шунт в узле
-
-            Y = -Y;
-
-            return Y;
+            for (int i = 0; i < nodes.Count; i++) Y[i, i] += -nodes[i].Ysh;
+            return -Y;
         }
 
 
