@@ -15,27 +15,27 @@ namespace PowerFlowCore.Extensions
         /// <summary>
         /// Calculate additional powers and currents in Grid object
         /// </summary>
-        /// <param name="desc">Grid object to be calculated</param>
-        public static void CalculatePowerMatrix(this Grid desc)
+        /// <param name="grid">Grid object to be calculated</param>
+        public static void CalculatePowerMatrix(this Grid grid)
         {
             //Slack buses
-            for (int i = 0; i < desc.Slack_Count; i++)
+            for (int i = 0; i < grid.Slack_Count; i++)
             {
                 var s = new Complex();
 
-                for (int j = 0; j < desc.Nodes.Count; j++) 
-                    s+= desc.Ucalc[desc.PQ_Count + desc.PV_Count + i].Conjugate() 
-                        * desc.Ucalc[j] 
-                        * desc.Y[desc.PQ_Count + desc.PV_Count + i, j];
+                for (int j = 0; j < grid.Nodes.Count; j++) 
+                    s+= grid.Ucalc[grid.PQ_Count + grid.PV_Count + i].Conjugate() 
+                        * grid.Ucalc[j] 
+                        * grid.Y[grid.PQ_Count + grid.PV_Count + i, j];
 
-                desc.S[desc.PQ_Count + desc.PV_Count + i] = s.Conjugate();
+                grid.S[grid.PQ_Count + grid.PV_Count + i] = s.Conjugate();
             }
 
             //Generation power re-calculation
-            for (int i = 0; i < desc.Nodes.Count; i++) 
-                desc.Nodes[i].S_gen = desc.S[i] + desc.Nodes[i].S_load;
+            for (int i = 0; i < grid.Nodes.Count; i++) 
+                grid.Nodes[i].S_gen = grid.S[i] + grid.Nodes[i].S_load;
                         
-            foreach (var item in desc.Branches)
+            foreach (var item in grid.Branches)
             {
                 var start = item.Start_calc;
                 var end = item.End_calc;
@@ -43,59 +43,59 @@ namespace PowerFlowCore.Extensions
                 //Lines or Breakers
                 if (item.Ktr == 1 | item.Ktr == 0) 
                 {
-                    item.I_start    = (desc.Ucalc[start] - desc.Ucalc[end]) 
-                                        * desc.Y[start, end] 
+                    item.I_start    = (grid.Ucalc[start] - grid.Ucalc[end]) 
+                                        * grid.Y[start, end] 
                                         / Math.Sqrt(3) 
                                         / item.Count;
-                    item.I_end      = (desc.Ucalc[end] - desc.Ucalc[start]) 
-                                        * desc.Y[end, start] 
+                    item.I_end      = (grid.Ucalc[end] - grid.Ucalc[start]) 
+                                        * grid.Y[end, start] 
                                         / Math.Sqrt(3) 
                                         / item.Count;
 
                     item.S_start    = Math.Sqrt(3) 
-                                        * desc.Ucalc[start] 
+                                        * grid.Ucalc[start] 
                                         * item.I_start.Conjugate();
                     item.S_end      = Math.Sqrt(3) 
-                                        * desc.Ucalc[end] 
+                                        * grid.Ucalc[end] 
                                         * item.I_end.Conjugate();
                 }
                 //Transformers
                 else
                 {
-                    if(desc.Nodes[start].Unom.Magnitude > desc.Nodes[end].Unom.Magnitude)
+                    if(grid.Nodes[start].Unom.Magnitude > grid.Nodes[end].Unom.Magnitude)
                     {
-                        item.I_start    = (desc.Ucalc[start] * item.Ktr - desc.Ucalc[end] ) 
-                                          * desc.Y[start, end] 
+                        item.I_start    = (grid.Ucalc[start] * item.Ktr - grid.Ucalc[end] ) 
+                                          * grid.Y[start, end] 
                                           / Math.Sqrt(3) 
                                           / item.Count;
-                        item.I_end      = (desc.Ucalc[end] / item.Ktr - desc.Ucalc[start]) 
-                                          * desc.Y[end, start] 
+                        item.I_end      = (grid.Ucalc[end] / item.Ktr - grid.Ucalc[start]) 
+                                          * grid.Y[end, start] 
                                           / Math.Sqrt(3) 
                                           / item.Count;
 
                         item.S_start    = Math.Sqrt(3) 
-                                            * desc.Ucalc[start] 
+                                            * grid.Ucalc[start] 
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
-                                            * desc.Ucalc[end] 
+                                            * grid.Ucalc[end] 
                                             * item.I_end.Conjugate();
                     }
-                    else if (desc.Nodes[start].Unom.Magnitude < desc.Nodes[end].Unom.Magnitude) 
+                    else if (grid.Nodes[start].Unom.Magnitude < grid.Nodes[end].Unom.Magnitude) 
                     {
-                        item.I_start    = (desc.Ucalc[start] / item.Ktr - desc.Ucalc[end]) 
-                                            * desc.Y[start, end] 
+                        item.I_start    = (grid.Ucalc[start] / item.Ktr - grid.Ucalc[end]) 
+                                            * grid.Y[start, end] 
                                             / Math.Sqrt(3) 
                                             / item.Count;
-                        item.I_end      = (desc.Ucalc[end] * item.Ktr - desc.Ucalc[start]) 
-                                            * desc.Y[end, start] 
+                        item.I_end      = (grid.Ucalc[end] * item.Ktr - grid.Ucalc[start]) 
+                                            * grid.Y[end, start] 
                                             / Math.Sqrt(3) 
                                             / item.Count;
 
                         item.S_start    = Math.Sqrt(3) 
-                                            * desc.Ucalc[start] 
+                                            * grid.Ucalc[start] 
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
-                                            * desc.Ucalc[end] 
+                                            * grid.Ucalc[end] 
                                             * item.I_end.Conjugate();
                     }
                 }

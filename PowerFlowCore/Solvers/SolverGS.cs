@@ -83,24 +83,19 @@ namespace PowerFlowCore.Solvers
 
                         bool flag = false;
 
-                        if(iteration > 3)
+                        if (Q_new <= qmin)
                         {
-                            if (Q_new <= qmin)
-                            {
-                                grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmin);
-                                grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
-                                flag = true;
+                            grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmin);
+                            grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+                            flag = true;
 
-                            }
-                            else if (Q_new >= qmax)
-                            {
-                                grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmax);
-                                grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
-                                flag = true;
-                            }
                         }
-
-                        
+                        else if (Q_new >= qmax)
+                        {
+                            grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmax);
+                            grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+                            flag = true;
+                        }
                         //else
                         //{
                         //    grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, Q_new);
