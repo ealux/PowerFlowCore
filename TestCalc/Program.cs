@@ -41,9 +41,9 @@ namespace TestCalc
                 new Node(){Num = 61,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(10, 10.02)},
                 new Node(){Num = 71,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(16, 13)},
                 new Node(){Num = 200, Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15, 14.58)},
-                new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0), S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0), S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 203, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0), S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
+                new Node(){Num = 201, Type = NodeType.PQ,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 12.5),     S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 202, Type = NodeType.PQ,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),       S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 203, Type = NodeType.PQ,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),       S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
             };
 
             var branches = new List<Branch>()
@@ -87,6 +87,7 @@ namespace TestCalc
             Console.WriteLine(e.Grid.Ucalc.Map(x => x.Magnitude));               //Show U magnitudes
             Console.WriteLine(e.Grid.Ucalc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
             Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
+            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));       //Show Nodes numbers
 
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
@@ -98,9 +99,9 @@ namespace TestCalc
 
             nodes = new List<Node>()
             {
-                new Node(){Num = 1, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10,15)},
-                new Node(){Num = 2, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10,40)},
-                new Node(){Num = 3, Type = NodeType.PV,     Unom=110, Vpre = 110, S_load = new Complex(10,0), S_gen = new Complex(25,0), Q_min=-15, Q_max=35},
+                new Node(){Num = 1, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10, 15)},
+                new Node(){Num = 2, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10, 40)},
+                new Node(){Num = 3, Type = NodeType.PV,     Unom=110, Vpre = 110, S_load = new Complex(10, 25), S_gen = new Complex(25, 0), Q_min=15, Q_max=35},
                 new Node(){Num = 4, Type = NodeType.Slack,  Unom=115, Vpre = 115}
             };
 
@@ -125,45 +126,47 @@ namespace TestCalc
             Console.WriteLine(e.Grid.Ucalc.Map(x => x.Magnitude));               //Show U magnitudes
             Console.WriteLine(e.Grid.Ucalc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
             Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
+            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));       //Show Nodes numbers
+
 
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
 
-            Console.WriteLine("\n\n===========================================");
-            Console.WriteLine("3 nodes: 2 - PQ  1 - Slack");
-            Console.WriteLine("===========================================");
-            nodes = new List<Node>()
-            {
-                new Node(){Num = 1, Type = NodeType.PQ,     Unom=230, Vpre = 0, S_load = new Complex(100,0)},
-                new Node(){Num = 2, Type = NodeType.PQ,     Unom=230, Vpre = 0, S_load = new Complex(50,25)},
-                new Node(){Num = 3, Type = NodeType.Slack,  Unom=230, Vpre = 0},
-            };
+            //Console.WriteLine("\n\n===========================================");
+            //Console.WriteLine("3 nodes: 2 - PQ  1 - Slack");
+            //Console.WriteLine("===========================================");
+            //nodes = new List<Node>()
+            //{
+            //    new Node(){Num = 1, Type = NodeType.PQ,     Unom=230, Vpre = 0, S_load = new Complex(100,0)},
+            //    new Node(){Num = 2, Type = NodeType.PQ,     Unom=230, Vpre = 0, S_load = new Complex(50,25)},
+            //    new Node(){Num = 3, Type = NodeType.Slack,  Unom=230, Vpre = 0},
+            //};
 
-            branches = new List<Branch>()
-            {
-                new Branch(){Start=1, End=2, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
-                new Branch(){Start=2, End=3, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
-                new Branch(){Start=1, End=3, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
-            };
+            //branches = new List<Branch>()
+            //{
+            //    new Branch(){Start=1, End=2, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
+            //    new Branch(){Start=2, End=3, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
+            //    new Branch(){Start=1, End=3, Y=1/(new Complex(4.9, 21.5)), Ktr=1, Ysh=new Complex(0, 1188e-6)},
+            //};
 
 
-            timer.Restart();                                                      //Start timer
+            //timer.Restart();                                                      //Start timer
 
-            options = new CalculationOptions();
-            e = new Engine(nodes, branches, options);                             //Create engine
+            //options = new CalculationOptions();
+            //e = new Engine(nodes, branches, options);                             //Create engine
 
-            e.Calculate();                                                        //Performe calculations
-            calc = e.Grid.Ucalc;                                                 //Take calculated U values
+            //e.Calculate();                                                        //Performe calculations
+            //calc = e.Grid.Ucalc;                                                 //Take calculated U values
 
-            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));       //Show Nodes numbers
-            Console.WriteLine();
-            Console.WriteLine(e.Grid.Ucalc.Map(x => x.Magnitude));               //Show U magnitudes
-            Console.WriteLine(e.Grid.Ucalc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
-            Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
+            //e.Grid.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));       //Show Nodes numbers
+            //Console.WriteLine();
+            //Console.WriteLine(e.Grid.Ucalc.Map(x => x.Magnitude));               //Show U magnitudes
+            //Console.WriteLine(e.Grid.Ucalc.Map(x => x.Phase * 180 / Math.PI));   //Show U angles
+            //Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
 
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-            //===========================================
+            ////===========================================
 
 
             //var Grid = ExtensionMethods.GetDescription(nodes, branches);

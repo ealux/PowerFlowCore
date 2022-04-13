@@ -20,7 +20,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int IterationsCount { get; set; } = 150;
+        public int IterationsCount { get; set; } = 1500;
 
 
         /// <summary>

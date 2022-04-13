@@ -33,11 +33,13 @@ namespace PowerFlowCore.Solvers
             var dU   = Vector<Complex>.Build.Dense(U_initial.Count); // Voltage difference on iteration
             
             U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u1, u2) => Complex.FromPolarCoordinates(u1, u2))); // Fill U vector with initial values
-            U.CopyTo(Uold);     // Fiil previous voltage vector with inital values before iterations
+            Uold = Vector<Complex>.Build.DenseOfEnumerable(U); // Fill U vector with initial values
+            //Uold = U.Clone();    // Fiil previous voltage vector with inital values before iterations
 
             // Helper variables
             var sum           = new Complex();    // Local current suumator
-            double difference = Double.MaxValue;  // Big difference value for accuracy comparison
+            double difference = Double.MaxValue;  // Big difference value for accuracy comparison       
+                
 
             // MAIN CYCLE
             for (int iteration = 0; iteration < options.IterationsCount; iteration++)
@@ -45,9 +47,13 @@ namespace PowerFlowCore.Solvers
                 // Nodes iterator
                 for (int i = 0; i < grid.Nodes.Count; i++)
                 {
+                    if (grid.Nodes[i].Type == NodeType.Slack) break;  //Take Slack nodes
+
                     #region [PQ nodes]
                     if (grid.Nodes[i].Type == NodeType.PQ)  //Take PQ nodes
                     {
+                        sum = 0;    // Reset summator
+
                         for (int j = 0; j < grid.Nodes.Count; j++)
                             if (i != j)
                                 sum += grid.Y[i, j] * U[j]; // Complete summator with non-self values
@@ -56,20 +62,50 @@ namespace PowerFlowCore.Solvers
                         
                         dU = U - Uold;  // Complete corresponded values in dU vector on voltage difference
                     }
-
-                    sum = 0;    // Reset summator
+                    
                     #endregion
 
                     #region [PV nodes]
                     if (grid.Nodes[i].Type == NodeType.PV)  // Take PV nodes
                     {
-                        Um[i] = U[i].Magnitude;
+                        sum = 0;
 
                         for (int j = 0; j < grid.Nodes.Count; j++)
                             sum += grid.Y[i, j] * U[j];     // Complete summator with corresponded values
 
                         var Q_new = -(U[i].Conjugate() * sum).Imaginary; // Build new Q element
-                        grid.S[i] = new Complex(grid.S[i].Real, Q_new);  // Build new S element
+                        grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, Q_new);
+                        grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+
+                        // Q conststraints
+                        var qmin =  grid.Nodes[i].Q_min;
+                        var qmax =  grid.Nodes[i].Q_max;
+
+                        bool flag = false;
+
+                        if(iteration > 3)
+                        {
+                            if (Q_new <= qmin)
+                            {
+                                grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmin);
+                                grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+                                flag = true;
+
+                            }
+                            else if (Q_new >= qmax)
+                            {
+                                grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, qmax);
+                                grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+                                flag = true;
+                            }
+                        }
+
+                        
+                        //else
+                        //{
+                        //    grid.Nodes[i].S_gen = new Complex(grid.Nodes[i].S_gen.Real, Q_new);
+                        //    grid.S[i] = new Complex(grid.S[i].Real, grid.Nodes[i].S_gen.Imaginary - grid.Nodes[i].S_load.Imaginary);  // Build new S element
+                        //}
 
                         sum = 0;  // Reset summator
 
@@ -77,8 +113,17 @@ namespace PowerFlowCore.Solvers
                             if (i != j)
                                 sum += grid.Y[i, j] * U[j];   // Recomplete summator with non-self values
 
-                        U[i] = (1 / grid.Y[i, i]) * ((grid.S[i].Conjugate() / U[i].Conjugate()) - sum); // Calculate new voltage value
-                        U[i] = Complex.FromPolarCoordinates(Uold[i].Magnitude, U[i].Phase);             // Fix magnitude (Vpre), change phase
+                        var voltage = (1 / grid.Y[i, i]) * ((grid.S[i].Conjugate() / U[i].Conjugate()) - sum); // Calculate new voltage value
+
+                        if (flag)
+                        {
+                            U[i] = voltage;
+                        }
+                        else
+                        {
+                            U[i] = Complex.FromPolarCoordinates(grid.Nodes[i].Vpre, voltage.Phase);             // Fix magnitude (Vpre), change phase
+                        }
+                    
                     }
 
                     //Refresh magnitude and phase vectors and go to another node
@@ -86,8 +131,8 @@ namespace PowerFlowCore.Solvers
                     ph = U.Map(u => u.Phase).ToArray();
                     #endregion
                 }
-               
-                U.CopyTo(Uold);                           // Set as previous calculated voltages  
+
+                Uold = U.Clone();                           // Set as previous calculated voltages  
                 difference = dU.AbsoluteMaximum().Real;   // Find the bigest defference
 
 
@@ -112,7 +157,7 @@ namespace PowerFlowCore.Solvers
                     for (int n = 0; n < grid.Nodes.Count; n++) 
                         grid.Nodes[n].U = U[n];
 
-                    U.CopyTo(grid.Ucalc);   // Set new values to grid
+                    grid.Ucalc = U.Clone();   // Set new values to grid
 
                     break;
                 }
@@ -123,43 +168,43 @@ namespace PowerFlowCore.Solvers
                                       $"of {options.IterationsCount}. Success (Iteration count criteria)\n");
             }
 
-            //PV Q-power checks
-            if (grid.PV_Count != 0)
-            {
-                bool flag = false; // Flag on PV nodes transformation
+            ////PV Q-power checks
+            //if (grid.PV_Count != 0)
+            //{
+            //    bool flag = false; // Flag on PV nodes transformation
 
-                // PV nodes iteration
-                for (int pv = grid.PQ_Count; pv < (grid.PQ_Count + grid.PV_Count); pv++)   
-                {
-                    // Q conststraints
-                    var qmin = grid.Nodes[pv].Q_min;
-                    var qmax = grid.Nodes[pv].Q_max;
+            //    // PV nodes iteration
+            //    for (int pv = grid.PQ_Count; pv < (grid.PQ_Count + grid.PV_Count); pv++)   
+            //    {
+            //        // Q conststraints
+            //        var qmin = grid.Nodes[pv].Q_min;
+            //        var qmax = grid.Nodes[pv].Q_max;
 
-                    var q = - grid.Nodes[pv].S_load.Imaginary + grid.S[pv].Imaginary;   // 
+            //        var q = - grid.Nodes[pv].S_load.Imaginary + grid.S[pv].Imaginary;   // 
 
-                    if (q <= qmin)
-                    {
-                        q = qmin;
-                        grid.Nodes[pv].S_gen = new Complex(grid.Nodes[pv].S_gen.Real, q);
-                        grid.Nodes[pv].Type = NodeType.PQ;
-                        flag = true;
+            //        if (q <= qmin)
+            //        {
+            //            q = qmin;
+            //            grid.Nodes[pv].S_gen = new Complex(grid.Nodes[pv].S_gen.Real, q);
+            //            grid.Nodes[pv].Type = NodeType.PQ;
+            //            flag = true;
 
-                    }
-                    else if (q >= qmax)
-                    {
-                        q = qmax;
-                        grid.Nodes[pv].S_gen = new Complex(grid.Nodes[pv].S_gen.Real, q);
-                        grid.Nodes[pv].Type = NodeType.PQ;
-                        flag = true;
-                    }
-                }
-                if (flag == true) // Start Calc with new PQ nodes
-                {
-                    grid.InitParameters(grid.Nodes, grid.Branches);
-                    grid.SolverGS(U, options);
-                    return grid;
-                }
-            }
+            //        }
+            //        else if (q >= qmax)
+            //        {
+            //            q = qmax;
+            //            grid.Nodes[pv].S_gen = new Complex(grid.Nodes[pv].S_gen.Real, q);
+            //            grid.Nodes[pv].Type = NodeType.PQ;
+            //            flag = true;
+            //        }
+            //    }
+            //    if (flag == true) // Start Calc with new PQ nodes
+            //    {
+            //        grid.InitParameters(grid.Nodes, grid.Branches);
+            //        grid.SolverGS(U, options);
+            //        return grid;
+            //    }
+            //}
 
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++) 
