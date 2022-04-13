@@ -15,7 +15,7 @@ namespace UnitTest
         [TestMethod]
         public void Test_PVtoPQmax_110()
         {
-            Grid net = TwoNodesGrid.PV_PQmax_load_110();
+            Grid net = SmallNodes.PV_PQmax_load_110();
             List<string> report = CalcMethods.CheckPV_genLimit(net, err);
             for (int i = 0; i < report.Count; i++)
             {
@@ -29,7 +29,7 @@ namespace UnitTest
         [TestMethod]
         public void Test_PVtoPQmin_110()
         {
-            Grid net = TwoNodesGrid.PV_PQmin_load_110();
+            Grid net = SmallNodes.PV_PQmin_load_110();
             List<string> report = CalcMethods.CheckPV_genLimit(net, err);
             for (int i = 0; i < report.Count; i++)
             {
@@ -42,7 +42,7 @@ namespace UnitTest
         [TestMethod]
         public void Test_ChangeTypeNodes_TwoNode_PVtoPQmax()
         {
-            Grid net = TwoNodesGrid.PV_PQmax_load_110();
+            Grid net = SmallNodes.PV_PQmax_load_110();
             List<string> report = CalcMethods.CheckChangeTypeNodes(net);
             for (int i = 0; i < report.Count; i++)
             {
@@ -55,7 +55,7 @@ namespace UnitTest
         [TestMethod]
         public void Test_ChangeTypeNodes_TwoNode_PVtoPQmin()
         {
-            Grid net = TwoNodesGrid.PV_PQmin_load_110();
+            Grid net = SmallNodes.PV_PQmin_load_110();
             List<string> report = CalcMethods.CheckChangeTypeNodes(net);
             for (int i = 0; i < report.Count; i++)
             {

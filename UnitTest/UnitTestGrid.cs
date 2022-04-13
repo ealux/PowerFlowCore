@@ -5,15 +5,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTest
 {
     [TestClass]
-    public class UnitTestPowerInjection
+    public class TestGrid
     {
         private TestContext testContextInstance;
 
         [TestMethod]
-        public void Test_PowerInjectionPVtoPQmax_110()
+        public void TestGrid_Y_WithotTrans()
         {
-            Grid net = SmallNodes.PV_PQmax_load_110();
-            List<string> report = CalcMethods.CheckSumPowerInjection(net);
+            Grid net = SmallNodes.PV_110();
+            List<string> report = CalcMethods.CheckAdmittanceMatrix(net, SmallNodes.PV_110_AdmittanceMatrix());
             for (int i = 0; i < report.Count; i++)
             {
                 TestContext.WriteLine(report[i]);
@@ -22,18 +22,7 @@ namespace UnitTest
             Assert.AreEqual(Expected, report.Count);
         }
 
-        [TestMethod]
-        public void Test_PowerInjectionPVtoPQmin_110()
-        {
-            Grid net = SmallNodes.PV_PQmin_load_110();
-            List<string> report = CalcMethods.CheckSumPowerInjection(net);            
-            for (int i = 0; i< report.Count; i++)
-            {
-                TestContext.WriteLine(report[i]);
-            }
-            int Expected = 0;
-            Assert.AreEqual(Expected, report.Count);
-        }
+
 
         /// <summary>
         ///Gets or sets the test context which provides

@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
 using PowerFlowCore.Data;
+using System.Linq;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+
 using Complex = System.Numerics.Complex;
 
 namespace UnitTest
 {
-    public static class TwoNodesGrid
+    public static class SmallNodes
     {
         public static Grid PV_110()
         {        
@@ -14,19 +18,40 @@ namespace UnitTest
                 new Node(){Num = 1,   Type = NodeType.Slack,
                     Unom=Complex.FromPolarCoordinates(115, 0), U = 115,},
                 new Node(){Num = 2,   Type = NodeType.PV,  
-                    Unom=115, Vpre = 115, U = Complex.FromPolarCoordinates(115, 3.66*Math.PI/180),
+                    Unom=115, Vpre = 115, U = Complex.FromPolarCoordinates(115, -0.091037899895*Math.PI/180),
                     S_load = new Complex(0,0), S_gen = new Complex(40, 0), Q_min = -30, Q_max = 30},
+                new Node(){Num = 3,   Type = NodeType.PQ,
+                    Unom=115, U = Complex.FromPolarCoordinates(108.036734805267, -3.165691440915*Math.PI/180),
+                    S_load = new Complex(40,30)},
             };
 
             List<Branch> branches = new List<Branch>()
             {
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
+                new Branch(){Start=3, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
+                new Branch(){Start=3, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
             };
 
             Grid net = new Grid(nodes, branches);
 
             return net;
+        }
+
+        public static Matrix<Complex> PV_110_AdmittanceMatrix()
+        {
+            Matrix<Complex> Y = Matrix<Complex>.Build.Dense(3, 3);
+            //Y*10^3
+            Y[0, 0] = new Complex(-11.76471, 46.7782);
+            Y[1, 0] = new Complex(11.76471, -46.7782);
+            Y[2, 0] = new Complex(0, 0);
+            Y[0, 1] = new Complex(-11.76471, 46.7782);
+            Y[1, 1] = new Complex(-23.52941, 93.55565);
+            Y[2, 1] = new Complex(11.76471, -46.7782);
+            Y[0, 2] = new Complex(0, 0);
+            Y[1, 2] = new Complex(11.76471, -46.7782);
+            Y[2, 2] = new Complex(-11.76471, 46.7782);
+            return -Y*0.001;
         }
 
         public static Grid PQ_110()
@@ -58,15 +83,19 @@ namespace UnitTest
             {
                 new Node(){Num = 1,   Type = NodeType.Slack,
                     Unom=Complex.FromPolarCoordinates(115, 0), U = 115,},
-                new Node(){Num = 2,   Type = NodeType.PV,
-                    Unom=10, Vpre = 11, U = Complex.FromPolarCoordinates(11, 4.502025177995*Math.PI/180),
+                new Node(){Num = 1,   Type = NodeType.PQ,
+                    Unom=Complex.FromPolarCoordinates(115, 0), U = Complex.FromPolarCoordinates(113.140964174093, -4.502098177134*Math.PI/180),},
+                new Node(){Num = 3,   Type = NodeType.PV,
+                    Unom=10, Vpre = 10.5, U = Complex.FromPolarCoordinates(10.5, -4.374196802339*Math.PI/180),
                     S_load = new Complex(0,0), S_gen = new Complex(40, 0), Q_min = -50, Q_max = 50},
             };
 
             List<Branch> branches = new List<Branch>()
             {
-                new Branch(){Start=1, End=2,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
-                new Branch(){Start=1, End=2,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
+                new Branch(){Start=2, End=3,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
+                new Branch(){Start=3, End=3,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
+                new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
+                new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
             };
 
             Grid net = new Grid(nodes, branches);
@@ -102,7 +131,7 @@ namespace UnitTest
             {
                 new Node(){Num = 1,   Type = NodeType.Slack,
                     Unom=115, U = 115,},
-                new Node(){Num = 2,   Type = NodeType.PV,
+                new Node(){Num = 2,   Type = NodeType.PQ,
                     Unom=115,     U = Complex.FromPolarCoordinates(111.575672776827, 3.720055112106*Math.PI/180),
                     S_load = new Complex(5, 60), S_gen= new Complex(40, 30), Q_min = -30, Q_max = 30},
 
@@ -125,7 +154,7 @@ namespace UnitTest
             {
                 new Node(){Num = 1,   Type = NodeType.Slack,
                     Unom=115, U = 115,},
-                new Node(){Num = 2,   Type = NodeType.PV,
+                new Node(){Num = 2,   Type = NodeType.PQ,
                     Unom=115,     U = Complex.FromPolarCoordinates(115.610144279568, 3.109643165109*Math.PI/180),
                     S_load = new Complex(5, 3), S_gen= new Complex(40, -5), Q_min = -5, Q_max = 30},
 

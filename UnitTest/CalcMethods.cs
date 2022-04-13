@@ -140,9 +140,45 @@ namespace UnitTest
                         , ", expected value = "
                         , Convert.ToString(nt[i])));
             }
-
             return res;
         }
+
+        public static List<string>  CheckAdmittanceMatrix(Grid net, Matrix<Complex> expexMatrix)
+        {
+            List<string> res = new List<string>();
+            for (int ind_row = 0; ind_row < expexMatrix.RowCount; ind_row++)
+            {
+                for (int ind_col = 0; ind_col < expexMatrix.ColumnCount; ind_col++)
+                {
+                    if ( (Math.Round( (net.Y[ind_row,ind_col] - expexMatrix[ind_row, ind_col]).Real, 4) > 0.0001))
+                    {
+                        res.Add(string.Concat("Error matrix admitance element: ind row = "
+                        , Convert.ToString(ind_row)
+                        , "; ind column = "
+                        , (Convert.ToString(ind_col))
+                        , ". Calc Real value = "
+                        , Convert.ToString(net.Y[ind_row, ind_col].Real)
+                        , ", expected Real value = "
+                        , Convert.ToString(expexMatrix[ind_row, ind_col].Real) ));
+                    }
+                    if ((Math.Round((net.Y[ind_row, ind_col] - expexMatrix[ind_row, ind_col]).Imaginary, 4) > 0.0001))
+                    {
+                        res.Add(string.Concat("Error matrix admitance element: ind row = "
+                        , Convert.ToString(ind_row)
+                        , "; ind column = "
+                        , (Convert.ToString(ind_col))
+                        , ". Calc Imaginary value = "
+                        , Convert.ToString(net.Y[ind_row, ind_col].Imaginary)
+                        , "), expected Imaginary value = "
+                        , Convert.ToString(expexMatrix[ind_row, ind_col].Imaginary) ));
+                    }
+                }
+
+
+            }
+            return res;
+        }
+
 
     }
 }
