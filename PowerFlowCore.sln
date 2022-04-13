@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30621.155
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerFlowCore", "PowerFlowCore\PowerFlowCore.csproj", "{465A5877-6F05-49CF-9F75-6AE22AAABAB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCalc", "TestCalc\TestCalc.csproj", "{AAEB2899-3CFB-429E-A345-E26F2B09618E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerFlowCoreSamples", "TestCalc\PowerFlowCoreSamples.csproj", "{AAEB2899-3CFB-429E-A345-E26F2B09618E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{0D9C4486-AB1C-488B-A775-BC24757A6C35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerFlowCoreTests", "UnitTest\PowerFlowCoreTests.csproj", "{0D9C4486-AB1C-488B-A775-BC24757A6C35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

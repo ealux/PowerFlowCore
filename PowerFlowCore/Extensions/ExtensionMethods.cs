@@ -24,8 +24,8 @@ namespace PowerFlowCore.Extensions
                 var s = new Complex();
 
                 for (int j = 0; j < desc.Nodes.Count; j++) 
-                    s+= desc.U_calc[desc.PQ_Count + desc.PV_Count + i].Conjugate() 
-                        * desc.U_calc[j] 
+                    s+= desc.Ucalc[desc.PQ_Count + desc.PV_Count + i].Conjugate() 
+                        * desc.Ucalc[j] 
                         * desc.Y[desc.PQ_Count + desc.PV_Count + i, j];
 
                 desc.S[desc.PQ_Count + desc.PV_Count + i] = s.Conjugate();
@@ -43,20 +43,20 @@ namespace PowerFlowCore.Extensions
                 //Lines or Breakers
                 if (item.Ktr == 1 | item.Ktr == 0) 
                 {
-                    item.I_start    = (desc.U_calc[start] - desc.U_calc[end]) 
+                    item.I_start    = (desc.Ucalc[start] - desc.Ucalc[end]) 
                                         * desc.Y[start, end] 
                                         / Math.Sqrt(3) 
                                         / item.Count;
-                    item.I_end      = (desc.U_calc[end] - desc.U_calc[start]) 
+                    item.I_end      = (desc.Ucalc[end] - desc.Ucalc[start]) 
                                         * desc.Y[end, start] 
                                         / Math.Sqrt(3) 
                                         / item.Count;
 
                     item.S_start    = Math.Sqrt(3) 
-                                        * desc.U_calc[start] 
+                                        * desc.Ucalc[start] 
                                         * item.I_start.Conjugate();
                     item.S_end      = Math.Sqrt(3) 
-                                        * desc.U_calc[end] 
+                                        * desc.Ucalc[end] 
                                         * item.I_end.Conjugate();
                 }
                 //Transformers
@@ -64,38 +64,38 @@ namespace PowerFlowCore.Extensions
                 {
                     if(desc.Nodes[start].Unom.Magnitude > desc.Nodes[end].Unom.Magnitude)
                     {
-                        item.I_start    = (desc.U_calc[start] * item.Ktr - desc.U_calc[end] ) 
+                        item.I_start    = (desc.Ucalc[start] * item.Ktr - desc.Ucalc[end] ) 
                                           * desc.Y[start, end] 
                                           / Math.Sqrt(3) 
                                           / item.Count;
-                        item.I_end      = (desc.U_calc[end] / item.Ktr - desc.U_calc[start]) 
+                        item.I_end      = (desc.Ucalc[end] / item.Ktr - desc.Ucalc[start]) 
                                           * desc.Y[end, start] 
                                           / Math.Sqrt(3) 
                                           / item.Count;
 
                         item.S_start    = Math.Sqrt(3) 
-                                            * desc.U_calc[start] 
+                                            * desc.Ucalc[start] 
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
-                                            * desc.U_calc[end] 
+                                            * desc.Ucalc[end] 
                                             * item.I_end.Conjugate();
                     }
                     else if (desc.Nodes[start].Unom.Magnitude < desc.Nodes[end].Unom.Magnitude) 
                     {
-                        item.I_start    = (desc.U_calc[start] / item.Ktr - desc.U_calc[end]) 
+                        item.I_start    = (desc.Ucalc[start] / item.Ktr - desc.Ucalc[end]) 
                                             * desc.Y[start, end] 
                                             / Math.Sqrt(3) 
                                             / item.Count;
-                        item.I_end      = (desc.U_calc[end] * item.Ktr - desc.U_calc[start]) 
+                        item.I_end      = (desc.Ucalc[end] * item.Ktr - desc.Ucalc[start]) 
                                             * desc.Y[end, start] 
                                             / Math.Sqrt(3) 
                                             / item.Count;
 
                         item.S_start    = Math.Sqrt(3) 
-                                            * desc.U_calc[start] 
+                                            * desc.Ucalc[start] 
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
-                                            * desc.U_calc[end] 
+                                            * desc.Ucalc[end] 
                                             * item.I_end.Conjugate();
                     }
                 }

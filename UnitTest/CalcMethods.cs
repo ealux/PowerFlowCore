@@ -9,27 +9,37 @@ namespace UnitTest
 {
     public static class CalcMethods
     {
-        public static bool calc(NetDescription net, double err)
+        public static bool calc(Grid net, double err)
         {
-            Complex[] U = U = new Complex[net.Nodes.Count];
+            Complex[] U = new Complex[net.Nodes.Count];
+
             for (int i = 0; i < net.Nodes.Count; i++)
             {
                 U[i] = (Complex)net.Nodes[i].U;
             }
+
             double[] delta = new double[net.Nodes.Count];
 
-            Engine e = new Engine(net.Nodes, net.Branches);
+
+            var options = new CalculationOptions(); //Options
+
+            Engine e = new Engine(net.Nodes, net.Branches, options);
             e.Calculate();
-            Vector<Complex> calc = e.desc.U_calc;
+            Vector<Complex> calc = e.Grid.Ucalc;
+
 
             for (int i = 0; i < net.Nodes.Count; i++)
             {
-                delta[i] = (calc[i].Magnitude - U[i].Magnitude) / U[i].Magnitude;
+                delta[i] = (calc[i].Magnitude - U[i].Magnitude) 
+                           / U[i].Magnitude;
             }
             double maxValue = delta.Max();
+
+
             for (int i = 0; i < net.Nodes.Count; i++)
             {
-                delta[i] = (calc[i].Phase - U[i].Phase) / U[i].Phase;
+                delta[i] = (calc[i].Phase - U[i].Phase) 
+                           / U[i].Phase;
             }
             double maxValue2 = delta.Max();
 

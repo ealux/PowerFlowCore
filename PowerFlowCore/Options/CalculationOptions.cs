@@ -20,13 +20,13 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int IterationsCount { get; set; } = 20;
+        public int IterationsCount { get; set; } = 150;
 
 
         /// <summary>
         /// Voltage tolerance evaluation towards the nominal one
         /// </summary>
-        public double VotageRatio { get; set; } = 0.25;
+        public double VotageRate { get; set; } = 0.5;
 
 
         /// <summary>

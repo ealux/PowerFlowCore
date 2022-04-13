@@ -7,7 +7,7 @@ namespace UnitTest
 {
     public static class TwoNodesGrid
     {
-        public static NetDescription PV_110()
+        public static Grid PV_110()
         {        
             List<Node> nodes = new List<Node>()
             {
@@ -24,12 +24,12 @@ namespace UnitTest
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
             };
 
-            NetDescription net = new NetDescription (nodes, branches);
+            Grid net = new Grid(nodes, branches);
 
             return net;
         }
 
-        public static NetDescription PQ_110()
+        public static Grid PQ_110()
         {
             List<Node> nodes = new List<Node>()
             {
@@ -46,13 +46,13 @@ namespace UnitTest
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(10, 40)),  Ktr=1,      Ysh=new Complex(0, 281e-6)},
             };
 
-            NetDescription net = new NetDescription(nodes, branches);
+            Grid net = new Grid(nodes, branches);
 
             return net;
         }
 
 
-        public static NetDescription Trans_PV_110()
+        public static Grid Trans_PV_110()
         {
             List<Node> nodes = new List<Node>()
             {
@@ -69,12 +69,12 @@ namespace UnitTest
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
             };
 
-            NetDescription net = new NetDescription(nodes, branches);
+            Grid net = new Grid(nodes, branches);
 
             return net;
         }
 
-        public static NetDescription Trans_PQ_110()
+        public static Grid Trans_PQ_110()
         {
             List<Node> nodes = new List<Node>()
             {
@@ -91,7 +91,7 @@ namespace UnitTest
                 new Branch(){Start=1, End=2,    Y=1/(new Complex(1, 55)),  Ktr=0.0913,      Ysh=new Complex(0, -50e-6)},
             };
 
-            NetDescription net = new NetDescription(nodes, branches);
+            Grid net = new Grid(nodes, branches);
 
             return net;
         }

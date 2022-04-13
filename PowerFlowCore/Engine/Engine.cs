@@ -10,13 +10,14 @@ using MathNet.Numerics.LinearAlgebra.Complex;
 using Complex = System.Numerics.Complex;
 
 using PowerFlowCore.Data;
+using PowerFlowCore.Solvers;
 using PowerFlowCore.Extensions;
 using System.Linq;
 
 namespace PowerFlowCore
 {
     /// <summary>
-    /// 
+    /// Encupsulate grid-solver interface
     /// </summary>
     public class Engine
     {
@@ -28,75 +29,59 @@ namespace PowerFlowCore
         /// <summary>
         /// Grid item
         /// </summary>
-        public Grid desc { get; private set; }
+        public Grid Grid { get; private set; }
 
         /// <summary>
-        /// Engine calc parameters
+        /// Engine calculus options
         /// </summary>
-        public EngineOptions options { get; set; } = new EngineOptions();
+        public CalculationOptions options { get; set; } = new CalculationOptions();
+
+
+        
+        public Engine(IConverter converter, CalculationOptions options = null)
+        {
+            IEnumerable<INode> nodes = converter.Nodes;
+            IEnumerable<IBranch> branches = converter.Branches;
+
+            this.Grid = new Grid(nodes, branches);
+            
+            if (options != null) this.options = options; 
+        }
 
 
         /// <summary>
         /// Initiate Engine object with special parameters
         /// </summary>
-        public Engine(IConverter converter, EngineOptions options = null)
+        /// <param name="nodes">INode object collection</param>
+        /// <param name="branches">IBranch object collection</param>
+        /// <param name="options">Calculation options</param>
+        public Engine(IEnumerable<INode> nodes, 
+                      IEnumerable<IBranch> branches,
+                      CalculationOptions options)
         {
-            IEnumerable<INode> nodes = converter.Nodes;
-            IEnumerable<IBranch> branches = converter.Branches;
-
-            this.desc = new Grid(nodes, branches);
-            //Set options
-            if (options != null) this.options = options; 
-        }
-
-
-        //TO TEST  !!!
-        public Engine(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
-        {
-            this.desc = new Grid(nodes, branches);
+            this.Grid    = new Grid(nodes, branches);   // Create Grid
+            this.options = options;                     // Set options
         }
 
 
         /// <summary>
-        /// Steady state mode calculation
+        /// Steady state mode calculus
         /// </summary>
         public void Calculate()
         {
-            try
-            {
-                if (desc.Nodes.Any(n => n.Type == NodeType.PV))
-                {
-                    this.desc.U_calc = desc.GaussSeidelSolver(initialGuess: desc.U_init,
-                                                              accuracy: options.Accuracy,
-                                                              iterations: options.IterationsCount,
-                                                              voltageRatio: options.VotageRatio);
-                    this.desc.CalculatePowerMatrix();
-                    this.NeedsToCalc = false;
-                }
-                else
-                {
-                    this.desc.U_calc = desc.NewtonRaphsonSolver(initialGuess: desc.U_init,
-                                                                accuracy: options.Accuracy,
-                                                                voltageConvergence: options.VoltageConvergence,
-                                                                iterations: options.IterationsCount,
-                                                                voltageRatio: options.VotageRatio);
-                    this.desc.CalculatePowerMatrix();
-                    this.NeedsToCalc = false;
-                }
-            }
-            catch (Exception e)
-            {
-                this.desc.U_calc = this.desc.U_init;
-                this.NeedsToCalc = true;
-                throw e;
-            }            
+            //try
+            //{
+                this.Grid.SolverGS(this.Grid.Uinit,this.options);
+                this.Grid.CalculatePowerMatrix();
+                this.NeedsToCalc = false;
+            //}
+            //catch (Exception e)
+            //{
+            //    this.Grid.Ucalc = this.Grid.Uinit;
+            //    this.NeedsToCalc = true;
+            //    throw e;
+            //}
         }       
-
-    }
-
-
-    public enum CalculationResult
-    {
 
     }
 }
