@@ -45,7 +45,7 @@ namespace UnitTest
             Y[0, 0] = new Complex(-11.76471, 46.7782);
             Y[1, 0] = new Complex(11.76471, -46.7782);
             Y[2, 0] = new Complex(0, 0);
-            Y[0, 1] = new Complex(-11.76471, 46.7782);
+            Y[0, 1] = new Complex(11.76471, -46.7782);
             Y[1, 1] = new Complex(-23.52941, 93.55565);
             Y[2, 1] = new Complex(11.76471, -46.7782);
             Y[0, 2] = new Complex(0, 0);
@@ -75,6 +75,7 @@ namespace UnitTest
 
             return net;
         }
+
 
 
         public static Grid Trans_PV_110()
