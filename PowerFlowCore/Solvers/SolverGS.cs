@@ -163,6 +163,8 @@ namespace PowerFlowCore.Solvers
                 Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude * 
                          Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
 
+            Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
+
             // Q conststraints
             var qmin = grid.Nodes[nodeNum].Q_min;
             var qmax = grid.Nodes[nodeNum].Q_max;
@@ -209,7 +211,10 @@ namespace PowerFlowCore.Solvers
                         sum += grid.Y[nodeNum, j] * U[j];   // Recomplete summator with non-self values
 
                 // Calculate new voltage value
-                var voltage = (1 / grid.Y[nodeNum, nodeNum]) * ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum); 
+                var voltage = (1 / grid.Y[nodeNum, nodeNum]) * ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);
+
+                // Apply acceleration rate
+                //voltage = U[nodeNum] + accRate * (U[nodeNum] - Uold[nodeNum]);
 
                 // Fix magnitude (Vpre), change angle
                 U[nodeNum] = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, voltage.Phase);             
