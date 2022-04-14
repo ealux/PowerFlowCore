@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AAEB2899-3CFB-429E-A345-E26F2B09618E}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestCalc</RootNamespace>
-    <AssemblyName>TestCalc</AssemblyName>
+    <RootNamespace>PowerFlowCoreSamples</RootNamespace>
+    <AssemblyName>PowerFlowCoreSamples</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
