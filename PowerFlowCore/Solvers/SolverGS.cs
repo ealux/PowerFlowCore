@@ -64,11 +64,8 @@ namespace PowerFlowCore.Solvers
                 // TODO: Exception catcher on checks !!!
 
                 // CHECKS
-                // 1.Check Voltage level(difference between actual and nominal)
-                //CheckVoltage(U_nominal: grid.Uinit,
-                //             U: U,
-                //             grid: grid,
-                //             voltageRate: 0.99);
+                //1.Check Voltage level(difference between actual and nominal)
+                CheckVoltage(U_nominal: grid.Uinit, U: U, grid: grid, voltageRate: options.VotageRate);
 
 
                 // 2.Check on Accuracy (Voltage step value)
