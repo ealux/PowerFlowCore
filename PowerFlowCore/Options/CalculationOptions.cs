@@ -33,5 +33,11 @@ namespace PowerFlowCore.Data
         /// Voltage convergence criteria (Newton-Raphson method only)
         /// </summary>
         public double VoltageConvergence { get; set; } = 1e-6;
+
+
+        /// <summary>
+        /// Gauss-Seidel solver acceleration rate
+        /// </summary>
+        public double AccelerationRateGS { get; set; } = 1.4;
     }
 }
