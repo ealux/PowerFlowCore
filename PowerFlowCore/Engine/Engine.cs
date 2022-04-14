@@ -69,19 +69,9 @@ namespace PowerFlowCore
         /// </summary>
         public void Calculate()
         {
-            //try
-            //{
-                this.Grid.SolverGS(this.Grid.Uinit,this.options);
-                this.Grid.CalculatePowerMatrix();
-                this.NeedsToCalc = false;
-            //}
-            //catch (Exception e)
-            //{
-            //    this.Grid.Ucalc = this.Grid.Uinit;
-            //    this.NeedsToCalc = true;
-            //    throw e;
-            //}
+            this.Grid.SolverGS(this.Grid.Uinit, this.options);
+            this.Grid.CalculatePowerMatrix();
+            this.NeedsToCalc = false;
         }       
-
     }
 }

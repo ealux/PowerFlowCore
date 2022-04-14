@@ -13,9 +13,9 @@ namespace PowerFlowCore.Extensions
     public static class ExtensionMethods
     {
         /// <summary>
-        /// Calculate additional powers and currents in Grid object
+        /// Calculate additional powers and currents in <seealso cref="Grid"/> object
         /// </summary>
-        /// <param name="grid">Grid object to be calculated</param>
+        /// <param name="grid"><seealso cref="Grid"/> object to calculate flows</param>
         public static void CalculatePowerMatrix(this Grid grid)
         {
             //Slack buses
@@ -28,13 +28,11 @@ namespace PowerFlowCore.Extensions
                         * grid.Ucalc[j] 
                         * grid.Y[grid.PQ_Count + grid.PV_Count + i, j];
 
-                grid.S[grid.PQ_Count + grid.PV_Count + i] = s.Conjugate();
+                // Fill slack power flow as generation
+                grid.Nodes[grid.PQ_Count + grid.PV_Count + i].S_gen = s.Conjugate();
             }
 
-            //Generation power re-calculation
-            for (int i = 0; i < grid.Nodes.Count; i++) 
-                grid.Nodes[i].S_gen = grid.S[i] + grid.Nodes[i].S_load;
-                        
+            // Current and power flows in branches
             foreach (var item in grid.Branches)
             {
                 var start = item.Start_calc;

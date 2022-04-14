@@ -51,9 +51,9 @@ namespace PowerFlowCore.Data
 
 
         /// <summary>
-        /// Vector of Powers in Nodes (Load - Generation)
+        /// Vector of Powers in Nodes (Generation - Load)
         /// </summary>
-        public Vector<Complex> S { get; set; }
+        public Vector<Complex> S => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_load);
 
 
 
@@ -109,7 +109,7 @@ namespace PowerFlowCore.Data
 
 
             //Empty S vector of Nodes's count capacity
-            this.S = Vector<Complex>.Build.Dense(this.Nodes.Count);
+            //this.S = Vector<Complex>.Build.Dense(this.Nodes.Count);
 
             // Reset PV nodes to PQ modes
             foreach (var node in Nodes)
@@ -158,11 +158,7 @@ namespace PowerFlowCore.Data
                         break;
                     default:
                         break;
-                }                
-
-                //Set node power injection
-                S[node.Num_calc] = new Complex(node.S_gen.Real - node.S_load.Real, 
-                                               node.S_gen.Imaginary - node.S_load.Imaginary);
+                }             
             }
         }
 
@@ -274,212 +270,6 @@ namespace PowerFlowCore.Data
 
 
         #endregion [Build Scheme]       
-
-
-
-        #region [Solvers]
-        
-
-
-        #region [Newton-Raphson]
-
-        /// <summary>
-        /// Jacobian calculation on each iteration
-        /// </summary>
-        /// <param name="U">U vector for Jacobian matrix calculation on each iteration</param>
-        /// <returns>Matrix double -> Jacobian numeric matrix</returns>
-        public Matrix<double> Jacobian_Polar(Vector<Complex> U)
-        {
-            var dim = PQ_Count + PV_Count;
-
-            var G = Y.Real();
-            var B = Y.Imaginary();
-
-            var Um = U.Map(u => u.Magnitude);
-            var Uph = U.Map(u => u.Phase);
-
-            var P_Delta = Matrix<double>.Build.Dense(dim, dim);
-            var P_V = Matrix<double>.Build.Dense(dim, PQ_Count);
-            var Q_Delta = Matrix<double>.Build.Dense(PQ_Count, dim);
-            var Q_V = Matrix<double>.Build.Dense(PQ_Count, PQ_Count);
-
-            //P_Delta
-            for (int i = 0; i < dim; i++)
-            {
-                for (int j = 0; j < dim; j++)
-                {
-                    if (i != j) P_Delta[i, j] = -Um[i] * Um[j] * Y[i, j].Magnitude * Math.Sin(Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        P_Delta[i, j] = -Y[i, j].Magnitude * Math.Pow(Um[i], 2) * Math.Sin(Y[i, j].Phase);
-                        for (int k = 0; k < dim + Slack_Count; k++) P_Delta[i, j] += Um[i] * Um[k] * Y[i, k].Magnitude * Math.Sin(Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-
-            }
-
-            //P_V
-            for (int i = 0; i < dim; i++)
-            {
-                for (int j = 0; j < PQ_Count; j++)
-                {
-                    if (i != j) P_V[i, j] = Um[i] * Y[i, j].Magnitude * Math.Cos(Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        P_V[i, j] = Um[i] * Y[i, j].Magnitude * Math.Cos(Y[i, j].Phase); ;
-                        for (int k = 0; k < dim + Slack_Count; k++) P_V[i, j] += Um[k] * Y[i, k].Magnitude * Math.Cos(Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-
-            }
-
-            //Q_Delta
-            for (int i = 0; i < PQ_Count; i++)
-            {
-                for (int j = 0; j < dim; j++)
-                {
-                    if (i != j) Q_Delta[i, j] = -Um[i] * Um[j] * Y[i, j].Magnitude * Math.Cos(Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        Q_Delta[i, j] = -Y[i, j].Magnitude * Math.Pow(Um[i], 2) * Math.Cos(Y[i, j].Phase);
-                        for (int k = 0; k < dim + Slack_Count; k++) Q_Delta[i, j] += Um[i] * Um[k] * Y[i, k].Magnitude * Math.Cos(Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-
-            }
-
-            //Q_V
-            for (int i = 0; i < PQ_Count; i++)
-            {
-                for (int j = 0; j < PQ_Count; j++)
-                {
-                    if (i != j) Q_V[i, j] = -Um[i] * Y[i, j].Magnitude * Math.Sin(Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        Q_V[i, j] = -Um[i] * Y[i, j].Magnitude * Math.Sin(Y[i, j].Phase);
-                        for (int k = 0; k < dim + Slack_Count; k++) Q_V[i, j] -= Um[k] * Y[i, k].Magnitude * Math.Sin(Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-
-            }
-
-            var res = Matrix<double>.Build.DenseOfMatrixArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
-
-            return res;
-        }
-
-
-        /// <summary>
-        /// Power residuals (dP, dQ)
-        /// </summary>
-        /// <param name="U">U vector for Power residuals vector calculation on each iteration</param>
-        /// <returns>Vector double -> Power residuals numeric vector</returns>
-        public Vector<double> Resuduals_Polar(Vector<Complex> U)
-        {
-            var dim = PQ_Count + PV_Count;
-
-            var G = Y.Real();
-            var B = Y.Imaginary();
-
-            var Um = U.Map(u => u.Magnitude);
-            var Uph = U.Map(u => u.Phase);
-
-            var dP = Vector<double>.Build.Dense(dim);
-            var dQ = Vector<double>.Build.Dense(PQ_Count);
-
-
-            //dP
-            for (int i = 0; i < dim; i++)
-            {
-                dP[i] = S[i].Real;
-                for (int j = 0; j < dim + Slack_Count; j++) dP[i] -= Um[i] * Um[j] * Y[i, j].Magnitude * Math.Cos(Y[i, j].Phase + Uph[j] - Uph[i]);
-            }
-
-            //dQ
-            for (int i = 0; i < PQ_Count; i++)
-            {
-                dQ[i] = S[i].Imaginary;
-                for (int j = 0; j < dim + Slack_Count; j++) dQ[i] -= -Um[i] * Um[j] * Y[i, j].Magnitude * Math.Sin(Y[i, j].Phase + Uph[j] - Uph[i]);
-            }
-
-            return Vector<double>.Build.DenseOfEnumerable(dP.Concat(dQ));
-        }
-
-
-        /// <summary>
-        /// Newton-Raphson Solver (use for non-PV schemes types)
-        /// </summary>
-        /// <param name="initialGuess">Vector complex -> Initial voltage values vector</param>
-        /// <param name="accuracy">Minimal power residual threshold to stop computing</param>
-        /// <param name="voltageConvergence">Minimal voltage convergence threshold to stop computing</param>
-        /// <param name="iterations">Maximum  number iterations</param>
-        /// <returns></returns>
-        public Vector<Complex> NewtonRaphsonSolver(Vector<Complex> initialGuess,
-                                                    double accuracy = 1e-12,
-                                                    double voltageConvergence = 1e-12,
-                                                    int iterations = 1500,
-                                                    double voltageRatio = 0.5)
-        {
-            var dim = PQ_Count + PV_Count;
-
-            //throw if "accuracy" criteria is less or equal zero
-            if (accuracy <= 0) throw new ArgumentException("Iterations amount can not be less or equal 0!");
-
-            var Um = initialGuess.Map(x => x.Magnitude).ToArray();
-            var ph = initialGuess.Map(x => x.Phase).ToArray();
-
-            var U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u1, u2) => Complex.FromPolarCoordinates(u1, u2)));
-
-            //PreCalc (G-s)
-            //U = GaussSeidelSolver(U, accuracy: 0.001, iterations: 5);
-            //Um = U.Map(x => x.Magnitude).ToArray();
-            //ph = U.Map(x => x.Phase).ToArray();
-
-            for (int i = 0; i < iterations; i++)
-            {
-                var dPQ = Resuduals_Polar(U);   //Power residuals                       
-                var J = Jacobian_Polar(U);      //Jacoby matrix                
-
-                //Calculation of increments
-                var dx = J.Solve(-dPQ);
-
-                //Voltage residual
-                var Udx = Vector<double>.Build.Dense(PQ_Count);
-
-                //Update voltage levels
-                for (int j = 0; j < PQ_Count + PV_Count; j++) ph[j] -= dx[j];
-                for (int j = 0; j < PQ_Count; j++) { Um[j] -= dx[j + PQ_Count]; Udx[j] = Math.Abs(dx[j + PQ_Count]); }
-                U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u1, u2) => Complex.FromPolarCoordinates(u1, u2)));
-
-
-                //Checks               
-                //CheckVoltage(Uinit: initialGuess, U: U, ratio: voltageRatio); //Check voltage difference towards the nominal one
-
-                if (dPQ.InfinityNorm() <= accuracy) //Power residual check
-                {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {iterations} (Power residual criteria)");
-                    //Update voltage levels
-                    for (int n = 0; n < Nodes.Count; n++) Nodes[n].U = U[n];
-                    return U;
-                }
-                if (Udx.InfinityNorm() <= voltageConvergence) //Voltage check
-                {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {iterations} (Voltage convergence criteria)");
-                    //Update voltage levels
-                    for (int n = 0; n < Nodes.Count; n++) Nodes[n].U = U[n];
-                    return U;
-                }
-            }
-
-            //Update voltage levels
-            for (int n = 0; n < Nodes.Count; n++) Nodes[n].U = U[n];
-            return U;
-        }
-
-        #endregion [Newton-Raphson]
-
-        #endregion
-
 
     }
 }
