@@ -41,25 +41,36 @@ namespace PowerFlowCore.Solvers
                 var dPQ = Resuduals_Polar(grid, ref U);   //Power residuals                       
                 var J   = Jacobian_Polar(grid, ref U);    //Jacoby matrix                
 
-                //Calculation of increments
+                // Calculation of increments
                 var dx = J.Solve(-dPQ);
 
-                //Voltage residual
-                var Udx = Vector<double>.Build.Dense(grid.PQ_Count);
+                // Voltage residual
+                var dU  = Vector<double>.Build.Dense(grid.PQ_Count);
 
-                //Update voltage levels
+                // Update angles
                 for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++) 
                     ph[j] -= dx[j];
 
-                // Fill residuals vector
-                for (int j = 0; j < grid.PQ_Count; j++) 
-                { 
-                    Um[j] -= dx[j + grid.PQ_Count];             // Fill vector of voltage magnitude increments
-                    Udx[j] = Math.Abs(dx[j + grid.PQ_Count]);   // Fill vector of voltage phase residuals
-                }
+                // Update magnitudes
+                for (int j = 0; j < grid.PQ_Count; j++)
+                    Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
 
+                // Save old and calc new voltages
                 Uold = U.Clone();
                 U    = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
+
+
+
+
+                #region [PV nodes Q processing]
+
+
+
+                #endregion
+
+
+
+
 
                 #region [CHECKS]               
 
@@ -76,7 +87,7 @@ namespace PowerFlowCore.Solvers
                     return grid;
                 }
                 // Voltage convergence check
-                if (Udx.InfinityNorm() <= options.VoltageConvergence)
+                if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence)
                 {
                     Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
                     //Update voltage levels
@@ -118,9 +129,9 @@ namespace PowerFlowCore.Solvers
             var Uph = U.Map(u => u.Phase);
 
             var P_Delta = Matrix<double>.Build.Dense(dim, dim);
-            var P_V = Matrix<double>.Build.Dense(dim, grid.PQ_Count);
+            var P_V     = Matrix<double>.Build.Dense(dim, grid.PQ_Count);
             var Q_Delta = Matrix<double>.Build.Dense(grid.PQ_Count, dim);
-            var Q_V = Matrix<double>.Build.Dense(grid.PQ_Count, grid.PQ_Count);
+            var Q_V     = Matrix<double>.Build.Dense(grid.PQ_Count, grid.PQ_Count);
 
             //P_Delta
             for (int i = 0; i < dim; i++)
@@ -132,10 +143,12 @@ namespace PowerFlowCore.Solvers
                                         Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
                     else
                     {
+                        // Component to DELETE from sum (i==j)
                         P_Delta[i, j] = -grid.Y[i, j].Magnitude * 
                                         Math.Pow(Um[i], 2) * 
                                         Math.Sin(grid.Y[i, j].Phase);
 
+                        // Basic sum (i==j)
                         for (int k = 0; k < dim + grid.Slack_Count; k++) 
                             P_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude * 
                                              Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
@@ -153,9 +166,11 @@ namespace PowerFlowCore.Solvers
                                     Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
                     else
                     {
+                        // Component with deleted part (one of two) (i==j)
                         P_V[i, j] = Um[i] * grid.Y[i, j].Magnitude * 
                                     Math.Cos(grid.Y[i, j].Phase);
 
+                        // Basic sum (i==j)
                         for (int k = 0; k < dim + grid.Slack_Count; k++) 
                             P_V[i, j] += Um[k] * grid.Y[i, k].Magnitude * 
                                          Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
@@ -173,10 +188,12 @@ namespace PowerFlowCore.Solvers
                                         Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
                     else
                     {
+                        // Component to DELETE from sum (i==j)
                         Q_Delta[i, j] = -grid.Y[i, j].Magnitude * 
                                         Math.Pow(Um[i], 2) * 
                                         Math.Cos(grid.Y[i, j].Phase);
 
+                        // Basic sum (i==j)
                         for (int k = 0; k < dim + grid.Slack_Count; k++) 
                             Q_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude * 
                                              Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
@@ -194,9 +211,11 @@ namespace PowerFlowCore.Solvers
                                     Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
                     else
                     {
+                        // Component with deleted part (one of two) (i==j)
                         Q_V[i, j] = -Um[i] * grid.Y[i, j].Magnitude * 
                                     Math.Sin(grid.Y[i, j].Phase);
 
+                        // Basic sum (i==j)
                         for (int k = 0; k < dim + grid.Slack_Count; k++) 
                             Q_V[i, j] -= Um[k] * grid.Y[i, k].Magnitude * 
                                          Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
@@ -248,7 +267,7 @@ namespace PowerFlowCore.Solvers
                 dQ[i] = grid.S[i].Imaginary;
                 for (int j = 0; j < dim + grid.Slack_Count; j++) 
                     dQ[i] -= -Um[i] * Um[j] * grid.Y[i, j].Magnitude * 
-                             Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
+                              Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
             }
 
             // Form result vector

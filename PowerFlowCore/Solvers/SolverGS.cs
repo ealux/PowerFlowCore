@@ -176,23 +176,17 @@ namespace PowerFlowCore.Solvers
             if (Q_new <= qmin)
             {
                 grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin);
-                //grid.S[nodeNum] = new Complex(grid.S[nodeNum].Real, 
-                //                              grid.Nodes[nodeNum].S_gen.Imaginary - grid.Nodes[nodeNum].S_load.Imaginary);
                 isOnLimit = true;
 
             }
             else if (Q_new >= qmax)
             {
                 grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax);
-                //grid.S[nodeNum] = new Complex(grid.S[nodeNum].Real, 
-                //                              grid.Nodes[nodeNum].S_gen.Imaginary - grid.Nodes[nodeNum].S_load.Imaginary);
                 isOnLimit = true;
             }
             else
             {
                 grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, Q_new);
-                //grid.S[nodeNum] = new Complex(grid.S[nodeNum].Real,
-                //                              grid.Nodes[nodeNum].S_gen.Imaginary - grid.Nodes[nodeNum].S_load.Imaginary);
             }
 
             // Perfome analysis on conditons
