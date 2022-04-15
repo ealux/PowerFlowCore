@@ -34,7 +34,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Engine calculus options
         /// </summary>
-        public CalculationOptions options { get; set; } = new CalculationOptions();
+        public CalculationOptions Options { get; set; } = new CalculationOptions();
 
 
         
@@ -45,7 +45,7 @@ namespace PowerFlowCore
 
             this.Grid = new Grid(nodes, branches);
             
-            if (options != null) this.options = options; 
+            if (options != null) this.Options = options; 
         }
 
 
@@ -60,7 +60,7 @@ namespace PowerFlowCore
                       CalculationOptions options)
         {
             this.Grid    = new Grid(nodes, branches);   // Create Grid
-            this.options = options;                     // Set options
+            this.Options = options;                     // Set options
         }
 
 
@@ -71,7 +71,7 @@ namespace PowerFlowCore
         {
             //this.Grid.SolverGS(this.Grid.Uinit, this.options);
             //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 2}).SolverNR(this.Grid.Ucalc, this.options);
-            this.Grid.SolverNR(this.Grid.Uinit, this.options);
+            this.Grid.SolverNR(this.Grid.Uinit, this.Options);
             this.Grid.CalculatePowerMatrix();
             this.NeedsToCalc = false;
         }       

@@ -23,24 +23,16 @@ namespace PowerFlowCore.Solvers
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)
         {
-            Grid gridReserve = grid.DeepCopy(); // Reserve initial grid
+            // Reserve initial grid
+            Grid gridReserve = grid.DeepCopy(); 
 
-            var Um = U_initial.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
-            var ph = U_initial.Map(x => x.Phase).ToArray();     // Input voltages phase vector
-
-            var U    = Vector<Complex>.Build.Dense(U_initial.Count); // Vector for calc voltages
-            var Uold = Vector<Complex>.Build.Dense(U_initial.Count); // Vector for voltages on previous iteration
-            var dU   = Vector<Complex>.Build.Dense(U_initial.Count); // Voltage difference on iteration
-
-            // Fill U vector with initial values
-            U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
-            // Fill Uold vector with initial U values
-            Uold = Vector<Complex>.Build.DenseOfEnumerable(U); 
+            var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for calc voltages
+            var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for voltages on previous iteration
+            var dU   = Vector<Complex>.Build.Dense(U_initial.Count);        // Voltage difference on iteration
            
             // Helper variables
             double difference = Double.MaxValue;  // Big difference value for accuracy comparison       
                 
-
             // MAIN CYCLE
             for (int iteration = 0; iteration < options.IterationsCount; iteration++)
             {
@@ -80,7 +72,8 @@ namespace PowerFlowCore.Solvers
                     for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];
 
-                    grid.Ucalc = U.Clone();   // Set new values to grid
+                    // Set new values to grid
+                    grid.Ucalc = U.Clone();   
 
                     break;
                 }
@@ -96,7 +89,9 @@ namespace PowerFlowCore.Solvers
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++) 
                 grid.Nodes[n].U = U[n];
-            U.CopyTo(grid.Ucalc);
+
+            // Set new values to grid
+            grid.Ucalc = U.Clone();
 
             return grid;
         }

@@ -23,88 +23,102 @@ namespace PowerFlowCore.Solvers
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)
         {
-            Grid gridReserve = grid.DeepCopy(); // Reserve initial grid
+            // Reserve initial grid
+            Grid gridReserve = grid.DeepCopy(); 
 
-            var Um = U_initial.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
-            var ph = U_initial.Map(x => x.Phase).ToArray();     // Input voltages phase vector
+            // U vectors 
+            var U = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
+            var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
 
-            var Uold = Vector<Complex>.Build.Dense(U_initial.Count); // Vector for voltages on previous iteration
+            // Power residuals, voltage and angle mismatch
+            Vector<double> dPQ, dx;
 
-            // Fill U vector with initial values
-            var U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
-            // Fill Uold vector with initial U values
-            Uold = Vector<Complex>.Build.DenseOfEnumerable(U);
-
-            // MAIN CYCLE
+            // Voltage estimation
             for (int i = 0; i < options.IterationsCount; i++)
             {
-                var dPQ = Resuduals_Polar(grid, ref U);   //Power residuals                       
-                var J   = Jacobian_Polar(grid, ref U);    //Jacoby matrix                
+                // Use of N-R technique to estimate voltage
+                // Also return dPQ and dx for stoping criteria
+                U = getdU(grid, U_initial, out Uold, out dPQ, out dx);
 
-                // Calculation of increments
-                var dx = J.Solve(-dPQ);
-
-                // Voltage residual
-                var dU  = Vector<double>.Build.Dense(grid.PQ_Count);
-
-                // Update angles
-                for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++) 
-                    ph[j] -= dx[j];
-
-                // Update magnitudes
-                for (int j = 0; j < grid.PQ_Count; j++)
-                    Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
-
-                // Save old and calc new voltages
-                Uold = U.Clone();
-                U    = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
-
-
-
-
-                #region [PV nodes Q processing]
-
-
-
-                #endregion
-
-
-
-
-
-                #region [CHECKS]               
-
-                // Checks               
-                // Power residual check
+                #region [Stopping criteria]               
+            
+                //Power residual
                 if (dPQ.InfinityNorm() <= options.Accuracy)
-                {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Power residual criteria)");
-                    //Update voltage levels
-                    for (int n = 0; n < grid.Nodes.Count; n++) 
+                    for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];
-                    U.CopyTo(grid.Ucalc);
 
-                    return grid;
-                }
-                // Voltage convergence check
-                if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence)
-                {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
-                    //Update voltage levels
-                    for (int n = 0; n < grid.Nodes.Count; n++) 
+                // Voltage convergence
+                if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence) 
+                    for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];
-                    U.CopyTo(grid.Ucalc);
-
-                    return grid;
-                }
 
                 #endregion
             }
 
+            #region [PV calculus]
+            
+
+            for (int nodeNum = 0; nodeNum < grid.Nodes.Count; nodeNum++)
+            {
+                if(grid.Nodes[nodeNum].Type == NodeType.PV)
+                {
+                    // New Q element
+                    var Q_new = 0.0;
+
+                    // Build new Q element
+                    for (int j = 0; j < grid.Nodes.Count; j++)
+                        Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude *
+                                 Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
+
+                    Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
+
+                    // TODO: Complete logic !!!
+                    grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, Q_new);
+                }
+            }
+
+            
+
+            #endregion
+
+
+
+            #region [CHECKS]               
+
+            //// Checks               
+            ////Power residual check
+            //if (dPQ.InfinityNorm() <= options.Accuracy)
+            //{
+            //    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Power residual criteria)");
+            //    //Update voltage levels
+            //    for (int n = 0; n < grid.Nodes.Count; n++)
+            //        grid.Nodes[n].U = U[n];
+            //    U.CopyTo(grid.Ucalc);
+
+            //    return grid;
+            //}
+            //// Voltage convergence check
+            //if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence)
+            //{
+            //    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
+            //    //Update voltage levels
+            //    for (int n = 0; n < grid.Nodes.Count; n++)
+            //        grid.Nodes[n].U = U[n];
+            //    U.CopyTo(grid.Ucalc);
+
+            //    return grid;
+            //}
+
+            #endregion
+
+
+
             //Update voltage levels
-            for (int n = 0; n < grid.Nodes.Count; n++) 
+            for (int n = 0; n < grid.Nodes.Count; n++)
                 grid.Nodes[n].U = U[n];
-            U.CopyTo(grid.Ucalc);
+
+            // Set new values to grid
+            grid.Ucalc = U.Clone();
 
             return grid;
 
@@ -112,13 +126,55 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Jacobian matrix calculation on each iteration
+        /// Calculate U voltage <seealso cref="Vector{Complex}"/> by Newton-Raphson technique
+        /// </summary>
+        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
+        /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
+        /// <param name="Uold">Previous iteration <seealso cref="Vector{Complex}"/>voltage value</param>
+        /// <param name="dPQ">Power residuals <seealso cref="Vector{Complex}"/> value</param>
+        /// <param name="dx">Mismatch voltage and angle <seealso cref="Vector{Complex}"/> value</param>
+        /// <returns>Voltage approximation <seealso cref="Vector{Complex}"/></returns>
+        private static Vector<Complex> getdU(Grid grid, 
+                                             Vector<Complex> U, 
+                                             out Vector<Complex> Uold, 
+                                             out Vector<double> dPQ, 
+                                             out Vector<double> dx)
+        {
+            var Um = U.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
+            var ph = U.Map(x => x.Phase).ToArray();     // Input voltages phase vector
+
+            dPQ   = Resuduals_Polar(grid, U);
+            var J = Jacobian_Polar(grid, U);    //Jacoby matrix                
+
+            // Calculation of increments
+            dx = J.Solve(-dPQ);
+
+            // Voltage residual
+            var dU = Vector<double>.Build.Dense(grid.PQ_Count);
+
+            // Update angles
+            for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
+                ph[j] -= dx[j];
+
+            // Update magnitudes
+            for (int j = 0; j < grid.PQ_Count; j++)
+                Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
+
+            // Save old and calc new voltages
+            Uold = U.Clone();
+            U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
+            return U;
+        }
+
+
+        /// <summary>
+        /// Jacobian <seealso cref="Matrix{Complex}"/> calculation on each iteration
         /// </summary>
         /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
         /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
         /// <returns>Jacobian <seealso cref="Matrix{double}"/></returns>
         private static Matrix<double> Jacobian_Polar(Grid grid,
-                                                     ref Vector<Complex> U)
+                                                     Vector<Complex> U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
@@ -232,13 +288,13 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Power residuals vector
+        /// Power residuals <seealso cref="Vector{Complex}"/>
         /// </summary>
         /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
         /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
         /// <returns> Power residuals <seealso cref="Vector{Complex}"/></returns>
         private static Vector<double> Resuduals_Polar(Grid grid,
-                                                     ref Vector<Complex> U)
+                                                      Vector<Complex> U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
