@@ -41,84 +41,20 @@ namespace PowerFlowCore.Solvers
             {
                 // Use of N-R technique to estimate voltage
                 // Also return dPQ and dx for stoping criteria
-                U = getdU(grid, U_initial, out Uold, out dPQ, out dx);
+                U = getdU(grid, ref U, out Uold, out dPQ, out dx);
 
-                // Set new value to Nodes
-                for (int n = 0; n < grid.Nodes.Count; n++)
-                    grid.Nodes[n].U = U[n];
+                var dx_norm = dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm();
 
+                bool isOnLimits, isOouOfLimits;
 
-                #region [PV calculus]
+                InspectPV(grid, ref U, ref gensOnLimits, out isOnLimits, out isOouOfLimits);
 
-                // Constraints flag
-                bool isOnLimits    = false;    // Change PQ (PV) back to PV
-                bool isOouOfLimits = false;    // Change PV -> PQ
+                if (isOnLimits | isOouOfLimits)
+                    grid.InitParameters(grid.Nodes, grid.Branches);
+                U = grid.Ucalc.Clone();
 
-
-                for (int nodeNum = 0; nodeNum < grid.Nodes.Count; nodeNum++)
-                {
-                    if (grid.Nodes[nodeNum].Type == NodeType.PV | gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
-                    {
-                        // New Q element
-                        var Q_new = 0.0;
-
-                        // Build new Q element
-                        for (int j = 0; j < grid.Nodes.Count; j++)
-                            Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude *
-                                     Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
-
-                        Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
-
-                        //grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, Q_new);
-
-                        // Q conststraints
-                        var qmin = grid.Nodes[nodeNum].Q_min;
-                        var qmax = grid.Nodes[nodeNum].Q_max;
-
-
-                        // Check limits conditions
-                        if (Q_new <= qmin)
-                        {
-                            grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin);
-                            if (!gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
-                            {
-                                gensOnLimits.Add(grid.Nodes[nodeNum].Num);
-                                grid.Nodes[nodeNum].Type = NodeType.PQ;
-                                isOouOfLimits = true;
-                            }
-
-                        }
-                        else if (Q_new >= qmax)
-                        {
-                            grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax);
-                            if (!gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
-                            {
-                                gensOnLimits.Add(grid.Nodes[nodeNum].Num);
-                                grid.Nodes[nodeNum].Type = NodeType.PQ;
-                                isOouOfLimits = true;
-                            }
-                        }
-                        else
-                        {
-                            grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, Q_new);
-                            if (gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
-                            {
-                                gensOnLimits.Remove(grid.Nodes[nodeNum].Num);
-                                grid.Nodes[nodeNum].Type = NodeType.PV;
-                                grid.Nodes[nodeNum].U = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, U[i].Phase);
-                                isOnLimits = true;
-                            }
-                        }
-                    }
-                }               
-
-
-                #endregion
-
-                #region [Stopping criteria]               
 
                 //Power residual
-
                 if (dPQ.InfinityNorm() <= options.Accuracy)
                 {
                     Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Power residual criteria)");
@@ -126,10 +62,8 @@ namespace PowerFlowCore.Solvers
                         grid.Nodes[n].U = U[n];
                     break;
                 }
-
-
                 // Voltage convergence
-                if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence)
+                if (dx_norm <= options.VoltageConvergence)
                 {
                     Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
                     for (int n = 0; n < grid.Nodes.Count; n++)
@@ -137,22 +71,7 @@ namespace PowerFlowCore.Solvers
                     break;
                 }
 
-                #endregion [Stopping criteria]
-
-                if (isOnLimits | isOouOfLimits)
-                {
-                    grid.InitParameters(grid.Nodes, grid.Branches);
-                    U = grid.Ucalc.Clone();
-                }
             }
-
-            // Inform finish by iteration criteria
-            //Console.WriteLine($"Newton-Raphson iterations: {options.IterationsCount} " +
-            //                      $"of {options.IterationsCount}. Success (Iteration count criteria)\n");
-
-
-            #region [CHECKS] 
-
 
             for (int i = 0; i < gensOnLimits.Count; i++)
             {
@@ -161,16 +80,80 @@ namespace PowerFlowCore.Solvers
 
             gensOnLimits.Clear();
             grid.InitParameters(grid.Nodes, grid.Branches);
-
-
-            #endregion
-
+            U = grid.Ucalc.Clone();
 
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++)
                 grid.Nodes[n].U = U[n];
 
             return grid;
+        }
+
+
+
+        private static void InspectPV(Grid grid, 
+                                     ref Vector<Complex> U, 
+                                     ref List<int> gensOnLimits, 
+                                     out bool isOnLimits, 
+                                     out bool isOutOfLimits)
+        {
+            // Constraints flag
+            isOnLimits = false;
+            isOutOfLimits = false;
+
+            for (int nodeNum = 0; nodeNum < grid.Nodes.Count; nodeNum++)
+            {
+                if (grid.Nodes[nodeNum].Type == NodeType.PV | gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
+                {
+                    // New Q element
+                    var Q_new = 0.0;
+
+                    // Build new Q element
+                    for (int j = 0; j < grid.Nodes.Count; j++)
+                        Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude *
+                                 Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
+
+                    Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
+
+                    // Q conststraints
+                    var qmin = grid.Nodes[nodeNum].Q_min;
+                    var qmax = grid.Nodes[nodeNum].Q_max;
+
+                    // Check limits conditions
+                    if (Q_new <= qmin)
+                    {
+                        grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin);
+                        if (!gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
+                        {
+                            gensOnLimits.Add(grid.Nodes[nodeNum].Num);
+                            grid.Nodes[nodeNum].Type = NodeType.PQ;
+                            isOutOfLimits = true;
+                        }
+
+                    }
+                    else if (Q_new >= qmax)
+                    {
+                        grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax);
+                        if (!gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
+                        {
+                            gensOnLimits.Add(grid.Nodes[nodeNum].Num);
+                            grid.Nodes[nodeNum].Type = NodeType.PQ;
+                            isOutOfLimits = true;
+                        }
+                    }
+                    else
+                    {
+                        grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, Q_new);
+                        if (gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
+                        {
+                            gensOnLimits.Remove(grid.Nodes[nodeNum].Num);
+                            grid.Nodes[nodeNum].Type = NodeType.PV;
+                            grid.Nodes[nodeNum].U = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, grid.Nodes[nodeNum].U.Phase);
+                            isOnLimits = true;
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -184,7 +167,7 @@ namespace PowerFlowCore.Solvers
         /// <param name="dx">Mismatch voltage and angle <seealso cref="Vector{Complex}"/> value</param>
         /// <returns>Voltage approximation <seealso cref="Vector{Complex}"/></returns>
         private static Vector<Complex> getdU(Grid grid, 
-                                             Vector<Complex> U, 
+                                             ref Vector<Complex> U, 
                                              out Vector<Complex> Uold, 
                                              out Vector<double> dPQ, 
                                              out Vector<double> dx)
@@ -212,6 +195,11 @@ namespace PowerFlowCore.Solvers
             // Save old and calc new voltages
             Uold = U.Clone();
             U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
+
+            // Set new value to Nodes
+            for (int n = 0; n < grid.Nodes.Count; n++)
+                grid.Nodes[n].U = U[n];
+
             return U;
         }
 
