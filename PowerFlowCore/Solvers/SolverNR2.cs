@@ -64,10 +64,6 @@ namespace PowerFlowCore.Solvers
                                       List<int> gensOnLimits,
                                       CalculationOptions options)
         {
-
-            bool isOutOfLimits = false;
-            bool isOnLimits    = false;
-
             for (int nodeNum = 0; nodeNum < grid.Nodes.Count; nodeNum++)
             {
                 if (grid.Nodes[nodeNum].Type == NodeType.PV | gensOnLimits.Contains(grid.Nodes[nodeNum].Num))
@@ -95,7 +91,6 @@ namespace PowerFlowCore.Solvers
                         {
                             gensOnLimits.Add(grid.Nodes[nodeNum].Num);
                             grid.Nodes[nodeNum].Type = NodeType.PQ;
-                            isOnLimits = true;
                         }
                     }
                     else if (Q_new >= qmax)
@@ -105,7 +100,6 @@ namespace PowerFlowCore.Solvers
                         {
                             gensOnLimits.Add(grid.Nodes[nodeNum].Num);
                             grid.Nodes[nodeNum].Type = NodeType.PQ;
-                            isOnLimits = true;
                         }
                     }
                     else
@@ -116,7 +110,6 @@ namespace PowerFlowCore.Solvers
                             gensOnLimits.Remove(grid.Nodes[nodeNum].Num);
                             grid.Nodes[nodeNum].Type = NodeType.PV;
                             grid.Nodes[nodeNum].U = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, grid.Nodes[nodeNum].U.Phase);
-                            isOutOfLimits = true;
                         }
                     }
                 }
@@ -128,13 +121,6 @@ namespace PowerFlowCore.Solvers
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++)
                 grid.Nodes[n].U = U[n];
-
-            //if (isOnLimits | isOutOfLimits)
-            //{
-                
-            //}
-                
-            
         }
 
 
