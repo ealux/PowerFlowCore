@@ -20,7 +20,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int IterationsCount { get; set; } = 300;
+        public int IterationsCount { get; set; } = 1500;
 
 
         /// <summary>
@@ -38,6 +38,6 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Gauss-Seidel solver acceleration rate
         /// </summary>
-        public double AccelerationRateGS { get; set; } = 1.05;
+        public double AccelerationRateGS { get; set; } = 1.4;
     }
 }

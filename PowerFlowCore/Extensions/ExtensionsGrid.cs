@@ -67,6 +67,7 @@ namespace PowerFlowCore.Data
 
             new_grid.Unominal = grid.Unominal.Clone();                                                  // Unominal vector
             new_grid.Uinit = grid.Uinit?.Clone() ?? grid.Unominal;                                      // Uinit vector 
+            new_grid.Ucalc = grid.Ucalc?.Clone() ?? Vector<Complex>.Build.Dense(new_grid.Nodes.Count);  // Ucalc vector   
 
             //new_grid.S = grid.S.Clone();    // S vector
 

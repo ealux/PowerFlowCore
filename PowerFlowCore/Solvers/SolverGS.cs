@@ -70,7 +70,10 @@ namespace PowerFlowCore.Solvers
 
                     //Update voltage levels
                     for (int n = 0; n < grid.Nodes.Count; n++)
-                        grid.Nodes[n].U = U[n];  
+                        grid.Nodes[n].U = U[n];
+
+                    // Set new values to grid
+                    grid.Ucalc = U.Clone();   
 
                     break;
                 }
@@ -86,6 +89,9 @@ namespace PowerFlowCore.Solvers
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++) 
                 grid.Nodes[n].U = U[n];
+
+            // Set new values to grid
+            grid.Ucalc = U.Clone();
 
             return grid;
         }
@@ -159,19 +165,19 @@ namespace PowerFlowCore.Solvers
             var qmax = grid.Nodes[nodeNum].Q_max;
 
             // Constraints flag
-            bool isOutOfLimits = false;
+            bool isOnLimit = false;
 
             // Check limits conditions
             if (Q_new <= qmin)
             {
                 grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin);
-                isOutOfLimits = true;
+                isOnLimit = true;
 
             }
             else if (Q_new >= qmax)
             {
                 grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax);
-                isOutOfLimits = true;
+                isOnLimit = true;
             }
             else
             {
@@ -179,7 +185,7 @@ namespace PowerFlowCore.Solvers
             }
 
             // Perfome analysis on conditons
-            if(isOutOfLimits == true) // Get PQ procedure
+            if(isOnLimit == true) // Get PQ procedure
             {
                 CalcNodeAsPQ(grid, nodeNum, ref U, ref Uold, ref dU, accRate);
                 return;

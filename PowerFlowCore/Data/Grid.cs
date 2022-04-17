@@ -46,7 +46,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Vector of calculated Voltages
         /// </summary>
-        public Vector<Complex> Ucalc => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].U);
+        public Vector<Complex> Ucalc { get; set; }
 
 
 
@@ -101,10 +101,15 @@ namespace PowerFlowCore.Data
             //S and Uinit vectors filling; PQ, PV and Slack nodes count            
             this.Unominal = Vector<Complex>.Build.Dense(this.Nodes.Count);
             this.Uinit    = Vector<Complex>.Build.Dense(this.Nodes.Count);
+            this.Ucalc    = Vector<Complex>.Build.Dense(this.Nodes.Count);
 
             // Set nominal voltages
             for (int i = 0; i < Nodes.Count; i++)
                 this.Unominal[i] = Nodes[i].Unom;
+
+
+            //Empty S vector of Nodes's count capacity
+            //this.S = Vector<Complex>.Build.Dense(this.Nodes.Count);
 
             // Reset PV nodes to PQ modes
             foreach (var node in Nodes)
@@ -135,27 +140,25 @@ namespace PowerFlowCore.Data
             }
 
             //Count nodes and Set initial voltages
-            for (int i = 0; i < this.Nodes.Count; i++)
-            {
-                var node = this.Nodes[i];
-
+            foreach (var node in this.Nodes)
+            {               
                 switch (node.Type)
-                {                                      
+                {
                     case NodeType.PQ:
                         this.PQ_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Unom;  //PQ-type case: Inital voltage is equal to nominal voltage level
+                        if (setInitialByNominal == true) Uinit[node.Num_calc] = node.Unom;  //PQ-type case: Inital voltage is equal to nominal voltage level
                         break;
                     case NodeType.PV:
                         this.PV_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Vpre;  //PV-type case: Inital voltage is equal to user-preset voltage level
+                        if (setInitialByNominal == true) Uinit[node.Num_calc] = node.Vpre;  //PV-type case: Inital voltage is equal to user-preset voltage level
                         break;
                     case NodeType.Slack:
                         this.Slack_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Unom;  //Slack-type case: Inital voltage is equal to nominal voltage level (constant)
+                        if (setInitialByNominal == true) Uinit[node.Num_calc] = node.Unom;  //Slack-type case: Inital voltage is equal to nominal voltage level (constant)
                         break;
                     default:
                         break;
-                }
+                }             
             }
         }
 
@@ -180,23 +183,22 @@ namespace PowerFlowCore.Data
             this.Branches = rebranches.ToList();
 
             //!переименование номеров ветви
-            this.Nodes.ForEach(_n =>
-                {
-                    this.Branches.ForEach(b =>
-                      {
-                          b.Count = 1;
-                          if (b.Start == _n.Num)
-                          {
-                              b.Start_calc = _n.Num_calc;
-                          }
-                          else if (b.End == _n.Num)
-                          {
-                              b.End_calc = _n.Num_calc;
-                          }
-                      });
+            this.Nodes.ForEach(_n => 
+                { this.Branches.ForEach(b => 
+                    {
+                        b.Count = 1;
+                        if (b.Start == _n.Num)
+                        {
+                            b.Start_calc = _n.Num_calc;
+                        }
+                        else if (b.End == _n.Num)
+                        {
+                            b.End_calc = _n.Num_calc;
+                        }
+                    }); 
                 });
 
-            // Parallel branches amount
+
             for (int i = 0; i < this.Branches.Count; i++)
             {
                 for (int j = 0; j < this.Branches.Count; j++)
