@@ -86,7 +86,7 @@ namespace TestCalc
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" +
-                                  " \tV.: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 6) + 
+                                  " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 6) + 
                                   "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 6));
             Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
             e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));       //Show Nodes numbers
@@ -127,7 +127,7 @@ namespace TestCalc
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" + 
-                                  " \tV.: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 6) +
+                                  " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 6) +
                                   "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 6));
             Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
             e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));       //Show Nodes numbers

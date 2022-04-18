@@ -153,8 +153,6 @@ namespace PowerFlowCore.Data
                         this.Slack_Count++;
                         if (setInitialByNominal == true) Uinit[i] = node.Unom;  //Slack-type case: Inital voltage is equal to nominal voltage level (constant)
                         break;
-                    default:
-                        break;
                 }
             }
         }

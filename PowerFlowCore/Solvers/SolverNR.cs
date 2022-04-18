@@ -45,13 +45,15 @@ namespace PowerFlowCore.Solvers
 
                 var dx_norm = dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm();
 
+
                 bool isOnLimits, isOouOfLimits;
 
                 InspectPV(grid, ref U, ref gensOnLimits, out isOnLimits, out isOouOfLimits);
 
                 if (isOnLimits | isOouOfLimits)
                     grid.InitParameters(grid.Nodes, grid.Branches);
-                U = grid.Ucalc.Clone();
+
+                U = grid.Ucalc.Clone();  
 
 
                 //Power residual
@@ -82,9 +84,9 @@ namespace PowerFlowCore.Solvers
             grid.InitParameters(grid.Nodes, grid.Branches);
             U = grid.Ucalc.Clone();
 
-            //Update voltage levels
-            for (int n = 0; n < grid.Nodes.Count; n++)
-                grid.Nodes[n].U = U[n];
+            ////Update voltage levels
+            //for (int n = 0; n < grid.Nodes.Count; n++)
+            //    grid.Nodes[n].U = U[n];
 
             return grid;
         }
@@ -113,6 +115,7 @@ namespace PowerFlowCore.Solvers
                         Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude *
                                  Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
 
+                    // Calculate actual generation power
                     Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
 
                     // Q conststraints
@@ -180,9 +183,6 @@ namespace PowerFlowCore.Solvers
 
             // Calculation of increments
             dx = J.Solve(-dPQ);
-
-            // Voltage residual
-            var dU = Vector<double>.Build.Dense(grid.PQ_Count);
 
             // Update angles
             for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
