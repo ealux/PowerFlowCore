@@ -53,16 +53,15 @@ namespace PowerFlowCore.Solvers
                 difference = dU.AbsoluteMaximum().Real;   // Find the bigest defference
 
 
-                #region [CHEKS TODO!]
-
                 // TODO: Exception catcher on checks !!!
                 // CHECKS
                 //1.Check Voltage level(difference between actual and nominal)
                 CheckVoltage(U_nominal: grid.Uinit, U: U, grid: grid, voltageRate: options.VotageRate);
 
 
-                // 2.Check on Accuracy (Voltage step value)
-                if (difference <= options.Accuracy)
+                // Stop criteria
+                // Check on Voltage Convergence
+                if (difference <= options.VoltageConvergence)
                 {
                     // Inform finish by voltage convergence criteria
                     Console.WriteLine($"Gaus-Seidel iterations: {iteration} " +
@@ -74,13 +73,10 @@ namespace PowerFlowCore.Solvers
 
                     break;
                 }
-
-                // Inform finish by iteration criteria
+                // Inform finish by Iteration Criteria
                 if (iteration == options.IterationsCount - 1)
                     Console.WriteLine($"Gaus-Seidel iterations: {iteration + 1} " +
                                       $"of {options.IterationsCount}. Success (Iteration count criteria)\n");
-
-                #endregion
             }            
 
             //Update voltage levels
@@ -194,7 +190,8 @@ namespace PowerFlowCore.Solvers
                         sum += grid.Y[nodeNum, j] * U[j];   // Recomplete summator with non-self values
 
                 // Calculate new voltage value
-                var voltage = (1 / grid.Y[nodeNum, nodeNum]) * ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);
+                var voltage = (1 / grid.Y[nodeNum, nodeNum]) * 
+                              ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);
 
                 // Fix magnitude (Vpre), change angle
                 U[nodeNum] = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, voltage.Phase);

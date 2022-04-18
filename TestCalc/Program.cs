@@ -29,7 +29,7 @@ namespace TestCalc
 
             var nodes = new List<Node>()
             {
-                new Node(){Num = 1,   Type = NodeType.Slack,  Unom=Complex.FromPolarCoordinates(121, -5*Math.PI/180)},
+                new Node(){Num = 1,   Type = NodeType.Slack,  Unom=Complex.FromPolarCoordinates(121, 0) }, //-5*Math.PI/180)},
                 new Node(){Num = 2,   Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15,3)},
                 new Node(){Num = 3,   Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15,3)},
                 new Node(){Num = 5,   Type = NodeType.PQ,     Unom=110, Vpre = 0},

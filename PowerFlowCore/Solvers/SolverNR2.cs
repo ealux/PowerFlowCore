@@ -172,7 +172,7 @@ namespace PowerFlowCore.Solvers
 
                 if (dPQ.InfinityNorm() <= options.Accuracy)
                 {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Power residual criteria)");
+                    //Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Power residual criteria)");
                     for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];
                     Uold = uold;
@@ -182,7 +182,7 @@ namespace PowerFlowCore.Solvers
                 // Voltage convergence
                 if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm() <= options.VoltageConvergence)
                 {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
+                    //Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
                     for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];
                     Uold = uold;

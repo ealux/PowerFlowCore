@@ -53,7 +53,7 @@ namespace PowerFlowCore.Solvers
                 if (isOnLimits | isOouOfLimits)
                     grid.InitParameters(grid.Nodes, grid.Branches);
 
-                U = grid.Ucalc.Clone();  
+                U = grid.Ucalc.Clone();
 
 
                 //Power residual
@@ -64,14 +64,14 @@ namespace PowerFlowCore.Solvers
                         grid.Nodes[n].U = U[n];
                     break;
                 }
-                // Voltage convergence
-                if (dx_norm <= options.VoltageConvergence)
-                {
-                    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
-                    for (int n = 0; n < grid.Nodes.Count; n++)
-                        grid.Nodes[n].U = U[n];
-                    break;
-                }
+                //// Voltage convergence
+                //if (dx_norm <= options.VoltageConvergence)
+                //{
+                //    Console.WriteLine($"N-R iterations: {i}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
+                //    for (int n = 0; n < grid.Nodes.Count; n++)
+                //        grid.Nodes[n].U = U[n];
+                //    break;
+                //}
 
             }
 
@@ -118,6 +118,7 @@ namespace PowerFlowCore.Solvers
                     // Calculate actual generation power
                     Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
 
+
                     // Q conststraints
                     var qmin = grid.Nodes[nodeNum].Q_min;
                     var qmax = grid.Nodes[nodeNum].Q_max;
@@ -155,6 +156,11 @@ namespace PowerFlowCore.Solvers
                             isOnLimits = true;
                         }
                     }
+
+                    //Check on voltage magnitude level
+                    //if()
+                    //if (grid.Nodes[nodeNum].U.Magnitude)
+
                 }
             }
         }

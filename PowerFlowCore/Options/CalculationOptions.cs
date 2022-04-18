@@ -38,6 +38,6 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Gauss-Seidel solver acceleration rate
         /// </summary>
-        public double AccelerationRateGS { get; set; } = 1.05;
+        public double AccelerationRateGS { get; set; } = 1.0;
     }
 }
