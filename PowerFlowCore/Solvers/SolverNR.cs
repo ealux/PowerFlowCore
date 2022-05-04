@@ -48,11 +48,14 @@ namespace PowerFlowCore.Solvers
                 var dx_norm = dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).PointwiseAbs().InfinityNorm();
 
                 // Inspect PV
-                InspectPV_Classic(grid, ref U, ref gensOnLimits, out crossLimits);
+                //InspectPV_Classic(grid, ref U, ref gensOnLimits, out crossLimits);
 
-                if (crossLimits)
-                    grid.InitParameters(grid.Nodes, grid.Branches);
-                U = grid.Ucalc.Clone();
+                //if (crossLimits)
+                //    grid.InitParameters(grid.Nodes, grid.Branches);
+
+                //U = grid.Ucalc.Clone();
+
+
 
 
                 //Power residual stop criteria
@@ -72,11 +75,6 @@ namespace PowerFlowCore.Solvers
                     break;
                 }
             }
-            do
-            {
-                
-            } while (crossLimits);
-
 
 
             // Nodes convert back
@@ -136,14 +134,32 @@ namespace PowerFlowCore.Solvers
                         {
                             // Q == Qmin, but V < Vpre
                             if (Vcurr < Node.Vpre)
-                                crossLimits = ChangeQgen(gensOnLimits, Node, Vcurr, qmin, qmax);
+                            {
+                                //Node.S_gen = new Complex(Node.S_gen.Real, Q_new);
+                                //Node.Type = NodeType.PV;
+                                //Node.U = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
+                                //if (gensOnLimits.Contains(Node.Num))
+                                //    gensOnLimits.Remove(Node.Num);
+                                //crossLimits = true;
+
+                                crossLimits = ChangeQgen(gensOnLimits, Node, Q_new, qmin, qmax);
+                            }
                         }
                         // If node is PQ and on UPPER LIMIT
                         else if (Node.S_gen.Imaginary == qmax)
                         {
                             // Q == Qmax, but V > Vpre
                             if (Vcurr > Node.Vpre)
+                            {
+                                //Node.S_gen = new Complex(Node.S_gen.Real, Q_new);
+                                //Node.Type = NodeType.PV;
+                                //Node.U = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
+                                //if (gensOnLimits.Contains(Node.Num))
+                                //    gensOnLimits.Remove(Node.Num);
+                                //crossLimits = true;
+
                                 crossLimits = ChangeQgen(gensOnLimits, Node, Q_new, qmin, qmax);
+                            }
                         }
                     }
                     // On PV state
@@ -188,12 +204,12 @@ namespace PowerFlowCore.Solvers
             else
             {
                 // Still PV 
-                Node.S_gen = new Complex(Node.S_gen.Real, Q_new);
-                Node.Type  = NodeType.PV;
-                Node.U     = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
+                Node.S_gen = new Complex(Node.S_gen.Real, Q_new);                
                 if (gensOnLimits.Contains(Node.Num))
                 {
                     gensOnLimits.Remove(Node.Num);
+                    Node.Type = NodeType.PV;
+                    Node.U = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
                     crossLimits = true;
                 }                
             }
@@ -220,8 +236,11 @@ namespace PowerFlowCore.Solvers
             var Um = U.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
             var ph = U.Map(x => x.Phase).ToArray();     // Input voltages phase vector
 
-            dPQ   = Resuduals_Polar(grid, U);
+            dPQ = Resuduals_Polar(grid, U);
             var J = Jacobian_Polar(grid, U);    //Jacoby matrix                
+
+            NPCAddition(grid, U, ref dPQ, ref J);
+
 
             // Calculation of increments
             dx = J.Solve(-dPQ);
@@ -234,6 +253,10 @@ namespace PowerFlowCore.Solvers
             for (int j = 0; j < grid.PQ_Count; j++)
                 Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
 
+            // Update magnitudes (PV)
+            for (int j = 0; j < grid.PV_Count; j++)
+                Um[grid.PQ_Count + j] -= dx[grid.PQ_Count + grid.PV_Count + grid.PQ_Count + j];
+
             // Save old and calc new voltages
             Uold = U.Clone();
             U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
@@ -243,6 +266,220 @@ namespace PowerFlowCore.Solvers
                 grid.Nodes[n].U = U[n];
 
             return U;
+        }
+
+        private static void NPCAddition(Grid grid, 
+                                        Vector<Complex> U, 
+                                        ref Vector<double> dPQ, 
+                                        ref Matrix<double> J)
+        {
+            // Ro merit function and additional values
+            var p_list = Vector<double>.Build.Dense(grid.PV_Count);            
+            var s_list = Vector<double>.Build.Dense(grid.PV_Count);
+            var m_list = Vector<double>.Build.Dense(grid.PV_Count);
+
+            var Um  = U.Map(u => u.Magnitude);
+            var Uph = U.Map(u => u.Phase);
+
+            int pv_counter = 0;
+
+            for (int i = 0; i < grid.Nodes.Count; i++)
+            {
+                if(grid.Nodes[i].Type == NodeType.PV)
+                {                    
+                    // Current node
+                    var Node = grid.Nodes[i];
+
+                    // New Q element
+                    var Q_new = Node.S_load.Imaginary;
+                    // Build new Q element
+                    for (int j = 0; j < grid.Nodes.Count; j++)
+                        Q_new -= U[i].Magnitude * U[j].Magnitude * grid.Y[i, j].Magnitude *
+                                 Math.Sin(grid.Y[i, j].Phase + U[j].Phase - U[i].Phase);
+
+                    // Get current Voltage magnitude and Q conststraints at node
+                    var Vcurr = U[i].Magnitude;
+                    var qmin = Node.Q_min;
+                    var qmax = Node.Q_max;
+
+                    if (Q_new >= qmax)
+                    {
+                        p_list[pv_counter] = Math.Sqrt(Math.Pow(qmax - Q_new, 2.0) + Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))
+                                             - (qmax - Q_new) - (grid.Nodes[i].Vpre - Vcurr);
+
+                        s_list[pv_counter] = (-(qmax - Q_new)) /
+                                              Math.Sqrt(Math.Pow(qmax - Q_new, 2.0) + Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))
+                                              + 1;
+
+                        m_list[pv_counter] = (((Vcurr - grid.Nodes[i].Vpre) / Math.Sqrt(Math.Pow(qmax - Q_new, 2.0) + Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))) + 1) * Vcurr;
+
+                    }
+                    else if (Q_new <= qmin)
+                    {
+                        p_list[pv_counter] = Math.Sqrt(Math.Pow(Q_new - qmin, 2.0) + Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))
+                                             - (Q_new - qmin) - (grid.Nodes[i].Vpre - Vcurr);
+
+                        s_list[pv_counter] = ((Q_new - qmin) / Math.Sqrt(Math.Pow(Q_new - qmin, 2.0) + Math.Pow(Vcurr - grid.Nodes[i].Vpre, 2.0))) - 1;
+
+                        m_list[pv_counter] = (((Vcurr - grid.Nodes[i].Vpre) / Math.Sqrt(Math.Pow(Q_new - qmin, 2.0) + Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))) - 1) * Vcurr;
+                    }
+                    else
+                    {
+                        p_list[pv_counter] = 0;
+                        s_list[pv_counter] = 0;
+                        m_list[pv_counter] = 0;
+                    }
+
+                    pv_counter++;
+                }                
+            }
+            // Break procedure if no PV on limits
+            if (p_list.All(elem => elem == 0.0)) return;
+
+            // Create Ro vector
+            var p = Vector<double>.Build.Dense(p_list.ToArray());
+
+            // Create S amd M matrices
+            Matrix<double> S = Matrix<double>.Build.DenseDiagonal(s_list.Count, s_list.Count, (s) => s_list[s]);
+            Matrix<double> M = Matrix<double>.Build.DenseDiagonal(m_list.Count, m_list.Count, (m) => s_list[m]);
+
+            // Correct Ro vector
+            p = S.Inverse() * p;            
+
+            var dim = grid.PQ_Count + grid.PV_Count;
+
+            var P_delta = J.SubMatrix(0, dim, 0, dim);
+            var P_V     = J.SubMatrix(0, dim, dim, grid.PQ_Count);
+            var Q_delta = J.SubMatrix(dim, grid.PQ_Count, 0, dim);
+            var Q_V     = J.SubMatrix(dim, grid.PQ_Count, dim, grid.PQ_Count);
+
+
+            var N_1 = Matrix<double>.Build.Dense(dim, grid.PV_Count);
+            var L_1 = Matrix<double>.Build.Dense(grid.PQ_Count, grid.PV_Count);
+            var J_1 = Matrix<double>.Build.Dense(grid.PV_Count, dim);
+            var L_2 = Matrix<double>.Build.Dense(grid.PV_Count, grid.PQ_Count);
+            var L_3 = Matrix<double>.Build.Dense(grid.PV_Count, grid.PV_Count);
+
+
+            // N_1 (P_V) -> PV nodes
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < grid.PV_Count; j++)
+                {
+                    if (i != j)
+                        N_1[i, j] = Um[i] * grid.Y[i, grid.PQ_Count + j].Magnitude *
+                                    Math.Cos(grid.Y[i, grid.PQ_Count + j].Phase + Uph[grid.PQ_Count + j] - Uph[i]);
+                    else
+                    {
+                        // Component with deleted part (one of two) (i==j)
+                        N_1[i, j] = Um[i] * grid.Y[i, i].Magnitude *
+                                    Math.Cos(grid.Y[i, i].Phase);
+
+                        // Basic sum (i==j)
+                        for (int k = 0; k < dim + grid.Slack_Count; k++)
+                            N_1[i, j] += Um[k] * grid.Y[i, k].Magnitude *
+                                         Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
+                    }
+                }
+            }
+
+            // L_1 (Q_V) -> PV nodes
+            for (int i = 0; i < grid.PQ_Count; i++)
+            {
+                for (int j = 0; j < grid.PV_Count; j++)
+                {
+                    if (i != j)
+                        L_1[i, j] = -Um[i] * grid.Y[i, grid.PQ_Count + j].Magnitude *
+                                     Math.Sin(grid.Y[i, grid.PQ_Count + j].Phase + Uph[grid.PQ_Count + j] - Uph[i]);
+                    else
+                    {
+                        // Component with deleted part (one of two) (i==j)
+                        L_1[i, j] = -Um[i] * grid.Y[i, i].Magnitude *
+                                    Math.Sin(grid.Y[i, i].Phase);
+
+                        // Basic sum (i==j)
+                        for (int k = 0; k < dim + grid.Slack_Count; k++)
+                            L_1[i, j] -= Um[k] * grid.Y[i, k].Magnitude *
+                                         Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
+                    }
+                }
+            }
+
+            //J_1 (Q_Delta) -> PV nodes
+            for (int i = 0; i < grid.PV_Count; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    if (i != j)
+                        J_1[i, j] = -Um[grid.PQ_Count + i] * Um[j] * grid.Y[grid.PQ_Count + i, j].Magnitude *
+                                     Math.Cos(grid.Y[grid.PQ_Count + i, j].Phase + Uph[j] - Uph[grid.PQ_Count + i]);
+                    else
+                    {
+                        // Component to DELETE from sum (i==j)
+                        J_1[i, j] = -grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Magnitude *
+                                     Math.Pow(Um[grid.PQ_Count + i], 2) *
+                                     Math.Cos(grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Phase);
+
+                        // Basic sum (i==j)
+                        for (int k = 0; k < dim + grid.Slack_Count; k++)
+                            J_1[i, j] += Um[grid.PQ_Count + i] * Um[k] * grid.Y[grid.PQ_Count + i, k].Magnitude *
+                                         Math.Cos(grid.Y[grid.PQ_Count + i, k].Phase + Uph[k] - Uph[grid.PQ_Count + i]);
+                    }
+                }
+            }
+
+            // L_2 (Q_V) -> PV nodes
+            for (int i = 0; i < grid.PV_Count; i++)
+            {
+                for (int j = 0; j < grid.PQ_Count; j++)
+                {
+                    if (i != j)
+                        L_2[i, j] = -Um[grid.PQ_Count + i] * grid.Y[grid.PQ_Count + i, j].Magnitude *
+                                    Math.Sin(grid.Y[grid.PQ_Count + i, j].Phase + Uph[j] - Uph[grid.PQ_Count + i]);
+                    else
+                    {
+                        // Component with deleted part (one of two) (i==j)
+                        L_2[i, j] = -Um[grid.PQ_Count + i] * grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Magnitude *
+                                    Math.Sin(grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Phase);
+
+                        // Basic sum (i==j)
+                        for (int k = 0; k < dim + grid.Slack_Count; k++)
+                            L_2[i, j] -= Um[k] * grid.Y[grid.PQ_Count + i, k].Magnitude *
+                                         Math.Sin(grid.Y[grid.PQ_Count + i, k].Phase + Uph[k] - Uph[grid.PQ_Count + i]);
+                    }
+                }
+            }
+
+            // L_3 (Q_V) -> PV nodes
+            for (int i = 0; i < grid.PV_Count; i++)
+            {
+                for (int j = 0; j < grid.PV_Count; j++)
+                {
+                    if (i != j)
+                        L_3[i, j] = -Um[grid.PQ_Count + i] * grid.Y[grid.PQ_Count + i, grid.PQ_Count + j].Magnitude *
+                                    Math.Sin(grid.Y[grid.PQ_Count + i, grid.PQ_Count + j].Phase + Uph[grid.PQ_Count + j] - Uph[grid.PQ_Count + i]);
+                    else
+                    {
+                        // Component with deleted part (one of two) (i==j)
+                        L_3[i, j] = -Um[grid.PQ_Count + i] * grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Magnitude *
+                                    Math.Sin(grid.Y[grid.PQ_Count + i, grid.PQ_Count + i].Phase);
+
+                        // Basic sum (i==j)
+                        for (int k = 0; k < dim + grid.Slack_Count; k++)
+                            L_3[i, j] -= Um[k] * grid.Y[grid.PQ_Count + i, k].Magnitude *
+                                         Math.Sin(grid.Y[grid.PQ_Count + i, k].Phase + Uph[k] - Uph[grid.PQ_Count + i]);
+                    }
+                }
+            }
+                       
+            // Output Jacobian matrix
+            J = Matrix<double>.Build.DenseOfMatrixArray(new[,] { { P_delta, P_V, N_1 }, 
+                                                                 { Q_delta, Q_V , L_1}, 
+                                                                 { J_1, L_2, (S.Inverse() * M) + L_3 } });
+
+
+            // Output dPQ vector 
+            dPQ = Vector<double>.Build.DenseOfEnumerable(dPQ.Concat(p));
         }
 
 
@@ -256,9 +493,6 @@ namespace PowerFlowCore.Solvers
                                                      Vector<Complex> U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
-
-            var G = grid.Y.Real();
-            var B = grid.Y.Imaginary();
 
             var Um  = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
@@ -356,7 +590,6 @@ namespace PowerFlowCore.Solvers
                                          Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
                     }
                 }
-
             }
 
             // Form result matrix
@@ -385,7 +618,6 @@ namespace PowerFlowCore.Solvers
 
             var dP = Vector<double>.Build.Dense(dim);
             var dQ = Vector<double>.Build.Dense(grid.PQ_Count);       
-            var p  = Vector<double>.Build.Dense(grid.PV_Count);       
 
             //dP
             for (int i = 0; i < dim; i++)
@@ -405,51 +637,11 @@ namespace PowerFlowCore.Solvers
                               Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
             }
 
-
-            //
-            //
-            for (int i = 0; i < grid.PV_Count; i++)
-            {
-
-                // Current node
-                var Node = grid.Nodes[i];
-
-                // New Q element
-                var Q_new = Node.S_load.Imaginary;
-                // Build new Q element
-                for (int j = 0; j < grid.Nodes.Count; j++)
-                    Q_new -= U[i].Magnitude * U[j].Magnitude * grid.Y[i, j].Magnitude *
-                             Math.Sin(grid.Y[i, j].Phase + U[j].Phase - U[i].Phase);
-
-                // Get current Voltage magnitude and Q conststraints at node
-                var Vcurr = U[i].Magnitude;
-                var qmin  = Node.Q_min;
-                var qmax  = Node.Q_max;
-
-                if(Q_new >= qmax)
-                {
-                    p[i] = Math.Sqrt(Math.Pow(qmax - Q_new, 2.0) +
-                                     Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))
-                           - (qmax - Q_new) - (grid.Nodes[i].Vpre - Vcurr);
-
-                }
-                else if(Q_new <= qmin)
-                {
-                    p[i] = Math.Sqrt(Math.Pow(Q_new - qmin, 2.0) +
-                                     Math.Pow(grid.Nodes[i].Vpre - Vcurr, 2.0))
-                           - (Q_new - qmin) - (grid.Nodes[i].Vpre - Vcurr);
-                }
-            }
-
-            //
-            //
-
-
             // Form result vector
             var res = Vector<double>.Build.DenseOfEnumerable(dP.Concat(dQ));
 
-            if(p.Count > 0) 
-                res = Vector<double>.Build.DenseOfEnumerable(res.Concat(p));
+            //if(p.Count > 0) 
+            //    res = Vector<double>.Build.DenseOfEnumerable(res.Concat(p));
 
             return res;
         }
