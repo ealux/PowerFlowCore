@@ -175,12 +175,14 @@ namespace PowerFlowCore.Solvers
             }
 
             // Perfome analysis on conditons
-            if(isOutOfLimits == true) // Get PQ procedure
+            // Get PQ procedure
+            if (isOutOfLimits == true)
             {
                 CalcNodeAsPQ(grid, nodeNum, ref U, ref Uold, ref dU, accRate);
                 return;
             }
-            else    // Calc Angle only
+            // Calc Angle only
+            else
             {
                 // Summator
                 var sum = new Complex();

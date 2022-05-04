@@ -29,7 +29,7 @@ namespace TestCalc
 
             var nodes = new List<Node>()
             {
-                new Node(){Num = 1,   Type = NodeType.Slack,  Unom=Complex.FromPolarCoordinates(121, 0) }, //-5*Math.PI/180)},
+                new Node(){Num = 1,   Type = NodeType.Slack,  Unom=Complex.FromPolarCoordinates(121, -5*Math.PI/180)},
                 new Node(){Num = 2,   Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15,3)},
                 new Node(){Num = 3,   Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15,3)},
                 new Node(){Num = 5,   Type = NodeType.PQ,     Unom=110, Vpre = 0},
@@ -42,8 +42,8 @@ namespace TestCalc
                 new Node(){Num = 71,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(16, 13)},
                 new Node(){Num = 200, Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15, 14.58)},
                 new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 12.5),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 203, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
+                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 6),   S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 203, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),     S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
             };
 
             var branches = new List<Branch>()
