@@ -41,8 +41,8 @@ namespace TestCalc
                 new Node(){Num = 61,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(10, 10.02)},
                 new Node(){Num = 71,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(16, 13)},
                 new Node(){Num = 200, Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15, 14.58)},
-                new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 12.5),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 6),   S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),   S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
                 new Node(){Num = 203, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),     S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
             };
 

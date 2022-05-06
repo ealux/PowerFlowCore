@@ -71,11 +71,8 @@ namespace PowerFlowCore
         {
             //this.Grid.SolverGS(this.Grid.Uinit, this.Options);
 
-            //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 10 }).SolverNR(this.Grid.Ucalc, this.Options);
+            //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 15 }).SolverNR(this.Grid.Ucalc, this.Options);
             this.Grid.SolverNR(this.Grid.Uinit, this.Options);
-
-            //this.Grid.SolverNR2(this.Grid.Uinit, this.Options);
-            //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 5}).SolverNR2(this.Grid.Ucalc, this.Options);
 
 
             this.Grid.CalculatePowerMatrix();

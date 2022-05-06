@@ -83,6 +83,14 @@ namespace PowerFlowCore.Solvers
             for (int n = 0; n < grid.Nodes.Count; n++) 
                 grid.Nodes[n].U = U[n];
 
+
+            // !!!!!
+            // TODO:
+            // 1. (Not)Success logic
+            // 2. Voltage restrictions
+            // 3. Angle restrictions in branches
+            // !!!!!
+
             return grid;
         }
 
