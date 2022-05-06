@@ -72,11 +72,6 @@ namespace PowerFlowCore.Solvers
                     break;
                 }
             }
-            do
-            {
-                
-            } while (crossLimits);
-
 
 
             // Nodes convert back
@@ -97,9 +92,64 @@ namespace PowerFlowCore.Solvers
 
 
 
-        private static void InspectPV_Classic(Grid grid, 
+        
+
+
+
+        public static (Grid grid, bool success, int iter) NewtonRaphson(this Grid grid,
+                                                                         Vector<Complex> U_initial,
+                                                                         CalculationOptions options)
+        {
+
+        }
+
+        /// <summary>
+        /// Calculate U voltage <seealso cref="Vector{Complex}"/> by Newton-Raphson technique
+        /// </summary>
+        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
+        /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
+        /// <param name="Uold">Previous iteration <seealso cref="Vector{Complex}"/>voltage value</param>
+        /// <param name="dPQ">Power residuals <seealso cref="Vector{Complex}"/> value</param>
+        /// <param name="dx">Mismatch voltage and angle <seealso cref="Vector{Complex}"/> value</param>
+        /// <returns>Voltage approximation <seealso cref="Vector{Complex}"/></returns>
+        private static Vector<Complex> getdU(Grid grid,
                                              ref Vector<Complex> U,
-                                             ref List<int> gensOnLimits, 
+                                             out Vector<Complex> Uold,
+                                             out Vector<double> dPQ,
+                                             out Vector<double> dx)
+        {
+            var Um = U.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
+            var ph = U.Map(x => x.Phase).ToArray();     // Input voltages phase vector
+
+            dPQ = Resuduals_Polar(grid, U);
+            var J = Jacobian_Polar(grid, U);    //Jacoby matrix                
+
+            // Calculation of increments
+            dx = J.Solve(-dPQ);
+
+            // Update angles
+            for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
+                ph[j] -= dx[j];
+
+            // Update magnitudes
+            for (int j = 0; j < grid.PQ_Count; j++)
+                Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
+
+            // Save old and calc new voltages
+            Uold = U.Clone();
+            U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
+
+            // Set new value to Nodes
+            for (int n = 0; n < grid.Nodes.Count; n++)
+                grid.Nodes[n].U = U[n];
+
+            return U;
+        }
+
+
+        private static void InspectPV_Classic(Grid grid,
+                                             ref Vector<Complex> U,
+                                             ref List<int> gensOnLimits,
                                              out bool crossLimits)
         {
             // Constraints flag
@@ -123,8 +173,8 @@ namespace PowerFlowCore.Solvers
 
                     // Get current Voltage magnitude and Q conststraints at node
                     var Vcurr = U[nodeNum].Magnitude;
-                    var qmin  = Node.Q_min;
-                    var qmax  = Node.Q_max;
+                    var qmin = Node.Q_min;
+                    var qmax = Node.Q_max;
 
                     #endregion                    
 
@@ -154,10 +204,10 @@ namespace PowerFlowCore.Solvers
             }
         }
 
-        private static bool ChangeQgen(List<int> gensOnLimits, 
-                                        INode Node, 
-                                        double Q_new, 
-                                        double qmin, 
+        private static bool ChangeQgen(List<int> gensOnLimits,
+                                        INode Node,
+                                        double Q_new,
+                                        double qmin,
                                         double qmax)
         {
             var crossLimits = false;
@@ -167,83 +217,41 @@ namespace PowerFlowCore.Solvers
             {
                 // If Q on LOWER limit but voltage BIGGER then Vpre 
                 Node.S_gen = new Complex(Node.S_gen.Real, qmin);
-                Node.Type  = NodeType.PQ;
+                Node.Type = NodeType.PQ;
                 if (!gensOnLimits.Contains(Node.Num))
                 {
                     gensOnLimits.Add(Node.Num);
                     crossLimits = true;
-                }                    
+                }
             }
             else if (Q_new >= qmax)
             {
                 // If Q on UPPER limit but voltage LESS then Vpre                        
                 Node.S_gen = new Complex(Node.S_gen.Real, qmax);
-                Node.Type  = NodeType.PQ;
+                Node.Type = NodeType.PQ;
                 if (!gensOnLimits.Contains(Node.Num))
                 {
                     gensOnLimits.Add(Node.Num);
                     crossLimits = true;
-                }                    
+                }
             }
             else
             {
                 // Still PV 
                 Node.S_gen = new Complex(Node.S_gen.Real, Q_new);
-                Node.Type  = NodeType.PV;
-                Node.U     = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
+                Node.Type = NodeType.PV;
+                Node.U = Complex.FromPolarCoordinates(Node.Vpre, Node.U.Phase);
                 if (gensOnLimits.Contains(Node.Num))
                 {
                     gensOnLimits.Remove(Node.Num);
                     crossLimits = true;
-                }                
+                }
             }
 
             return crossLimits;
         }
 
-
-        /// <summary>
-        /// Calculate U voltage <seealso cref="Vector{Complex}"/> by Newton-Raphson technique
-        /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
-        /// <param name="Uold">Previous iteration <seealso cref="Vector{Complex}"/>voltage value</param>
-        /// <param name="dPQ">Power residuals <seealso cref="Vector{Complex}"/> value</param>
-        /// <param name="dx">Mismatch voltage and angle <seealso cref="Vector{Complex}"/> value</param>
-        /// <returns>Voltage approximation <seealso cref="Vector{Complex}"/></returns>
-        private static Vector<Complex> getdU(Grid grid, 
-                                             ref Vector<Complex> U, 
-                                             out Vector<Complex> Uold, 
-                                             out Vector<double> dPQ, 
-                                             out Vector<double> dx)
-        {
-            var Um = U.Map(x => x.Magnitude).ToArray(); // Input voltages magnitude vector
-            var ph = U.Map(x => x.Phase).ToArray();     // Input voltages phase vector
-
-            dPQ   = Resuduals_Polar(grid, U);
-            var J = Jacobian_Polar(grid, U);    //Jacoby matrix                
-
-            // Calculation of increments
-            dx = J.Solve(-dPQ);
-
-            // Update angles
-            for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
-                ph[j] -= dx[j];
-
-            // Update magnitudes
-            for (int j = 0; j < grid.PQ_Count; j++)
-                Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
-
-            // Save old and calc new voltages
-            Uold = U.Clone();
-            U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
-
-            // Set new value to Nodes
-            for (int n = 0; n < grid.Nodes.Count; n++)
-                grid.Nodes[n].U = U[n];
-
-            return U;
-        }
+        
 
 
         /// <summary>
