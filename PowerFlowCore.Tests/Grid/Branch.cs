@@ -11,7 +11,7 @@ namespace PowerFlowCore.Tests
         public int End_calc { get; set; }
         public Complex Y { get; set; }
         public Complex Ysh { get; set; }
-        public double Ktr { get; set; }
+        public Complex Ktr { get; set; }
         public int Count { get; set; }
 
 

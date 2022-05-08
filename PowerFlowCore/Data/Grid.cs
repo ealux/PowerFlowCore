@@ -232,11 +232,11 @@ namespace PowerFlowCore.Data
             for (int i = 0; i < branches.Count; i++)
             {
                 var start = branches[i].Start_calc;
-                var end = branches[i].End_calc;
-                var y = branches[i].Y;
-                var ysh = branches[i].Ysh;
-                var kt = branches[i].Ktr <= 0 ? 1 : branches[i].Ktr; if (kt > 1) kt = 1 / kt;
-
+                var end   = branches[i].End_calc;
+                var y     = branches[i].Y;
+                var ysh   = branches[i].Ysh;
+                var kt    = branches[i].Ktr.Magnitude <= 0 ? 1 : branches[i].Ktr; 
+                 
                 Y[start, end] += (y / kt);
                 Y[end, start] += (y / kt);
 
@@ -255,8 +255,17 @@ namespace PowerFlowCore.Data
                     Y[start, start] += -(y / (kt * kt));
                     Y[end, end] += -(y + ysh);
                 }
+                else if (nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) //Condition for Transformer branches. Voltage-Added branches (kt > 1)
+                {
+                    Y[start, start] += -(y + ysh);
+                    Y[end, end] += -(y / (kt * kt));
+                }
             }
-            for (int i = 0; i < nodes.Count; i++) Y[i, i] += -nodes[i].Ysh;
+
+            // Add shunt conductivities
+            for (int i = 0; i < nodes.Count; i++) 
+                Y[i, i] += -nodes[i].Ysh;
+
             return -Y;
         }
 

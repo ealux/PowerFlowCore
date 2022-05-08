@@ -51,7 +51,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Transformation ratio
         /// </summary>
-        double Ktr { get; set; }
+        Complex Ktr { get; set; }
 
         /// <summary>
         /// Power on branch start

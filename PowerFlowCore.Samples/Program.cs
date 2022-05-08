@@ -15,24 +15,31 @@ namespace PowerFlowCore.Samples
 
             // IEEE-14
             CalculateAnShow(SampleGrids.IEEE_14());
-
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
 
-            timer.Restart();                //Restart timer
+            //Restart timer
+            timer.Restart();                
 
             // Nodes15_3PV
             CalculateAnShow(SampleGrids.Nodes15_3PV());
-
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
+            //Restart timer
+            timer.Restart();
 
+            // IEEE-57
+            CalculateAnShow(SampleGrids.IEEE_57());
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             Console.ReadKey();
         }
 
 
-
+        /// <summary>
+        /// Make calculus and print calculated params
+        /// </summary>
+        /// <param name="e"><seealso cref="Engine"/> object to be calculated</param>
         private static void CalculateAnShow(Engine e)
         {
             e.Calculate();                                                        //Performe calculations
