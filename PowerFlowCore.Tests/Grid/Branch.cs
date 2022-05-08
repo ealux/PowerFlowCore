@@ -1,7 +1,7 @@
 ﻿using PowerFlowCore.Data;
 using Complex = System.Numerics.Complex;
 
-namespace TestCalc
+namespace PowerFlowCore.Tests
 {
     class Branch : IBranch
     {

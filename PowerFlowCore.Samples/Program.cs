@@ -15,7 +15,7 @@ using PowerFlowCore.Data;
 using PowerFlowCore;
 using Complex = System.Numerics.Complex;
 
-namespace TestCalc
+namespace PowerFlowCore.Samples
 {
     class Program
     {
@@ -41,8 +41,8 @@ namespace TestCalc
                 new Node(){Num = 61,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(10, 10.02)},
                 new Node(){Num = 71,  Type = NodeType.PQ,     Unom=10.5, Vpre = 0,      S_load = new Complex(16, 13)},
                 new Node(){Num = 200, Type = NodeType.PQ,     Unom=110, Vpre = 0,       S_load = new Complex(15, 14.58)},
-                new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
-                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),   S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 201, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 7.5),  S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
+                new Node(){Num = 202, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 6.0),   S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15},
                 new Node(){Num = 203, Type = NodeType.PV,     Unom=10.5, Vpre = 10.5,   S_load = new Complex(2.2, 0),     S_gen = new Complex(20, 0), Q_min = 10, Q_max = 15}
             };
 
@@ -81,15 +81,13 @@ namespace TestCalc
 
             e.Calculate();                                                        //Performe calculations
             var calc = e.Grid.Ucalc;                                             //Take calculated U values
-
-            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));       //Show Nodes numbers
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" +
                                   " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 6) + 
                                   "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 6));
             Console.WriteLine(e.Grid.S);                                          //Show vector of calculated S
-            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));       //Show Nodes numbers
+            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));     //Show Nodes numbers
 
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
@@ -122,8 +120,6 @@ namespace TestCalc
 
             e.Calculate();                                                        //Performe calculations
             calc = e.Grid.Ucalc;                                                 //Take calculated U values
-
-            e.Grid.Nodes.ForEach(n => Console.WriteLine(n.Num.ToString()));       //Show Nodes numbers
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" + 

@@ -6,7 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Complex = System.Numerics.Complex;
 
 
-namespace UnitTest
+namespace PowerFlowCore.Tests
 {
     [TestClass]
     public class TestGrid

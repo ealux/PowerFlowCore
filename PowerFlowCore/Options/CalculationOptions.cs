@@ -14,7 +14,7 @@ namespace PowerFlowCore.Data
         ///   Gauss-Seidel:   Voltage step defference;
         ///   Newton-Raphson: Power residual tolerance.
         /// </summary>
-        public double Accuracy { get; set; } = 1e-8;
+        public double Accuracy { get; set; } = 1e-5;
 
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Voltage convergence criteria (Newton-Raphson method only)
         /// </summary>
-        public double VoltageConvergence { get; set; } = 1e-8;
+        public double VoltageConvergence { get; set; } = 1e-5;
 
 
         /// <summary>

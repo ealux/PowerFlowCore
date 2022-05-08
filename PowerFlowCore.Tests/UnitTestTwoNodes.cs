@@ -1,7 +1,7 @@
 using PowerFlowCore.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTest
+namespace PowerFlowCore.Tests
 {
     [TestClass]
     public class UnitTestTwoNodes

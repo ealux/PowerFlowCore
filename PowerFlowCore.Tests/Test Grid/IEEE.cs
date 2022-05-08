@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PowerFlowCore.Data;
 using Complex = System.Numerics.Complex;
 
-namespace UnitTest
+namespace PowerFlowCore.Tests
 {
     class IEEE
     {
