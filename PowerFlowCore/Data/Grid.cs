@@ -111,25 +111,22 @@ namespace PowerFlowCore.Data
             {
                 if (node.Type == NodeType.PV)
                 {
-                    var vpreN = node.Vpre  == 0.0;
+                    var vpreN = node.Vpre == 0.0;
                     var qminN = node.Q_min == 0.0;
                     var qmaxN = node.Q_max == 0.0;
 
-                    if ((vpreN & qminN) | (qminN & qmaxN))
-                    {
-                        node.Type = NodeType.PQ;                        
-                        ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
-                    }
-                    else if (!qminN & qmaxN)
-                    {
-                        node.Type = NodeType.PQ;
-                        node.S_gen = new Complex(node.S_gen.Real, node.Q_min);
-                        ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
-                    }
-                    else if (qminN & !qmaxN)
+                    if (vpreN)
                     {
                         node.Type = NodeType.PQ;
                         ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
+                        continue;
+                    }
+                    if (!vpreN)
+                    {
+                        if(qminN)
+                            node.Q_min = double.MinValue;
+                        if(qmaxN)
+                            node.Q_max = double.MaxValue;
                     }
                 }
             }
