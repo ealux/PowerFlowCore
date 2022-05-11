@@ -26,7 +26,7 @@ namespace PowerFlowCore.Solvers
                                          double voltageRate)
         {
             var init = U_nominal.Map(vol => vol.Magnitude);
-            var u = U.Map(vol => vol.Magnitude);
+            var u    = U.Map(vol => vol.Magnitude);
 
             var init_max = u * (1 + Math.Abs(voltageRate));
             var init_min = u * (1 - Math.Abs(voltageRate));
@@ -38,7 +38,8 @@ namespace PowerFlowCore.Solvers
             {
                 for (int i = 0; i < diff_max.Count; i++)
                 {
-                    if (diff_max[i] < 0) throw new VoltageLackException(grid.Nodes[i].Num.ToString());
+                    if (diff_max[i] < 0) 
+                        throw new VoltageLackException(grid.Nodes[i].Num.ToString());
                 }
 
             }

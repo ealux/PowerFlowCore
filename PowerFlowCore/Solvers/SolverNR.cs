@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
 using Complex = System.Numerics.Complex;

@@ -28,17 +28,17 @@ namespace PowerFlowCore.Data
             {
                 nodes.Add((INode)(new Node()
                 {
-                    Num = node.Num,
+                    Num      = node.Num,
                     Num_calc = node.Num_calc,
-                    Q_max = node.Q_max,
-                    Q_min = node.Q_min,
-                    S_gen = node.S_gen,
-                    S_load = node.S_load,
-                    Type = node.Type,
-                    U = node.U,
-                    Unom = node.Unom,
-                    Vpre = node.Vpre,
-                    Ysh = node.Ysh
+                    Q_max    = node.Q_max,
+                    Q_min    = node.Q_min,
+                    S_gen    = node.S_gen,
+                    S_load   = node.S_load,
+                    Type     = node.Type,
+                    U        = node.U,
+                    Unom     = node.Unom,
+                    Vpre     = node.Vpre,
+                    Ysh      = node.Ysh
                 }));
             }
             //Fill new Branches
@@ -46,18 +46,18 @@ namespace PowerFlowCore.Data
             {
                 branches.Add((IBranch)(new Branch()
                 {
-                    Count = branch.Count,
-                    Start = branch.Start,
-                    End = branch.End,
-                    Start_calc = branch.Start_calc,
-                    End_calc = branch.End_calc,
-                    Y = branch.Y,
-                    Ysh = branch.Ysh,
-                    Ktr = branch.Ktr,
-                    I_start = branch.I_start,
-                    I_end = branch.I_end,
-                    S_start = branch.S_start,
-                    S_end = branch.S_end,
+                    Count       = branch.Count,
+                    Start       = branch.Start,
+                    End         = branch.End,
+                    Start_calc  = branch.Start_calc,
+                    End_calc    = branch.End_calc,
+                    Y           = branch.Y,
+                    Ysh         = branch.Ysh,
+                    Ktr         = branch.Ktr,
+                    I_start     = branch.I_start,
+                    I_end       = branch.I_end,
+                    S_start     = branch.S_start,
+                    S_end       = branch.S_end,
                 }));
             }
 
@@ -65,14 +65,12 @@ namespace PowerFlowCore.Data
 
             new_grid.Y = grid.Y.Clone();    // Y matrix
 
-            new_grid.Unominal = grid.Unominal.Clone();                                                  // Unominal vector
-            new_grid.Uinit = grid.Uinit?.Clone() ?? grid.Unominal;                                      // Uinit vector 
-
-            //new_grid.S = grid.S.Clone();    // S vector
+            new_grid.Unominal   = grid.Unominal.Clone();                // Unominal vector
+            new_grid.Uinit      = grid.Uinit?.Clone() ?? grid.Unominal; // Uinit vector 
 
             //Statistic
-            new_grid.PQ_Count = grid.PQ_Count;
-            new_grid.PV_Count = grid.PV_Count;
+            new_grid.PQ_Count    = grid.PQ_Count;
+            new_grid.PV_Count    = grid.PV_Count;
             new_grid.Slack_Count = grid.Slack_Count;
 
             return new_grid;

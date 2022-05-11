@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
 using PowerFlowCore.Data;
 
 using Complex = System.Numerics.Complex;
@@ -39,7 +35,7 @@ namespace PowerFlowCore.Extensions
                 var end = item.End_calc;
 
                 //Lines or Breakers
-                if (item.Ktr == 1 | item.Ktr == 0) 
+                if (item.Ktr.Magnitude == 1.0 | item.Ktr.Magnitude == 0.0) 
                 {
                     item.I_start    = (grid.Ucalc[start] - grid.Ucalc[end]) 
                                         * grid.Y[start, end] 
@@ -94,6 +90,24 @@ namespace PowerFlowCore.Extensions
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
                                             * grid.Ucalc[end] 
+                                            * item.I_end.Conjugate();
+                    }
+                    else
+                    {
+                        item.I_start = (grid.Ucalc[start] * item.Ktr - grid.Ucalc[end])
+                                          * grid.Y[start, end]
+                                          / Math.Sqrt(3)
+                                          / item.Count;
+                        item.I_end = (grid.Ucalc[end] / item.Ktr - grid.Ucalc[start])
+                                          * grid.Y[end, start]
+                                          / Math.Sqrt(3)
+                                          / item.Count;
+
+                        item.S_start = Math.Sqrt(3)
+                                            * grid.Ucalc[start]
+                                            * item.I_start.Conjugate();
+                        item.S_end = Math.Sqrt(3)
+                                            * grid.Ucalc[end]
                                             * item.I_end.Conjugate();
                     }
                 }

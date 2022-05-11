@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
 using Complex = System.Numerics.Complex;
@@ -255,7 +253,7 @@ namespace PowerFlowCore.Data
                     Y[start, start] += -(y / (kt * kt));
                     Y[end, end] += -(y + ysh);
                 }
-                else if (nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) //Condition for Transformer branches. Voltage-Added branches (kt > 1)
+                else
                 {
                     Y[start, start] += -(y + ysh);
                     Y[end, end] += -(y / (kt * kt));
