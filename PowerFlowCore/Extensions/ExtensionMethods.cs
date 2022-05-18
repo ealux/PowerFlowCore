@@ -9,9 +9,9 @@ namespace PowerFlowCore.Extensions
     public static class ExtensionMethods
     {
         /// <summary>
-        /// Calculate additional powers and currents in <seealso cref="Grid"/> object
+        /// Calculate additional powers and currents in <see cref="Grid"/> object
         /// </summary>
-        /// <param name="grid"><seealso cref="Grid"/> object to calculate flows</param>
+        /// <param name="grid"><see cref="Grid"/> object to calculate flows</param>
         public static void CalculatePowerMatrix(this Grid grid)
         {
             //Slack buses

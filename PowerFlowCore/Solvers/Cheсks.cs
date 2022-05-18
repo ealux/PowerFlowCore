@@ -16,9 +16,9 @@ namespace PowerFlowCore.Solvers
         /// <summary>
         /// Check for tolerance on initial and calculated voltage
         /// </summary>
-        /// <param name="U_nominal">Vector complex -> nominal voltages</param>
-        /// <param name="U">Vector complex -> current iteration calculated voltages</param>
-        /// <param name="grid">Grid object</param>
+        /// <param name="U_nominal"><see cref="Vector{Complex}"/> of nominal voltages</param>
+        /// <param name="U"><see cref="Vector{Complex}"/> of current iteration calculated voltages</param>
+        /// <param name="grid"><see cref="Grid"/> object</param>
         /// <param name="voltageRate">Voltage difference rate (voltageRate=0.5 -> ± 50% difference)</param>
         private static void CheckVoltage(Vector<Complex> U_nominal, 
                                          Vector<Complex> U,
@@ -41,7 +41,6 @@ namespace PowerFlowCore.Solvers
                     if (diff_max[i] < 0) 
                         throw new VoltageLackException(grid.Nodes[i].Num.ToString());
                 }
-
             }
             else if (diff_min.Any(i => i > 0))
             {

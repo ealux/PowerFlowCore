@@ -15,10 +15,10 @@ namespace PowerFlowCore.Solvers
         /// <summary>
         /// Gauss-Seidel solver
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U_initial">Initial voltage <seealso cref="Vector{Complex}"/></param>
-        /// <param name="options"><seealso cref="CalculationOptions"/> for calculus</param>
-        /// <returns><seealso cref="Grid"/> with calculated voltages</returns>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U_initial">Initial voltage <see cref="Vector{Complex}"/></param>
+        /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
+        /// <returns><see cref="Grid"/> with calculated voltages</returns>
         public static Grid SolverGS(this Grid grid, 
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)

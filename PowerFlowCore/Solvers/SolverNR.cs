@@ -14,10 +14,10 @@ namespace PowerFlowCore.Solvers
         /// <summary>
         /// Newton-Raphson Solver
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U_initial">Initial voltage <seealso cref="Vector{Complex}"/></param>
-        /// <param name="options"><seealso cref="CalculationOptions"/> for calculus</param>
-        /// <returns><seealso cref="Grid"/> with calculated voltages</returns>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U_initial">Initial voltage <see cref="Vector{Complex}"/></param>
+        /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
+        /// <returns><see cref="Grid"/> with calculated voltages</returns>
         public static Grid SolverNR(this Grid grid,
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)
@@ -79,12 +79,12 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Calculate Voltage <seealso cref="Vector{Complex}"/> by Newton-Raphson technique
+        /// Calculate Voltage <see cref="Vector{Complex}"/> by Newton-Raphson technique
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U_initial">Present voltage <seealso cref="Vector{Complex}"/> to start from</param>
-        /// <param name="options"><seealso cref="CalculationOptions"/> for calculus</param>
-        /// <returns>Return <seealso cref="Tuple{Vector{Complex}, bool, int}"/> Voltage, successfull indicator and iteration count</returns>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U_initial">Present voltage <see cref="Vector{Complex}"/> to start from</param>
+        /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
+        /// <returns>Return <see cref="Tuple{Vector{Complex}, bool, int}"/> as (Voltage, Success indicator, Iteration count)</returns>
         private static (Vector<Complex>, bool success, int iter) NewtonRaphson(Grid grid,
                                                                                Vector<Complex> U_initial,
                                                                                CalculationOptions options)
@@ -162,9 +162,9 @@ namespace PowerFlowCore.Solvers
         /// <summary>
         /// Logic on PV busses inspection for Q limits (switch-bus)
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U">Actual voltage <seealso cref="Vector{Complex}"/></param>
-        /// <param name="gensOnLimits"><seealso cref="List{int}"/> of PV buses on limits</param>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U">Actual voltage <see cref="Vector{Complex}"/></param>
+        /// <param name="gensOnLimits"><see cref="List{int}"/> of PV buses on limits</param>
         /// <param name="crossLimits">PV bus switching flag</param>
         private static void InspectPV_Classic(Grid grid,
                                              ref Vector<Complex> U,
@@ -240,8 +240,8 @@ namespace PowerFlowCore.Solvers
         /// <summary>
         /// Change PV bus type by new Qgen value
         /// </summary>
-        /// <param name="gensOnLimits"><seealso cref="List{int}"/> of PV buses on limits</param>
-        /// <param name="Node"><seealso cref="INode"/> object PV bus depends on</param>
+        /// <param name="gensOnLimits"><see cref="List{int}"/> of PV buses on limits</param>
+        /// <param name="Node"><see cref="INode"/> object PV bus depends on</param>
         /// <param name="Qgen">Calculatad Qgen value</param>
         /// <param name="qmin">PV bus lower Q limit</param>
         /// <param name="qmax">PV bus upper Q limit</param>
@@ -297,11 +297,11 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Jacobian <seealso cref="Matrix{Complex}"/> calculation on each iteration
+        /// Jacobian <see cref="Matrix{Complex}"/> calculation on each iteration
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
-        /// <returns>Jacobian <seealso cref="Matrix{double}"/></returns>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U">Present <see cref="Vector{Complex}"/>voltage value</param>
+        /// <returns>Jacobian <see cref="Matrix{double}"/></returns>
         private static Matrix<double> Jacobian_Polar(Grid grid,
                                                      Vector<Complex> U)
         {
@@ -413,11 +413,11 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Power residuals <seealso cref="Vector{Complex}"/>
+        /// Power residuals <see cref="Vector{Complex}"/>
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <seealso cref="Vector{Complex}"/>voltage value</param>
-        /// <returns> Power residuals <seealso cref="Vector{Complex}"/></returns>
+        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
+        /// <param name="U">Present <see cref="Vector{Complex}"/>voltage value</param>
+        /// <returns> Power residuals <see cref="Vector{Complex}"/></returns>
         private static Vector<double> Resuduals_Polar(Grid grid,
                                                       Vector<Complex> U)
         {

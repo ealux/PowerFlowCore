@@ -13,10 +13,10 @@ namespace PowerFlowCore.Data
     public static class ExtensionsGrid
     {
         /// <summary>
-        /// Make full copy of <seealso cref="Grid"/> object
+        /// Make full copy of <see cref="Grid"/> object
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> object</param>
-        /// <returns>New <seealso cref="Grid"/> object</returns>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <returns>New <see cref="Grid"/> object</returns>
         public static Grid DeepCopy(this Grid grid)
         {           
             // Create empty lists for nodes and branches
@@ -80,9 +80,9 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Set custom voltage initial vector
         /// </summary>
-        /// <param name="grid">Input <seealso cref="Grid"/> object</param>
-        /// <param name="Uinit">Input <seealso cref="Vector{Complex}"/> of Uinit valus</param>
-        /// <returns>Modified <seealso cref="Grid"/> object</returns>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <param name="Uinit">Input <see cref="Vector{Complex}"/> of Uinit valus</param>
+        /// <returns>Modified <see cref="Grid"/> object</returns>
         public static Grid SetUinit(this Grid grid, Vector<Complex> Uinit = null)
         {
             // If grid Uinit doesn't exist

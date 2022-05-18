@@ -14,7 +14,6 @@ namespace PowerFlowCore.Samples
             Console.WriteLine("IEEE-14: 4 - PV  9 - PQ  1 - Slack");
             Console.WriteLine("===========================================");
 
-
             List<INode> nodes = new List<INode>()
             {
                 new Node(){Num = 1,  Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(243.8, 0)},
@@ -57,8 +56,8 @@ namespace PowerFlowCore.Samples
                 new Branch(){Start=13, End=14, Y=1/(new Complex(22.6055, 46.0256)),  Ktr=1,     Ysh=new Complex(0, 0)}
             };
 
-            var options = new CalculationOptions();
-            var engine = new Engine(nodes, branches, options);                         //Create engine
+            var options = new CalculationOptions();             //Create options
+            var engine = new Engine(nodes, branches, options);  //Create engine
 
             return engine;
         }
