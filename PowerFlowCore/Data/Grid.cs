@@ -233,7 +233,11 @@ namespace PowerFlowCore.Data
                 var end   = branches[i].End_calc;
                 var y     = branches[i].Y;
                 var ysh   = branches[i].Ysh;
-                var kt    = branches[i].Ktr.Magnitude <= 0 ? 1 : branches[i].Ktr; 
+                var kt    = branches[i].Ktr.Magnitude <= 0
+                            ? branches[i].Ktr.Phase != 0
+                              ? Complex.FromPolarCoordinates(1, branches[i].Ktr.Phase)
+                              : Complex.One
+                            : branches[i].Ktr; 
                  
                 Y[start, end] += (y / kt);
                 Y[end, start] += (y / kt);
