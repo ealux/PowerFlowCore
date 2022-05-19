@@ -60,10 +60,8 @@ namespace PowerFlowCore.Samples
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" +                                  
-                                  "\tPload: " + Math.Round(e.Grid.Nodes[i].S_load.Real, 3) +
-                                  "\tQload: " + Math.Round(e.Grid.Nodes[i].S_load.Imaginary, 3) +
-                                  "\tPgen: " + Math.Round(e.Grid.Nodes[i].S_gen.Real, 3) +
-                                  "\t\tQgen: " + Math.Round(e.Grid.Nodes[i].S_gen.Imaginary, 3));
+                                  "\tSload: " + e.Grid.Nodes[i].S_load.ToString() +
+                                  "    \tSgen: "  + e.Grid.Nodes[i].S_gen.ToString());
             //Console.WriteLine(e.Grid.S);                                         //Show vector of calculated S
             //e.Grid.Nodes.ForEach(n => Console.WriteLine(n.S_gen.ToString()));    //Show Nodes numbers
         }
