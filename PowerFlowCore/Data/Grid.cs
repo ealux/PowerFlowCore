@@ -74,8 +74,8 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
         /// </summary>
-        /// <param name="nodes">Enumerable source of raw-view Nodes</param>
-        /// <param name="branches">Enumerable source of raw-view Branches</param>
+        /// <param name="nodes">Enumerable source of <see cref="INode"/> collection</param>
+        /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
         public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) => InitParameters(nodes, branches); //ctor               
 
 
@@ -219,9 +219,9 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Admittance matrix calculation
         /// </summary>
-        /// <param name="nodes">Collection of (transformed) Nodes</param>
-        /// <param name="branches">Collection of (transformed) Branches</param>
-        /// <returns>Matrix complex -> Admittance matrix</returns>
+        /// <param name="nodes">Collection of (transformed) <see cref="INode"/></param>
+        /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
+        /// <returns><see cref="Matrix{Complex}"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
         private Matrix<Complex> Calc_Y(List<INode> nodes, List<IBranch> branches)
         {
             //Initialize admittance matrix
@@ -233,34 +233,29 @@ namespace PowerFlowCore.Data
                 var end   = branches[i].End_calc;
                 var y     = branches[i].Y;
                 var ysh   = branches[i].Ysh;
-                var kt    = branches[i].Ktr.Magnitude <= 0
-                            ? branches[i].Ktr.Phase != 0
-                              ? Complex.FromPolarCoordinates(1, branches[i].Ktr.Phase)
-                              : Complex.One
-                            : branches[i].Ktr; 
-                 
-                Y[start, end] += (y / kt);
-                Y[end, start] += (y / kt);
+                var kt    = branches[i].Ktr.Magnitude <= 0 ? Complex.One : branches[i].Ktr;
 
-                if (kt == 1) //Condition for non-Transformer branches
+                if (kt == 1) // Condition for non-Transformer branches
                 {
+                    Y[start, end]   +=  (y / kt);
+                    Y[end, start]   +=  (y / kt);
                     Y[start, start] += -(y + ysh / 2);
-                    Y[end, end] += -(y + ysh / 2);
+                    Y[end, end]     += -(y + ysh / 2);
                 }
-                else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude) //Condition for Transformer branches. At Start node Unom higher
+                else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude    // Condition for Transformer branches. At Start node Unom higher 
+                        | nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) // Voltage-added Transformers
                 {
+                    Y[start, end]   +=  (y / kt);
+                    Y[end, start]   +=  (y / Complex.Conjugate(kt));
                     Y[start, start] += -(y + ysh);
-                    Y[end, end] += -(y / (kt * kt));
+                    Y[end, end]     += -(y / (kt * Complex.Conjugate(kt)));
                 }
-                else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude) //Condition for Transformer branches. At End node Unom higher
+                else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude)   // Condition for Transformer branches. At End node Unom higher
                 {
-                    Y[start, start] += -(y / (kt * kt));
-                    Y[end, end] += -(y + ysh);
-                }
-                else
-                {
-                    Y[start, start] += -(y + ysh);
-                    Y[end, end] += -(y / (kt * kt));
+                    Y[start, end]   +=  (y / Complex.Conjugate(kt));
+                    Y[end, start]   +=  (y / kt);
+                    Y[start, start] += -(y / (kt * Complex.Conjugate(kt)));
+                    Y[end, end]     += -(y + ysh);
                 }
             }
 

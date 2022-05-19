@@ -16,7 +16,6 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.IEEE_14());
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-
             //Restart timer
             timer.Restart();
             // Nodes15_3PV
@@ -35,11 +34,16 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.IEEE_118());
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-            //Restart timer
-            timer.Restart();
-            // IEEE-118
-            CalculateAndShow(SampleGrids.IEEE_300());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            ////Restart timer
+            //timer.Restart();
+            //// IEEE-300
+            //CalculateAndShow(SampleGrids.IEEE_300());
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+
+
+            //// Test Complex Ktr
+            //CalculateAndShow(SampleGrids.Test_Ktr());
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             Console.ReadKey();
         }

@@ -29,20 +29,20 @@ namespace PowerFlowCore.Solvers
             List<int> gensOnLimits = new List<int>();
             
             bool crossLimits = true;
-            bool success     = false;
+            bool success     = true;
             int  iteration   = 0;
             int  iter        = 0;
 
             // U vectors 
             var U = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
 
-            while (crossLimits)
+            while (crossLimits & success)
             {
                 // Calculate power flow
-                (U, success, iteration) = NewtonRaphson(grid, U, options);
+                (U, success, iteration) = NewtonRaphson(grid, U, options, iteration);
 
                 // Increment iteration count
-                iter += iteration + 1;
+                iter += iteration;
 
                 // Inspect PV
                 InspectPV_Classic(grid, ref U, ref gensOnLimits, out crossLimits);
@@ -87,14 +87,15 @@ namespace PowerFlowCore.Solvers
         /// <returns>Return <see cref="Tuple{Vector{Complex}, bool, int}"/> as (Voltage, Success indicator, Iteration count)</returns>
         private static (Vector<Complex>, bool success, int iter) NewtonRaphson(Grid grid,
                                                                                Vector<Complex> U_initial,
-                                                                               CalculationOptions options)
+                                                                               CalculationOptions options,
+                                                                               int current_iter)
         {
             // U vectors 
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
 
             // Iter number
-            int iter = 0;
+            int iter = current_iter;
 
             // Convergence
             bool success = false;
@@ -150,8 +151,8 @@ namespace PowerFlowCore.Solvers
 
             if(iter == options.IterationsCount)
             {
-                // Iterations convergence
-                Console.WriteLine($"N-R iterations: {options.IterationsCount}" + $" of {options.IterationsCount} (Iterations criteria)");
+                // Iterations count limit
+                Console.WriteLine($"N-R iterations: {options.IterationsCount}" + $" of {options.IterationsCount} (Iterations count criteria)");
                 success = false;
             }
 
