@@ -37,7 +37,7 @@ namespace PowerFlowCore.Data
         public Vector<Complex> Unominal { get; set; }
 
         /// <summary>
-        /// Vector of Initial (nominal) Voltage levels (for Voltage Angle and Voltage Magnitude decomposition)
+        /// Vector of Initial Voltages for iteration procedure start
         /// </summary>
         public Vector<Complex> Uinit { get; set; }
 
@@ -81,7 +81,6 @@ namespace PowerFlowCore.Data
 
 
         #region [Build Scheme]
-
 
         /// <summary>
         /// Initialize (or re-initialize) parameters

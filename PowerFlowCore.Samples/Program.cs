@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.Linq;
 using PowerFlowCore.Data;
 using Complex = System.Numerics.Complex;
 
@@ -12,9 +12,9 @@ namespace PowerFlowCore.Samples
         {
             var timer = Stopwatch.StartNew();
 
-            // IEEE-14
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            //// IEEE-14
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             //Restart timer
             timer.Restart();
@@ -22,17 +22,17 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.Nodes15_3PV());
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-            //Restart timer
-            timer.Restart();
-            // IEEE-57
-            CalculateAndShow(SampleGrids.IEEE_57());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            ////Restart timer
+            //timer.Restart();
+            //// IEEE-57
+            //CalculateAndShow(SampleGrids.IEEE_57());
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-            //Restart timer
-            timer.Restart();
-            // IEEE-118
-            CalculateAndShow(SampleGrids.IEEE_118());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            ////Restart timer
+            //timer.Restart();
+            //// IEEE-118
+            //CalculateAndShow(SampleGrids.IEEE_118());
+            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             ////Restart timer
             //timer.Restart();
@@ -57,17 +57,28 @@ namespace PowerFlowCore.Samples
         {
             e.Calculate();                                                       //Performe calculations
             var calc = e.Grid.Ucalc;                                             //Take calculated U values
-            for (int i = 0; i < e.Grid.Nodes.Count; i++)
+
+            // Voltage and angle
+            for (int i = 0; i < e.Grid.Nodes.Count; i++) 
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" +
                                   " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 5) +
                                   "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 5));
-            Console.WriteLine("Powers");
+
+            // Load and gen in Nodes
+            Console.WriteLine("\nPowers");  
             for (int i = 0; i < e.Grid.Nodes.Count; i++)
                 Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
                                   $" {e.Grid.Nodes[i].Type}" +                                  
                                   "\tSload: " + e.Grid.Nodes[i].S_load.ToString() +
                                   "    \tSgen: "  + e.Grid.Nodes[i].S_gen.ToString());
+
+            // Powers in branches
+            foreach (var item in e.Grid.Branches) 
+                Console.WriteLine("Branch " + item.Start + "-" + item.End + 
+                                    "\tStart: " + item.S_start.ToString() + 
+                                    "\tEnd: "   + item.S_end.ToString());
+
         }
     }
 }

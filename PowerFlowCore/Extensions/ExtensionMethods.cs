@@ -32,19 +32,18 @@ namespace PowerFlowCore.Extensions
             foreach (var item in grid.Branches)
             {
                 var start = item.Start_calc;
-                var end = item.End_calc;
+                var end   = item.End_calc;
+                var kt    = item.Ktr.Magnitude <= 0 ? Complex.One : item.Ktr;
 
                 //Lines or Breakers
-                if (item.Ktr.Magnitude == 1.0 | item.Ktr.Magnitude == 0.0) 
+                if (kt == 1.0) 
                 {
-                    item.I_start    = (grid.Ucalc[start] - grid.Ucalc[end]) 
-                                        * grid.Y[start, end] 
-                                        / Math.Sqrt(3) 
-                                        / item.Count;
-                    item.I_end      = (grid.Ucalc[end] - grid.Ucalc[start]) 
-                                        * grid.Y[end, start] 
-                                        / Math.Sqrt(3) 
-                                        / item.Count;
+                    item.I_start = (grid.Ucalc[start] - grid.Ucalc[end])
+                                        * item.Y
+                                        / Math.Sqrt(3);
+                    item.I_end = (grid.Ucalc[end] - grid.Ucalc[start])
+                                        * item.Y
+                                        / Math.Sqrt(3);
 
                     item.S_start    = Math.Sqrt(3) 
                                         * grid.Ucalc[start] 
@@ -56,17 +55,15 @@ namespace PowerFlowCore.Extensions
                 //Transformers
                 else
                 {
-                    if(grid.Nodes[start].Unom.Magnitude > grid.Nodes[end].Unom.Magnitude)
+                    if(grid.Nodes[start].Unom.Magnitude > grid.Nodes[end].Unom.Magnitude 
+                        | grid.Nodes[start].Unom.Magnitude == grid.Nodes[end].Unom.Magnitude)
                     {
-                        item.I_start    = (grid.Ucalc[start] * item.Ktr - grid.Ucalc[end] ) 
-                                          * grid.Y[start, end] 
-                                          / Math.Sqrt(3) 
-                                          / item.Count;
-                        item.I_end      = (grid.Ucalc[end] / item.Ktr - grid.Ucalc[start]) 
-                                          * grid.Y[end, start] 
-                                          / Math.Sqrt(3) 
-                                          / item.Count;
-
+                        item.I_start = (grid.Ucalc[start] * kt - grid.Ucalc[end])
+                                          * item.Y / kt
+                                          / Math.Sqrt(3);
+                        item.I_end = (grid.Ucalc[end] / kt - grid.Ucalc[start])
+                                          * item.Y / Complex.Conjugate(kt)
+                                          / Math.Sqrt(3);
                         item.S_start    = Math.Sqrt(3) 
                                             * grid.Ucalc[start] 
                                             * item.I_start.Conjugate();
@@ -76,38 +73,17 @@ namespace PowerFlowCore.Extensions
                     }
                     else if (grid.Nodes[start].Unom.Magnitude < grid.Nodes[end].Unom.Magnitude) 
                     {
-                        item.I_start    = (grid.Ucalc[start] / item.Ktr - grid.Ucalc[end]) 
-                                            * grid.Y[start, end] 
-                                            / Math.Sqrt(3) 
-                                            / item.Count;
-                        item.I_end      = (grid.Ucalc[end] * item.Ktr - grid.Ucalc[start]) 
-                                            * grid.Y[end, start] 
-                                            / Math.Sqrt(3) 
-                                            / item.Count;
-
+                        item.I_start = (grid.Ucalc[start] / kt - grid.Ucalc[end])
+                                            * item.Y / Complex.Conjugate(kt)
+                                            / Math.Sqrt(3);
+                        item.I_end = (grid.Ucalc[end] * kt - grid.Ucalc[start])
+                                            * item.Y / kt
+                                            / Math.Sqrt(3);
                         item.S_start    = Math.Sqrt(3) 
                                             * grid.Ucalc[start] 
                                             * item.I_start.Conjugate();
                         item.S_end      = Math.Sqrt(3) 
                                             * grid.Ucalc[end] 
-                                            * item.I_end.Conjugate();
-                    }
-                    else
-                    {
-                        item.I_start = (grid.Ucalc[start] * item.Ktr - grid.Ucalc[end])
-                                          * grid.Y[start, end]
-                                          / Math.Sqrt(3)
-                                          / item.Count;
-                        item.I_end = (grid.Ucalc[end] / item.Ktr - grid.Ucalc[start])
-                                          * grid.Y[end, start]
-                                          / Math.Sqrt(3)
-                                          / item.Count;
-
-                        item.S_start = Math.Sqrt(3)
-                                            * grid.Ucalc[start]
-                                            * item.I_start.Conjugate();
-                        item.S_end = Math.Sqrt(3)
-                                            * grid.Ucalc[end]
                                             * item.I_end.Conjugate();
                     }
                 }
