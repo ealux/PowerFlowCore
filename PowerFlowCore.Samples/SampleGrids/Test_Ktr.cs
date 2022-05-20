@@ -16,7 +16,7 @@ namespace PowerFlowCore.Samples
 
             var nodes = new List<Node>()
             {
-                new Node(){Num = 1, Type = NodeType.PQ,    Unom=110,  Vpre = 0,     S_load = new Complex(10, 15)},
+                new Node(){Num = 1, Type = NodeType.PQ,    Unom=115,  Vpre = 0,     S_load = new Complex(10, 15)},
                 new Node(){Num = 2, Type = NodeType.PQ,    Unom=230,  Vpre = 0,     S_load = new Complex(10, 40)},
                 new Node(){Num = 3, Type = NodeType.PV,    Unom=10.5, Vpre = 10.6,  S_load = new Complex(10, 25),   S_gen = new Complex(50, 0), Q_min=-15, Q_max=60},
                 new Node(){Num = 4, Type = NodeType.Slack, Unom=115,  Vpre = 115}

@@ -7,50 +7,67 @@ using MathNet.Numerics.LinearAlgebra;
 using Complex = System.Numerics.Complex;
 using PowerFlowCore.Data;
 
-namespace PowerFlowCore.Solvers
+namespace PowerFlowCore.Data
 {
     public static partial class Solvers
     {
         #region [Checks]
 
         /// <summary>
-        /// Check for tolerance on initial and calculated voltage
+        /// Find nodes where actual voltage is more then nominal one by a certain percentage
         /// </summary>
-        /// <param name="U_nominal"><see cref="Vector{Complex}"/> of nominal voltages</param>
-        /// <param name="U"><see cref="Vector{Complex}"/> of current iteration calculated voltages</param>
         /// <param name="grid"><see cref="Grid"/> object</param>
-        /// <param name="voltageRate">Voltage difference rate (voltageRate=0.5 -> ± 50% difference)</param>
-        private static void CheckVoltage(Vector<Complex> U_nominal, 
-                                         Vector<Complex> U,
-                                         Grid grid,
-                                         double voltageRate)
+        /// <param name="voltageRate">Voltage tolerance rate (voltageRate = 0.1 means 10% difference)</param>
+        /// <returns>Collection of Nodes and differences in percentage if violation was found</returns>
+        public static IEnumerable<(INode, double)> CheckVoltageOverflow(this Grid grid, double voltageRate)
         {
-            var init = U_nominal.Map(vol => vol.Magnitude);
-            var u    = U.Map(vol => vol.Magnitude);
+            var k = 1 + Math.Abs(voltageRate);
+            var res = grid.Nodes.Where(n => (n.U.Magnitude - n.Unom.Magnitude * k) >= 0.0)
+                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, 2))).ToList();
 
-            var init_max = u * (1 + Math.Abs(voltageRate));
-            var init_min = u * (1 - Math.Abs(voltageRate));
-
-            var diff_max = init_max - init;    //normal - when only positives
-            var diff_min = init_min - init;    //normal - when only negatives
-
-            if (diff_max.Any(i => i < 0))
-            {
-                for (int i = 0; i < diff_max.Count; i++)
-                {
-                    if (diff_max[i] < 0) 
-                        throw new VoltageLackException(grid.Nodes[i].Num.ToString());
-                }
-            }
-            else if (diff_min.Any(i => i > 0))
-            {
-                for (int i = 0; i < diff_min.Count; i++)
-                {
-                    if (diff_min[i] > 0)
-                        throw new VoltageOverflowException(grid.Nodes[i].Num.ToString());
-                }
-            }
+            return res;
         }
+
+
+        /// <summary>
+        /// Find nodes where actual voltage is less then nominal one by a certain percentage
+        /// </summary>
+        /// <param name="grid"><see cref="Grid"/> object</param>
+        /// <param name="voltageRate">Voltage tolerance rate (voltageRate = 0.1 means 10% difference)</param>
+        /// <returns>Collection of Nodes and differences in percentage if violation was found</returns>
+        public static List<(INode, double)> CheckVoltageLack(this Grid grid, double voltageRate)
+        {
+            var k = 1 - Math.Abs(voltageRate);
+            var res = grid.Nodes.Where(n => (n.Unom.Magnitude * k - n.U.Magnitude) >= 0.0)
+                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, 2))).ToList();
+
+            return res;
+        }
+
+
+        /// <summary>
+        /// Show difference between actual and nominal voltages
+        /// </summary>
+        /// <param name="grid"><see cref="Grid"/> object</param>
+        /// <param name="precision">Value precision</param>
+        /// <param name="inPercent">Show result in percent</param>
+        /// <returns><see cref="Vector{double}"/> of differences</returns>
+        public static Vector<double> GetVoltageDifference(this Grid grid, uint precision = 2, bool inPercent=true)
+        {
+            Vector<double> res;
+
+            if(!inPercent)
+                res = Vector<double>.Build.DenseOfEnumerable(grid.Nodes.Select(n => 
+                            Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)), (int)precision)));
+            else
+                res = Vector<double>.Build.DenseOfEnumerable(grid.Nodes.Select(n => 
+                            Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, (int)precision)));
+
+            return res;
+        }
+
+
+
 
         #endregion [Checks]
     }

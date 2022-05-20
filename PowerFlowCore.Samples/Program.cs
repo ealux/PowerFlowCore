@@ -4,6 +4,7 @@ using System.Linq;
 using PowerFlowCore.Data;
 using Complex = System.Numerics.Complex;
 
+
 namespace PowerFlowCore.Samples
 {
     class Program
@@ -16,17 +17,17 @@ namespace PowerFlowCore.Samples
             //CalculateAndShow(SampleGrids.IEEE_14());
             //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
-            //Restart timer
-            timer.Restart();
-            // Nodes15_3PV
-            CalculateAndShow(SampleGrids.Nodes15_3PV());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
-
             ////Restart timer
             //timer.Restart();
-            //// IEEE-57
-            //CalculateAndShow(SampleGrids.IEEE_57());
+            //// Nodes15_3PV
+            //CalculateAndShow(SampleGrids.Nodes15_3PV());
             //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+
+            //Restart timer
+            timer.Restart();
+            // IEEE-57
+            CalculateAndShow(SampleGrids.IEEE_57());
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             ////Restart timer
             //timer.Restart();
@@ -41,9 +42,9 @@ namespace PowerFlowCore.Samples
             //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
 
-            //// Test Complex Ktr
-            //CalculateAndShow(SampleGrids.Test_Ktr());
-            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            // Test Complex Ktr
+            CalculateAndShow(SampleGrids.Test_Ktr());
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
 
             Console.ReadKey();
         }
@@ -74,11 +75,13 @@ namespace PowerFlowCore.Samples
                                   "    \tSgen: "  + e.Grid.Nodes[i].S_gen.ToString());
 
             // Powers in branches
-            foreach (var item in e.Grid.Branches) 
-                Console.WriteLine("Branch " + item.Start + "-" + item.End + 
-                                    "\tStart: " + item.S_start.ToString() + 
-                                    "\tEnd: "   + item.S_end.ToString());
+            foreach (var item in e.Grid.Branches)
+                Console.WriteLine("Branch " + item.Start + "-" + item.End +
+                                    "\tStart: " + item.S_start.ToString() +
+                                    "\tEnd: " + item.S_end.ToString());
 
+
+            Console.WriteLine(e.Grid.GetVoltageDifference().ToVectorString());
         }
     }
 }
