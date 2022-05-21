@@ -21,10 +21,7 @@ namespace PowerFlowCore.Solvers
         public static Grid SolverNR(this Grid grid,
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)
-        {
-            // Reserve initial grid
-            Grid gridReserve = grid.DeepCopy();             
-
+        {                        
             // Save PV nodes being transformed
             List<int> gensOnLimits = new List<int>();
             
@@ -39,10 +36,10 @@ namespace PowerFlowCore.Solvers
             while (crossLimits & success)
             {
                 // Calculate power flow
-                (U, success, iteration) = NewtonRaphson(grid, U, options, iteration);
+                (U, success, iteration) = NewtonRaphson(grid, U, options, iter);
 
                 // Increment iteration count
-                iter += iteration;
+                iter = iteration + 1;
 
                 // Inspect PV
                 InspectPV_Classic(grid, ref U, ref gensOnLimits, out crossLimits);
@@ -55,15 +52,10 @@ namespace PowerFlowCore.Solvers
                 U = grid.Ucalc.Clone();
             }
 
-            // !!!!!
-            // TODO:
-            // 1. (Not)Success logic
-            // 2. Voltage restrictions
-            // 3. Angle restrictions in branches
-            // !!!!!
-
-            // Total iteration cost
-            Console.WriteLine($"Iterations total: {iter}");
+            if (success)
+                Logger.LogSuccess($"Converged in {iter} of {options.IterationsCount} iterations");
+            else
+                Logger.LogCritical($"Not converged in {iter - 1} of {options.IterationsCount} iterations");
 
             // Nodes convert back
             for (int i = 0; i < gensOnLimits.Count; i++) 
@@ -94,6 +86,9 @@ namespace PowerFlowCore.Solvers
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
 
+            Vector<double> dPQ;
+            Matrix<double> J;
+
             // Iter number
             int iter = current_iter;
 
@@ -107,8 +102,8 @@ namespace PowerFlowCore.Solvers
                 var Um = U.Map(x => x.Magnitude).ToArray(); 
                 var ph = U.Map(x => x.Phase).ToArray();
 
-                Vector<double> dPQ  = Resuduals_Polar(grid, U);     // Residuals vector 
-                Matrix<double> J    = Jacobian_Polar(grid, U);    // Jacoby matrix                
+                dPQ  = Resuduals_Polar(grid, U);     // Residuals vector 
+                J    = Jacobian_Polar(grid, U);    // Jacoby matrix                
 
                 // Calculation of increments
                 Vector<double> dx = J.Solve(-dPQ);
@@ -129,32 +124,22 @@ namespace PowerFlowCore.Solvers
                 for (int n = 0; n < grid.Nodes.Count; n++)
                     grid.Nodes[n].U = U[n];
 
+                //Logger.LogInfo($"{dPQ.L2Norm()}");
 
                 //Power residual stop criteria
                 if (dPQ.InfinityNorm() <= options.Accuracy)
                 {
-                    Console.WriteLine($"N-R iterations: {iter}" + $" of {options.IterationsCount} (Power residual criteria)");
                     success = true;
                     break;
-                }
-                // Voltage convergence stop criteria
-                if (dx.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count).InfinityNorm() <= options.VoltageConvergence)
-                {
-                    Console.WriteLine($"N-R iterations: {iter}" + $" of {options.IterationsCount} (Voltage convergence criteria)");
-                    success = true;
-                    break;
-                }
+                }                
 
                 // Next iteration
                 iter++; 
             }
 
-            if(iter == options.IterationsCount)
-            {
-                // Iterations count limit
-                Console.WriteLine($"N-R iterations: {options.IterationsCount}" + $" of {options.IterationsCount} (Iterations count criteria)");
+            // Iterations count limit
+            if (iter == options.IterationsCount)
                 success = false;
-            }
 
             return (U, success, iter);
         }

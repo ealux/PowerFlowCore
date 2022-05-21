@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -22,19 +20,19 @@ namespace PowerFlowCore.Solvers
         public static Grid SolverGS(this Grid grid, 
                                          Vector<Complex> U_initial,
                                          CalculationOptions options)
-        {
-            // Reserve initial grid
-            Grid gridReserve = grid.DeepCopy(); 
-
+        {          
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for calc voltages
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for voltages on previous iteration
             var dU   = Vector<Complex>.Build.Dense(U_initial.Count);        // Voltage difference on iteration
            
             // Helper variables
-            double difference = Double.MaxValue;  // Big difference value for accuracy comparison       
-                
+            double difference = Double.MaxValue;  // Big difference value for accuracy comparison      
+
+            // Current iteration
+            int iter = 0;
+
             // MAIN CYCLE
-            for (int iteration = 0; iteration < options.IterationsCount; iteration++)
+            while (iter < options.IterationsCount)
             {
                 // Nodes iterator
                 for (int i = 0; i < grid.Nodes.Count; i++)
@@ -45,51 +43,39 @@ namespace PowerFlowCore.Solvers
                     if (grid.Nodes[i].Type == NodeType.PV) 
                         CaclNodeAsPV(grid, i, ref U, ref Uold, ref dU, options.AccelerationRateGS);
 
+                    // TODO:
+                    // 1. SHN
+                    // 2. Ktr changes
+
+
                     if (grid.Nodes[i].Type == NodeType.Slack) 
                         continue;  //Take Slack nodes
                 }
 
-                Uold = U.Clone();                           // Set as previous calculated voltages  
-                difference = dU.AbsoluteMaximum().Real;   // Find the bigest defference
-
-
-                // TODO: Exception catcher on checks !!!
-                // CHECKS
-                //1.Check Voltage level(difference between actual and nominal)
-                //CheckVoltage(U_nominal: grid.Uinit, U: U, grid: grid, voltageRate: options.VotageRate);
-
+                Uold       = U.Clone();        // Set as previous calculated voltages  
+                difference = dU.InfinityNorm();// Find the bigest defference
 
                 // Stop criteria
-                // Check on Voltage Convergence
-                if (difference <= options.VoltageConvergence)
+                if (difference <= options.Accuracy)
                 {
-                    // Inform finish by voltage convergence criteria
-                    Console.WriteLine($"Gaus-Seidel iterations: {iteration} " +
-                                      $"of {options.IterationsCount}. Success (Voltage convergence criteria)\n");
-
                     //Update voltage levels
                     for (int n = 0; n < grid.Nodes.Count; n++)
                         grid.Nodes[n].U = U[n];  
-
                     break;
                 }
-                // Inform finish by Iteration Criteria
-                if (iteration == options.IterationsCount - 1)
-                    Console.WriteLine($"Gaus-Seidel iterations: {iteration + 1} " +
-                                      $"of {options.IterationsCount}. Success (Iteration count criteria)\n");
+
+                iter++;
             }            
 
             //Update voltage levels
             for (int n = 0; n < grid.Nodes.Count; n++) 
                 grid.Nodes[n].U = U[n];
 
-
-            // !!!!!
-            // TODO:
-            // 1. (Not)Success logic
-            // 2. Voltage restrictions
-            // 3. Angle restrictions in branches
-            // !!!!!
+            // Log
+            if (iter < options.IterationsCount)
+                Logger.LogSuccess($"Converged in {iter} of {options.IterationsCount} iterations");
+            else
+                Logger.LogCritical($"Not converged in {iter} of {options.IterationsCount} iterations");
 
             return grid;
         }

@@ -10,7 +10,7 @@ namespace PowerFlowCore.Data
     /// <summary>
     /// Methods for Grid object extension
     /// </summary>
-    public static class ExtensionsGrid
+    public static partial class ExtensionsMethods
     {
         /// <summary>
         /// Make full copy of <see cref="Grid"/> object

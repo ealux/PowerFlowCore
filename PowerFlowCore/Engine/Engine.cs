@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Optimization;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Complex;
-
-using Complex = System.Numerics.Complex;
+﻿using System.Collections.Generic;
 
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
-using PowerFlowCore.Extensions;
-using System.Linq;
 
 namespace PowerFlowCore
 {
@@ -69,6 +58,9 @@ namespace PowerFlowCore
         /// </summary>
         public void Calculate()
         {
+            // Reserve initial grid
+            Grid gridReserve = Grid.DeepCopy();
+
             //this.Grid.SolverGS(this.Grid.Uinit, this.Options);
 
             //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 15 }).SolverNR(this.Grid.Ucalc, this.Options);
