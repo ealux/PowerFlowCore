@@ -20,13 +20,14 @@ namespace PowerFlowCore.Solvers
         /// <returns><see cref="Grid"/> with calculated voltages</returns>
         public static Grid SolverNR(this Grid grid,
                                          Vector<Complex> U_initial,
-                                         CalculationOptions options)
+                                         CalculationOptions options,
+                                         out bool success)
         {                        
             // Save PV nodes being transformed
             List<int> gensOnLimits = new List<int>();
             
             bool crossLimits = true;
-            bool success     = true;
+                 success     = true;
             int  iteration   = 0;
             int  iter        = 0;
 

@@ -69,6 +69,11 @@ namespace PowerFlowCore
         }
 
         /// <summary>
+        /// Clear <see cref="Logger"/> modes list
+        /// </summary>
+        public static void ClearModes() => Modes.Clear();
+
+        /// <summary>
         /// Add Console to <see cref="Logger"/> output
         /// </summary>
         public static void AddConsoleMode() => Modes.Add(LogMode.Console);

@@ -19,11 +19,14 @@ namespace PowerFlowCore.Solvers
         /// <returns><see cref="Grid"/> with calculated voltages</returns>
         public static Grid SolverGS(this Grid grid, 
                                          Vector<Complex> U_initial,
-                                         CalculationOptions options)
+                                         CalculationOptions options,
+                                         out bool success)
         {          
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for calc voltages
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for voltages on previous iteration
             var dU   = Vector<Complex>.Build.Dense(U_initial.Count);        // Voltage difference on iteration
+
+            success = false;
            
             // Helper variables
             double difference = Double.MaxValue;  // Big difference value for accuracy comparison      
@@ -60,7 +63,8 @@ namespace PowerFlowCore.Solvers
                 {
                     //Update voltage levels
                     for (int n = 0; n < grid.Nodes.Count; n++)
-                        grid.Nodes[n].U = U[n];  
+                        grid.Nodes[n].U = U[n];
+                    success = true;
                     break;
                 }
 
@@ -72,7 +76,7 @@ namespace PowerFlowCore.Solvers
                 grid.Nodes[n].U = U[n];
 
             // Log
-            if (iter < options.IterationsCount)
+            if (success)
                 Logger.LogSuccess($"Converged in {iter} of {options.IterationsCount} iterations");
             else
                 Logger.LogCritical($"Not converged in {iter} of {options.IterationsCount} iterations");

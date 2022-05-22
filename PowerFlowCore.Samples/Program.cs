@@ -22,6 +22,11 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
+            // Nodes4_1PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+
+            timer.Restart();
             // IEEE-14
             CalculateAndShow(SampleGrids.IEEE_14());
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
@@ -41,15 +46,16 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.IEEE_118());
             Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
+            timer.Restart();
+            // Test Complex Ktr
+            CalculateAndShow(SampleGrids.Test_Ktr());
+            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+
+
             //timer.Restart();
             //// IEEE-300
             //CalculateAndShow(SampleGrids.IEEE_300());
             //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
-
-            timer.Restart();
-            // Test Complex Ktr
-            CalculateAndShow(SampleGrids.Test_Ktr());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-300
 
 
             //// Parallel calc
@@ -111,7 +117,9 @@ namespace PowerFlowCore.Samples
             //                        "\tStart: " + item.I_start.ToString() +
             //                        "\tEnd: " + item.I_end.ToString());
 
-            //Console.WriteLine(e.Grid.GetVoltageDifference().ToVectorString());
+
+            //Console.WriteLine(e.Grid.GetVoltageDifference().ToVectorString());        // Show voltage differecne in nodes
+            //Console.WriteLine(e.Grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
         }
     }
 }
