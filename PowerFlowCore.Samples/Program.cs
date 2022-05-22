@@ -14,51 +14,49 @@ namespace PowerFlowCore.Samples
         {
             Logger.AddConsoleMode();
             Logger.AddDebugMode();
-            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-
-
             Logger.LogInfo("Calculation started");
-
 
             var timer = Stopwatch.StartNew();
 
             // Nodes4_1PV
             CalculateAndShow(SampleGrids.Nodes4_1PV());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
             timer.Restart();
             // IEEE-14
             CalculateAndShow(SampleGrids.IEEE_14());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             timer.Restart();
             // Nodes15_3PV
             CalculateAndShow(SampleGrids.Nodes15_3PV());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
 
             timer.Restart();
             // IEEE-57
             CalculateAndShow(SampleGrids.IEEE_57());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
             timer.Restart();
             // IEEE-118
             CalculateAndShow(SampleGrids.IEEE_118());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
             timer.Restart();
             // Test Complex Ktr
             CalculateAndShow(SampleGrids.Test_Ktr());
-            Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
 
             //timer.Restart();
             //// IEEE-300
             //CalculateAndShow(SampleGrids.IEEE_300());
-            //Console.WriteLine("End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+
 
 
             //// Parallel calc
+            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
             //Parallel.Invoke(
             //    () => CalculateAndShow(SampleGrids.IEEE_14()),
             //    () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
@@ -68,8 +66,6 @@ namespace PowerFlowCore.Samples
 
 
             Logger.LogInfo("Calculation finished");
-
-
             Console.ReadKey();
         }
 

@@ -10,9 +10,9 @@ namespace PowerFlowCore.Samples
     {
         public static Engine Test_Ktr()
         {
-            Console.WriteLine("=====================================================");
-            Console.WriteLine("Complex Ktr Test (4 nodes): 1 - PV  2 - PQ  1 - Slack");
-            Console.WriteLine("=====================================================");
+            Logger.LogInfo("=====================================================");
+            Logger.LogInfo("Complex Ktr Test (4 nodes): 1 - PV  2 - PQ  1 - Slack");
+            Logger.LogInfo("=====================================================");
 
             var nodes = new List<Node>()
             {

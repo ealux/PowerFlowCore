@@ -20,19 +20,13 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int IterationsCount { get; set; } = 150;
+        public int IterationsCount { get; set; } = 25;
 
 
         /// <summary>
         /// Voltage tolerance evaluation towards the nominal one
         /// </summary>
         public double VotageRate { get; set; } = 0.5;
-
-
-        /// <summary>
-        /// Voltage convergence criteria (Newton-Raphson method only)
-        /// </summary>
-        public double VoltageConvergence { get; set; } = 1e-5;
 
 
         /// <summary>

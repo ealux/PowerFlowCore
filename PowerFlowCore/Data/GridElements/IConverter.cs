@@ -9,12 +9,12 @@ namespace PowerFlowCore.Data
     {
 
         /// <summary>
-        /// Collection of Nodes in engine-applicable type (INode)
+        /// Collection of Nodes in engine-applicable type <see cref="INode"/>
         /// </summary>
         IEnumerable<INode> Nodes { get; set; }
 
         /// <summary>
-        /// Collection of Branches in engine-applicable type (IBranch)
+        /// Collection of Branches in engine-applicable type <see cref="IBranch"/>
         /// </summary>
         IEnumerable<IBranch> Branches { get; set; }
     }

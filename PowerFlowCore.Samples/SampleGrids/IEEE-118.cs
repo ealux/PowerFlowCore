@@ -10,9 +10,9 @@ namespace PowerFlowCore.Samples
     {
         public static Engine IEEE_118()
         {
-            Console.WriteLine("===========================================");
-            Console.WriteLine("IEEE-118: 53 - PV  64 - PQ  1 - Slack");
-            Console.WriteLine("===========================================");
+            Logger.LogInfo("===========================================");
+            Logger.LogInfo("IEEE-118: 53 - PV  64 - PQ  1 - Slack");
+            Logger.LogInfo("===========================================");
 
             List<INode> nodes = new List<INode>()
             {

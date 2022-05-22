@@ -12,14 +12,14 @@ namespace PowerFlowCore.Data
     public class Grid
     {
         /// <summary>
-        /// Transformed (renumbered) collection of Nodes
+        /// Collection of <see cref="INode">
         /// Sorted from PQ, through PV nodes, up to Slack nodes at the end
         /// Also sorted by nominal voltage level (magnitude)
         /// </summary>
         public List<INode> Nodes { get; set; }
 
         /// <summary>
-        /// Transformed (renumbered) collection of Branches
+        /// Collection of <see cref="IBranch"/>
         /// </summary>
         public List<IBranch> Branches { get; set; }
 
@@ -32,7 +32,7 @@ namespace PowerFlowCore.Data
 
 
         /// <summary>
-        /// Vector of nominal Voltage levels
+        /// Vector of nominal Voltages
         /// </summary>
         public Vector<Complex> Unominal { get; set; }
 

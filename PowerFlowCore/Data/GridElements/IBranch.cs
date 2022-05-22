@@ -14,22 +14,22 @@ namespace PowerFlowCore.Data
     public interface IBranch
     {
         /// <summary>
-        /// Start node (initial)
+        /// Start node num
         /// </summary>
         int Start { get; set; }
 
         /// <summary>
-        /// Start node (for calculation)
+        /// Start node num (for calculation)
         /// </summary>
         int Start_calc { get; set; }
 
         /// <summary>
-        /// End node
+        /// End node num
         /// </summary>
         int End { get; set; }
 
         /// <summary>
-        /// End node (for calculation)
+        /// End node num (for calculation)
         /// </summary>
         int End_calc { get; set; }
 
@@ -54,22 +54,22 @@ namespace PowerFlowCore.Data
         Complex Ktr { get; set; }
 
         /// <summary>
-        /// Power on branch start
+        /// Power flow on branch start side
         /// </summary>
         Complex S_start { get; set; }
 
         /// <summary>
-        /// Power on branch end
+        /// Power flow on branch end side
         /// </summary>
         Complex S_end { get; set; }
 
         /// <summary>
-        /// Ccurrent on branch start
+        /// Ccurrent on branch start side
         /// </summary>
         Complex I_start { get; set; }
 
         /// <summary>
-        /// Current on branch end
+        /// Current on branch end side
         /// </summary>
         Complex I_end { get; set; }
     }

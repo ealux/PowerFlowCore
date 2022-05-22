@@ -10,9 +10,9 @@ namespace PowerFlowCore.Samples
     {
         public static Engine Nodes15_3PV()
         {
-            Console.WriteLine("===========================================");
-            Console.WriteLine("15 nodes: 3 - PV  11 - PQ  1 - Slack");
-            Console.WriteLine("===========================================");
+            Logger.LogInfo("===========================================");
+            Logger.LogInfo("15 nodes: 3 - PV  11 - PQ  1 - Slack");
+            Logger.LogInfo("===========================================");
 
             var nodes = new List<Node>()
             {

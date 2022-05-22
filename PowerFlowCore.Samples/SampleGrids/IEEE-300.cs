@@ -10,9 +10,9 @@ namespace PowerFlowCore.Samples
     {
         public static Engine IEEE_300()
         {
-            Console.WriteLine("===========================================");
-            Console.WriteLine("IEEE-300");
-            Console.WriteLine("===========================================");
+            Logger.LogInfo("===========================================");
+            Logger.LogInfo("IEEE-300");
+            Logger.LogInfo("===========================================");
 
             List<INode> nodes = new List<INode>()
             {

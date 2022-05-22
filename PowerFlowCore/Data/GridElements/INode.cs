@@ -13,7 +13,7 @@ namespace PowerFlowCore.Data
     public interface INode
     {
         /// <summary>
-        /// Node number (initial)
+        /// Node number
         /// </summary>
         int Num { get; set; }
 
@@ -43,7 +43,7 @@ namespace PowerFlowCore.Data
         Complex Unom { get; set; }
 
         /// <summary>
-        /// Consumption
+        /// Load
         /// </summary>
         Complex S_load{ get; set; }
 
