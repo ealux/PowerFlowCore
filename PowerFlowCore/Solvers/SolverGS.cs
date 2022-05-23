@@ -58,6 +58,28 @@ namespace PowerFlowCore.Solvers
                 Uold       = U.Clone();        // Set as previous calculated voltages  
                 difference = dU.InfinityNorm();// Find the bigest defference
 
+                // Set new value to Nodes
+                for (int n = 0; n < grid.Nodes.Count; n++)
+                    grid.Nodes[n].U = U[n];
+
+                #region [Logging on iteration]
+
+                // Internal logging
+                if (options.SolverInternalLogging)
+                {
+                    (INode max_node, double max_v)  = grid.MaxVoltageNode();            // Get node and max voltage
+                    (INode min_node, double min_v)  = grid.MinVoltageNode();            // Get node and min voltage
+                    (IBranch br, double delta)      = grid.MaxAngleBranch();            // Get branch and max delta (angle)
+                    (INode maxUnode, double du)     = grid.GetMaxVoltageResidual(dU);   // Get max residuals
+
+                    Logger.LogInfo($"it:{iter} - " +
+                                   $"rU:[{du}({maxUnode.Num})]; " +
+                                   $"Umax/Umin:[{max_v}({max_node.Num})/{min_v}({min_node.Num})]; " +
+                                   $"Delta:[{delta}({br.Start}-{br.End})]");
+                }
+
+                #endregion
+
                 // Stop criteria
                 if (difference <= options.Accuracy)
                 {
@@ -196,6 +218,22 @@ namespace PowerFlowCore.Solvers
                 // Fix magnitude (Vpre), change angle
                 U[nodeNum] = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, voltage.Phase);
             }
+        }
+
+
+        /// <summary>
+        /// Find maximum residuals of U and corresponded node
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <param name="U">Voltage vector on current iteration</param>
+        /// <returns>(Max dU node, Max dU value)</returns>
+        private static (INode node, double du) GetMaxVoltageResidual(this Grid grid, Vector<Complex> dU)
+        {
+            var index = dU.Map(v => Math.Abs(v.Magnitude)).MaximumIndex();
+            var du    = dU[index].Magnitude;
+            var node  = grid.Nodes[index];
+
+            return (node, Math.Round(du, 3));
         }
     }
 }
