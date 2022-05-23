@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -25,6 +26,9 @@ namespace PowerFlowCore.Solvers
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for calc voltages
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for voltages on previous iteration
             var dU   = Vector<Complex>.Build.Dense(U_initial.Count);        // Voltage difference on iteration
+
+            // Buffer area for log messages
+            List<string> LogBuffer = new List<string>();
 
             success = false;
            
@@ -72,10 +76,10 @@ namespace PowerFlowCore.Solvers
                     (IBranch br, double delta)      = grid.MaxAngleBranch();            // Get branch and max delta (angle)
                     (INode maxUnode, double du)     = grid.GetMaxVoltageResidual(dU);   // Get max residuals
 
-                    Logger.LogInfo($"it:{iter} - " +
-                                   $"rU:[{du}({maxUnode.Num})]; " +
-                                   $"Umax/Umin:[{max_v}({max_node.Num})/{min_v}({min_node.Num})]; " +
-                                   $"Delta:[{delta}({br.Start}-{br.End})]");
+                    LogBuffer.Add($"it:{iter} - " +
+                                  $"rU:[{du}({maxUnode.Num})]; " +
+                                  $"Umax/Umin:[{max_v}({max_node.Num})/{min_v}({min_node.Num})]; " +
+                                  $"Delta:[{delta}({br.Start}-{br.End})]");
                 }
 
                 #endregion
@@ -97,11 +101,17 @@ namespace PowerFlowCore.Solvers
             for (int n = 0; n < grid.Nodes.Count; n++) 
                 grid.Nodes[n].U = U[n];
 
-            // Log
-            if (success)
-                Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
-            else
-                Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
+
+            // Logging
+            lock (Logger._lock)
+            {
+                foreach (var log_item in LogBuffer)
+                    Logger.LogInfo(log_item);
+                if (success)
+                    Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
+                else
+                    Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
+            }                
 
             return grid;
         }

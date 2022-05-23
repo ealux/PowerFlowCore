@@ -12,7 +12,7 @@ namespace PowerFlowCore
     /// </summary>
     public static class Logger
     {
-        private static readonly object _lock = new object();
+        internal static readonly object _lock = new object();
 
         /// <summary>
         /// <see cref="Logger"/> work status (1 - in work, 0 - out of work)
@@ -149,7 +149,7 @@ namespace PowerFlowCore
 
                         #region [Debug output]
                         if (Modes.Contains(LogMode.Debug))
-                            Debug.Write(output);
+                            Debug.WriteLine(output);
                         #endregion
                     }
                 }

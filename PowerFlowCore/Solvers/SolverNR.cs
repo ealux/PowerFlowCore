@@ -25,6 +25,9 @@ namespace PowerFlowCore.Solvers
         {                        
             // Save PV nodes being transformed
             List<int> gensOnLimits = new List<int>();
+
+            // Buffer area for log messages
+            List<string> LogBuffer = new List<string>();
             
             bool crossLimits = true;
                  success     = true;
@@ -37,7 +40,7 @@ namespace PowerFlowCore.Solvers
             while (crossLimits & success)
             {
                 // Calculate power flow
-                (U, success, iteration) = NewtonRaphson(grid, U, options, iter);
+                (U, success, iteration) = NewtonRaphson(grid, U, options, iter, ref LogBuffer);
 
                 // Increment iteration count
                 iter = iteration + 1;
@@ -53,10 +56,16 @@ namespace PowerFlowCore.Solvers
                 U = grid.Ucalc.Clone();
             }
 
-            if (success)
-                Logger.LogSuccess($"Converged (N-R solver) in {iter} of {options.IterationsCount} iterations");
-            else
-                Logger.LogCritical($"Not converged (N-R solver) in {iter - 1} of {options.IterationsCount} iterations");
+            // Logging
+            lock (Logger._lock)
+            {
+                foreach (var log_item in LogBuffer)
+                    Logger.LogInfo(log_item);
+                if (success)
+                    Logger.LogSuccess($"Converged (N-R solver) in {iter} of {options.IterationsCount} iterations");
+                else
+                    Logger.LogCritical($"Not converged (N-R solver) in {iter - 1} of {options.IterationsCount} iterations");
+            }
 
             // Nodes convert back
             for (int i = 0; i < gensOnLimits.Count; i++) 
@@ -81,14 +90,15 @@ namespace PowerFlowCore.Solvers
         private static (Vector<Complex>, bool success, int iter) NewtonRaphson(Grid grid,
                                                                                Vector<Complex> U_initial,
                                                                                CalculationOptions options,
-                                                                               int current_iter)
+                                                                               int current_iter,
+                                                                               ref List<string> logBuffer)
         {
             // U vectors 
             var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
             var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
 
-            Vector<double> dPQ;
-            Matrix<double> J;
+            Vector<double> dPQ; // Residuals
+            Matrix<double> J;   // Jacobian matrix
 
             // Iter number
             int iter = current_iter;
@@ -135,15 +145,13 @@ namespace PowerFlowCore.Solvers
                     (IBranch br, double delta)     = grid.MaxAngleBranch();    // Get branch and max delta (angle)
                     (INode maxPnode, double max_dP, INode maxQnode, double max_dQ) = grid.GetMaximumResiduals(dPQ); // Get max residuals
 
-                    Logger.LogInfo($"it:{iter} - " +
-                                   $"rP/Q:[{max_dP}({maxPnode.Num})/{max_dQ}({maxQnode.Num})]; " +
-                                   $"Umax/Umin:[{max_v}({max_node.Num})/{min_v}({min_node.Num})]; " +
-                                   $"Delta:[{delta}({br.Start}-{br.End})]");
+                    logBuffer.Add($"it:{iter} - " +
+                                  $"rP/Q:[{max_dP}({maxPnode.Num})/{max_dQ}({maxQnode.Num})]; " +
+                                  $"Umax/Umin:[{max_v}({max_node.Num})/{min_v}({min_node.Num})]; " +
+                                  $"Delta:[{delta}({br.Start}-{br.End})]");
                 }                
 
                 #endregion
-
-                //Logger.LogInfo($"{dPQ.L2Norm()}");
 
                 //Power residual stop criteria
                 if (dPQ.InfinityNorm() <= options.Accuracy)

@@ -12,20 +12,22 @@ namespace PowerFlowCore.Samples
     {
         static void Main(string[] args)
         {
+            var timer_global = Stopwatch.StartNew();
+
             Logger.AddConsoleMode();
             Logger.AddDebugMode();
             Logger.LogInfo("Calculation started");
 
             var timer = Stopwatch.StartNew();
 
-            //// Nodes4_1PV
-            //CalculateAndShow(SampleGrids.Nodes4_1PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            // Nodes4_1PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            //timer.Restart();
-            //// IEEE-14
-            //CalculateAndShow(SampleGrids.IEEE_14());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            timer.Restart();
+            // IEEE-14
+            CalculateAndShow(SampleGrids.IEEE_14());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             timer.Restart();
             // Nodes15_3PV
@@ -55,7 +57,7 @@ namespace PowerFlowCore.Samples
 
 
 
-            //// Parallel calc
+            // Parallel calc
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
             //Parallel.Invoke(
             //    () => CalculateAndShow(SampleGrids.IEEE_14()),
@@ -64,8 +66,8 @@ namespace PowerFlowCore.Samples
             //    () => CalculateAndShow(SampleGrids.IEEE_118()),
             //    () => CalculateAndShow(SampleGrids.Test_Ktr()));
 
+            Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 
-            Logger.LogInfo("Calculation finished");
             Console.ReadKey();
         }
 
