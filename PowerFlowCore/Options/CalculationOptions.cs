@@ -5,14 +5,12 @@ using System.Text;
 namespace PowerFlowCore.Data
 {
     /// <summary>
-    /// Calculatiator parameters
+    /// Calculation settings
     /// </summary>
     public sealed class CalculationOptions
     {
         /// <summary>
-        /// Method accuracy:
-        ///   Gauss-Seidel:   Voltage step defference;
-        ///   Newton-Raphson: Power residual tolerance.
+        /// Solver residual accuracy
         /// </summary>
         public double Accuracy { get; set; } = 1e-5;
 
@@ -33,5 +31,11 @@ namespace PowerFlowCore.Data
         /// Gauss-Seidel solver acceleration rate
         /// </summary>
         public double AccelerationRateGS { get; set; } = 1.0;
+
+
+        /// <summary>
+        /// Logging internal solver's info (on iterations)
+        /// </summary>
+        public bool SolverInternalLogging { get; set; } = true;
     }
 }

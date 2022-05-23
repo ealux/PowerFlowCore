@@ -77,9 +77,9 @@ namespace PowerFlowCore.Solvers
 
             // Log
             if (success)
-                Logger.LogSuccess($"Converged in {iter} of {options.IterationsCount} iterations");
+                Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
             else
-                Logger.LogCritical($"Not converged in {iter} of {options.IterationsCount} iterations");
+                Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
 
             return grid;
         }

@@ -54,9 +54,9 @@ namespace PowerFlowCore.Solvers
             }
 
             if (success)
-                Logger.LogSuccess($"Converged in {iter} of {options.IterationsCount} iterations");
+                Logger.LogSuccess($"Converged (N-R solver) in {iter} of {options.IterationsCount} iterations");
             else
-                Logger.LogCritical($"Not converged in {iter - 1} of {options.IterationsCount} iterations");
+                Logger.LogCritical($"Not converged (N-R solver) in {iter - 1} of {options.IterationsCount} iterations");
 
             // Nodes convert back
             for (int i = 0; i < gensOnLimits.Count; i++) 
@@ -124,6 +124,14 @@ namespace PowerFlowCore.Solvers
                 // Set new value to Nodes
                 for (int n = 0; n < grid.Nodes.Count; n++)
                     grid.Nodes[n].U = U[n];
+
+                #region [Logging on iteration]
+
+                (INode max_node, double max_v)  = grid.MaxVoltageNode();
+                (INode min_node, double min_v)  = grid.MinVoltageNode();
+                (IBranch br, double delta)      = grid.MaxAngleBranch();
+
+                #endregion
 
                 //Logger.LogInfo($"{dPQ.L2Norm()}");
 

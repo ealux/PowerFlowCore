@@ -30,7 +30,9 @@ namespace PowerFlowCore
         private static Guid LogGuid { get; } = Guid.NewGuid();
 
         /// <summary>
-        /// Broadcast <see cref="Logger"/> messages to receivers. Sender -> Logger uid, Args -> Logger message
+        /// Broadcast <see cref="Logger"/> messages to receivers.
+        /// <para>Sender -> Logger uid</para>
+        /// <para>Args -> Logger message (<see cref="LogInfoEventArgs.Message" />)</para>
         /// </summary>
         public static event EventHandler<LogInfoEventArgs> LogBroadcast;
 

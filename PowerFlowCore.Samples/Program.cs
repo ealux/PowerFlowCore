@@ -18,14 +18,14 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
-            // Nodes4_1PV
-            CalculateAndShow(SampleGrids.Nodes4_1PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            //// Nodes4_1PV
+            //CalculateAndShow(SampleGrids.Nodes4_1PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            timer.Restart();
-            // IEEE-14
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            //timer.Restart();
+            //// IEEE-14
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             timer.Restart();
             // Nodes15_3PV
