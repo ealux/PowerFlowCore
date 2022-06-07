@@ -10,7 +10,7 @@ namespace PowerFlowCore.Samples
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var timer_global = Stopwatch.StartNew();
 
@@ -73,10 +73,10 @@ namespace PowerFlowCore.Samples
 
 
         // Logger event handling and print message
-        private static void Logger_OnLogBroadcast(object sender, LogInfoEventArgs e)
+        private static void Logger_OnLogBroadcast(string senderID, string message)
         {
-            var mess = sender.ToString() == "" ? "" : $"Grid: {sender.ToString()} -> ";       // Print guid of Grid if exists
-            mess += $"{e.Message}";
+            var mess = senderID == "" ? "" : $"Grid: {senderID} -> ";       // Print guid of Grid if exists
+            mess += $"{message}";
             Console.WriteLine(mess);
         }
 

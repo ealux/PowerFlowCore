@@ -58,15 +58,13 @@ namespace PowerFlowCore
         /// </summary>
         public void Calculate()
         {
-            bool success;
-
             // Reserve initial grid
             Grid gridReserve = Grid.DeepCopy();
 
             //this.Grid.SolverGS(this.Grid.Uinit, this.Options, out success);
 
             //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 5 }, out success).SolverNR(this.Grid.Ucalc, this.Options, out success);
-            this.Grid.SolverNR(this.Grid.Uinit, this.Options, out success);
+            this.Grid.SolverNR(this.Grid.Uinit, this.Options, out bool success);
 
 
             this.Grid.CalculatePowerMatrix();

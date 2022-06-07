@@ -106,11 +106,11 @@ namespace PowerFlowCore.Solvers
             lock (Logger._lock)
             {
                 foreach (var log_item in LogBuffer)
-                    Logger.LogInfo(log_item, grid.Guid.ToString());
+                    Logger.LogInfo(log_item, grid.Id);
                 if (success)
-                    Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Guid.ToString());
+                    Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
                 else
-                    Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Guid.ToString());
+                    Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
             }                
 
             return grid;
@@ -178,7 +178,7 @@ namespace PowerFlowCore.Solvers
                 Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude * 
                          Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
 
-            Q_new = Q_new + grid.Nodes[nodeNum].S_load.Imaginary;
+            Q_new += grid.Nodes[nodeNum].S_load.Imaginary;
 
             // Q conststraints
             var qmin = grid.Nodes[nodeNum].Q_min;

@@ -74,7 +74,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Object identifier
         /// </summary>
-        public Guid Guid { get; private set; }
+        public string Id { get; private set; }
 
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace PowerFlowCore.Data
         /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
         public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {
-            this.Guid = Guid.NewGuid();         // Set guid
-            InitParameters(nodes, branches);    // Create grid
+            this.Id = Guid.NewGuid().ToString();    // Set guid
+            InitParameters(nodes, branches);        // Create grid
         }            
 
 

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Text;
 using System.Diagnostics;
+
+using PowerFlowCore.Data;
 
 namespace PowerFlowCore
 {
@@ -26,10 +27,10 @@ namespace PowerFlowCore
 
         /// <summary>
         /// Broadcast <see cref="Logger"/> messages to receivers.
-        /// <para>Sender -> <see cref="String.Empty"/> OR <see cref="Guid"/> of source <see cref="PowerFlowCore.Data.Grid"/></para>
-        /// <para>Args -> Logger message (<see cref="LogInfoEventArgs.Message" />)</para>
+        /// <para>SenderId (<see cref="String"/>) -> <see cref="String.Empty"/> OR source <see cref="Grid.Id"/></para>
+        /// <para>Message (<see cref="String"/>) -> <see cref="Logger"/> message</para>
         /// </summary>
-        public static event EventHandler<LogInfoEventArgs> LogBroadcast;
+        public static event LogInfoEvent LogBroadcast;
 
         #region [Enable/Disable Log]
 
@@ -46,7 +47,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Check <see cref="Logger"/> work status
         /// </summary>
-        public static bool IsEnabled() => inService == 1 ? true : false;
+        public static bool IsEnabled() => inService == 1;
 
         #endregion
 
@@ -106,7 +107,7 @@ namespace PowerFlowCore
             string output = mesBuilder.ToString();
 
             // Invoke logger event
-            LogBroadcast?.Invoke(sourceGridGuid, new LogInfoEventArgs(output));
+            LogBroadcast?.Invoke(sourceGridGuid, output);
 
             // Logger is enabled
             if (inService == 1)

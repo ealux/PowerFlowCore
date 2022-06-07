@@ -60,11 +60,11 @@ namespace PowerFlowCore.Solvers
             lock (Logger._lock)
             {
                 foreach (var log_item in LogBuffer)
-                    Logger.LogInfo(log_item, grid.Guid.ToString());
+                    Logger.LogInfo(log_item, grid.Id);
                 if (success)
-                    Logger.LogSuccess($"Converged (N-R solver) in {iter} of {options.IterationsCount} iterations", grid.Guid.ToString());
+                    Logger.LogSuccess($"Converged (N-R solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
                 else
-                    Logger.LogCritical($"Not converged (N-R solver) in {iter - 1} of {options.IterationsCount} iterations", grid.Guid.ToString());
+                    Logger.LogCritical($"Not converged (N-R solver) in {iter - 1} of {options.IterationsCount} iterations", grid.Id);
             }
 
             // Nodes convert back
