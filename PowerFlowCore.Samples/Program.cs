@@ -14,40 +14,40 @@ namespace PowerFlowCore.Samples
         {
             var timer_global = Stopwatch.StartNew();
 
-            Logger.AddConsoleMode();
-            Logger.AddDebugMode();
-            Logger.LogInfo("Calculation started");
+            //Logger.AddConsoleMode();
+            //Logger.AddDebugMode();
+            //Logger.LogInfo("Calculation started");
 
-            var timer = Stopwatch.StartNew();
+            //var timer = Stopwatch.StartNew();
 
-            // Nodes4_1PV
-            CalculateAndShow(SampleGrids.Nodes4_1PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            //// Nodes4_1PV
+            //CalculateAndShow(SampleGrids.Nodes4_1PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            timer.Restart();
-            // IEEE-14
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            //timer.Restart();
+            //// IEEE-14
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
-            timer.Restart();
-            // Nodes15_3PV
-            CalculateAndShow(SampleGrids.Nodes15_3PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            //timer.Restart();
+            //// Nodes15_3PV
+            //CalculateAndShow(SampleGrids.Nodes15_3PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
 
-            timer.Restart();
-            // IEEE-57
-            CalculateAndShow(SampleGrids.IEEE_57());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+            //timer.Restart();
+            //// IEEE-57
+            //CalculateAndShow(SampleGrids.IEEE_57());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
-            timer.Restart();
-            // IEEE-118
-            CalculateAndShow(SampleGrids.IEEE_118());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            //timer.Restart();
+            //// IEEE-118
+            //CalculateAndShow(SampleGrids.IEEE_118());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
-            timer.Restart();
-            // Test Complex Ktr
-            CalculateAndShow(SampleGrids.Test_Ktr());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            //timer.Restart();
+            //// Test Complex Ktr
+            //CalculateAndShow(SampleGrids.Test_Ktr());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
 
             //timer.Restart();
@@ -58,13 +58,13 @@ namespace PowerFlowCore.Samples
 
 
             // Parallel calc
-            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-            //Parallel.Invoke(
-            //    () => CalculateAndShow(SampleGrids.IEEE_14()),
-            //    () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
-            //    () => CalculateAndShow(SampleGrids.IEEE_57()),
-            //    () => CalculateAndShow(SampleGrids.IEEE_118()),
-            //    () => CalculateAndShow(SampleGrids.Test_Ktr()));
+            Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
+            Parallel.Invoke(
+                () => CalculateAndShow(SampleGrids.IEEE_14()),
+                () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
+                () => CalculateAndShow(SampleGrids.IEEE_57()),
+                () => CalculateAndShow(SampleGrids.IEEE_118()),
+                () => CalculateAndShow(SampleGrids.Test_Ktr()));
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 
@@ -73,7 +73,12 @@ namespace PowerFlowCore.Samples
 
 
         // Logger event handling and print message
-        private static void Logger_OnLogBroadcast(object sender, LogInfoEventArgs e) => Console.WriteLine(e.Message);
+        private static void Logger_OnLogBroadcast(object sender, LogInfoEventArgs e)
+        {
+            var mess = sender.ToString() == "" ? "" : $"Grid: {sender.ToString()} -> ";       // Print guid of Grid if exists
+            mess += $"{e.Message}";
+            Console.WriteLine(mess);
+        }
 
 
 

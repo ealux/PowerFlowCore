@@ -106,11 +106,11 @@ namespace PowerFlowCore.Solvers
             lock (Logger._lock)
             {
                 foreach (var log_item in LogBuffer)
-                    Logger.LogInfo(log_item);
+                    Logger.LogInfo(log_item, grid.Guid.ToString());
                 if (success)
-                    Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
+                    Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Guid.ToString());
                 else
-                    Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations");
+                    Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Guid.ToString());
             }                
 
             return grid;

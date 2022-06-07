@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -70,14 +71,22 @@ namespace PowerFlowCore.Data
         /// </summary>
         public int Slack_Count { get; set; }
 
+        /// <summary>
+        /// Object identifier
+        /// </summary>
+        public Guid Guid { get; private set; }
+
 
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
         /// </summary>
         /// <param name="nodes">Enumerable source of <see cref="INode"/> collection</param>
         /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
-        public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) => InitParameters(nodes, branches); //ctor               
-
+        public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
+        {
+            this.Guid = Guid.NewGuid();         // Set guid
+            InitParameters(nodes, branches);    // Create grid
+        }            
 
 
         #region [Build Scheme]

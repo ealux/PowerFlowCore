@@ -25,13 +25,8 @@ namespace PowerFlowCore
         private static HashSet<LogMode> Modes = new HashSet<LogMode>();
 
         /// <summary>
-        /// Internal <see cref="Logger"/> id
-        /// </summary>
-        private static Guid LogGuid { get; } = Guid.NewGuid();
-
-        /// <summary>
         /// Broadcast <see cref="Logger"/> messages to receivers.
-        /// <para>Sender -> Logger uid</para>
+        /// <para>Sender -> <see cref="String.Empty"/> OR <see cref="Guid"/> of source <see cref="PowerFlowCore.Data.Grid"/></para>
         /// <para>Args -> Logger message (<see cref="LogInfoEventArgs.Message" />)</para>
         /// </summary>
         public static event EventHandler<LogInfoEventArgs> LogBroadcast;
@@ -94,7 +89,7 @@ namespace PowerFlowCore
         /// </summary>
         /// <param name="level">Message status</param>
         /// <param name="message">Message to log</param>
-        private static void Log(LogLevel level, string message)
+        private static void Log(LogLevel level, string message, string sourceGridGuid = "")
         {
             var delim = "||";
             var time = $"{DateTime.UtcNow.ToLocalTime():dd.MM.yy HH:mm:ss.fff}";
@@ -111,7 +106,7 @@ namespace PowerFlowCore
             string output = mesBuilder.ToString();
 
             // Invoke logger event
-            LogBroadcast?.Invoke(LogGuid, new LogInfoEventArgs(output));
+            LogBroadcast?.Invoke(sourceGridGuid, new LogInfoEventArgs(output));
 
             // Logger is enabled
             if (inService == 1)
@@ -160,25 +155,25 @@ namespace PowerFlowCore
         /// Log message with Information status. Invoke <see cref="LogBroadcast"/> event.
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static void LogInfo(string message) => Log(LogLevel.Info, message);
+        public static void LogInfo(string message, string sourceGridGuid = "") => Log(LogLevel.Info, message, sourceGridGuid);
 
         /// <summary>
         /// Log message with Success status. Invoke <see cref="LogBroadcast"/> event.
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static void LogSuccess(string message) => Log(LogLevel.Success, message);
+        public static void LogSuccess(string message, string sourceGridGuid = "") => Log(LogLevel.Success, message, sourceGridGuid);
 
         /// <summary>
         /// Log message with Warning status. Invoke <see cref="LogBroadcast"/> event.
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static void LogWarning(string message) => Log(LogLevel.Warning, message);
+        public static void LogWarning(string message, string sourceGridGuid = "") => Log(LogLevel.Warning, message, sourceGridGuid);
 
         /// <summary>
         /// Log message with Critical status. Invoke <see cref="LogBroadcast"/> event.
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static void LogCritical(string message) => Log(LogLevel.Critical, message);
+        public static void LogCritical(string message, string sourceGridGuid = "") => Log(LogLevel.Critical, message, sourceGridGuid);
 
         #endregion
     }
