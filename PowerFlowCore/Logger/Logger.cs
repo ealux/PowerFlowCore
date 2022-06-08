@@ -92,8 +92,8 @@ namespace PowerFlowCore
         /// <param name="message">Message to log</param>
         private static void Log(LogLevel level, string message, string sourceGridGuid = "")
         {
-            var delim = "||";
-            var time = $"{DateTime.UtcNow.ToLocalTime():dd.MM.yy HH:mm:ss.fff}";
+            var delim = "||";   // Set delimiter
+            var time = $"{DateTime.UtcNow.ToLocalTime():dd.MM.yy HH:mm:ss.fff}";    // Add timestamp
 
             var mesBuilder = new StringBuilder();
 

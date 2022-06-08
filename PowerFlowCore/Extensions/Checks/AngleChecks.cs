@@ -35,13 +35,13 @@ namespace PowerFlowCore.Data
         /// Find branch with maximum value of difference between voltage angles in start and end nodes
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
-        /// <returns>(Maximum angle IBranch, maximum difference value [deg])</returns>
+        /// <returns><see cref="Tuple{T1, T2}"/> of (Maximum angle IBranch, Maximum difference value [deg])</returns>
         public static (IBranch, double) MaxAngleBranch(this Grid grid)
         {
-            var diff = GetAngleAbsoluteDifference(grid, 5);
+            var diff   = GetAngleAbsoluteDifference(grid, 5);
 
-            var index = diff.MaximumIndex();
-            var angle = diff.Maximum();
+            var index  = diff.MaximumIndex();
+            var angle  = diff.Maximum();
             var branch = grid.Branches[index];
 
             return (branch, Math.Round(angle, 2));

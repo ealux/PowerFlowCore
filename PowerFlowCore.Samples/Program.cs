@@ -64,7 +64,8 @@ namespace PowerFlowCore.Samples
                 () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
                 () => CalculateAndShow(SampleGrids.IEEE_57()),
                 () => CalculateAndShow(SampleGrids.IEEE_118()),
-                () => CalculateAndShow(SampleGrids.Test_Ktr()));
+                () => CalculateAndShow(SampleGrids.Test_Ktr())
+            );
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 
@@ -73,12 +74,7 @@ namespace PowerFlowCore.Samples
 
 
         // Logger event handling and print message
-        private static void Logger_OnLogBroadcast(string senderID, string message)
-        {
-            var mess = senderID == "" ? "" : $"Grid: {senderID} -> ";       // Print guid of Grid if exists
-            mess += $"{message}";
-            Console.WriteLine(mess);
-        }
+        private static void Logger_OnLogBroadcast(string senderID, string message) => Console.WriteLine(message);
 
 
 

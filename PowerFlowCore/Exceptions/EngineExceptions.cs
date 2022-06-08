@@ -1,4 +1,5 @@
 ﻿using System;
+using PowerFlowCore.Data;
 
 namespace PowerFlowCore
 {
@@ -8,7 +9,7 @@ namespace PowerFlowCore
     [Serializable]
     internal class VoltageOverflowException:Exception
     {
-        public VoltageOverflowException(string Node_info) : base("Недопустимое превышение напряжения! Узел: " + $"{Node_info}") { }
+        public VoltageOverflowException(INode node) : base("Voltage overflow! Node: " + $"{node.Num}") { }
     }
 
 
@@ -18,6 +19,6 @@ namespace PowerFlowCore
     [Serializable]
     internal class VoltageLackException : Exception
     {
-        public VoltageLackException(string Node_info) : base("Недопустимое cнижение напряжения! Узел: " + $"{Node_info}") { }
+        public VoltageLackException(INode node) : base("Voltage lack! Node: " + $"{node.Num}") { }
     }
 }
