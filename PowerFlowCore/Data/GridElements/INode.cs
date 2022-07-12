@@ -55,12 +55,12 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Minimal Q generation constraint for PV nodes
         /// </summary>
-        double Q_min { get; set; }
+        double? Q_min { get; set; }
 
         /// <summary>
         /// Maximal Q generation constraint for PV nodes
         /// </summary>
-        double Q_max { get; set; }
+        double? Q_max { get; set; }
 
         /// <summary>
         /// Admittance (shunt)

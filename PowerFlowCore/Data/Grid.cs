@@ -84,7 +84,7 @@ namespace PowerFlowCore.Data
         /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
         public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {
-            this.Id = Guid.NewGuid().ToString();    // Set guid
+            this.Id = Guid.NewGuid().ToString();    // Set id
             InitParameters(nodes, branches);        // Create grid
         }            
 
@@ -118,21 +118,14 @@ namespace PowerFlowCore.Data
                 if (node.Type == NodeType.PV)
                 {
                     var vpreN = node.Vpre == 0.0;
-                    var qminN = node.Q_min == 0.0;
-                    var qmaxN = node.Q_max == 0.0;
+                    var qminN = node.Q_min.HasValue;
+                    var qmaxN = node.Q_max.HasValue;
 
                     if (vpreN)
                     {
                         node.Type = NodeType.PQ;
                         ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
                         continue;
-                    }
-                    if (!vpreN)
-                    {
-                        if(qminN)
-                            node.Q_min = double.MinValue;
-                        if(qmaxN)
-                            node.Q_max = double.MaxValue;
                     }
                 }
             }

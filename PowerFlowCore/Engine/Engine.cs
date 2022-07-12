@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
@@ -27,7 +28,7 @@ namespace PowerFlowCore
 
 
         
-        public Engine(IConverter converter, CalculationOptions options = null)
+        public Engine(IConverter converter, CalculationOptions? options = default)
         {
             IEnumerable<INode> nodes = converter.Nodes;
             IEnumerable<IBranch> branches = converter.Branches;
@@ -57,10 +58,7 @@ namespace PowerFlowCore
         /// Steady state mode calculus
         /// </summary>
         public void Calculate()
-        {
-            // Reserve initial grid
-            Grid gridReserve = Grid.DeepCopy();
-
+        {           
             //this.Grid.SolverGS(this.Grid.Uinit, this.Options, out success);
 
             //this.Grid.SolverGS(this.Grid.Uinit, new CalculationOptions() { IterationsCount = 5 }, out success).SolverNR(this.Grid.Ucalc, this.Options, out success);
@@ -69,6 +67,29 @@ namespace PowerFlowCore
 
             this.Grid.CalculatePowerMatrix();
             this.NeedsToCalc = false;
-        }       
+        }
+        
+
+        /// <summary>
+        /// Calculate the grid with default <see cref="CalculationOptions"/>
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/></param>
+        /// <returns></returns>
+        public static (Grid result, bool success) CalculateDefault(Grid grid)
+        {
+            // Reserve initial grid
+            Grid gridReserve = grid.DeepCopy();
+
+            // Calculate
+            grid.SolverNR(grid.Uinit, new CalculationOptions(), out bool suc);
+
+            if (suc)
+            {
+                grid.CalculatePowerMatrix();    // Calculate power flows
+                return (grid, suc);             // On success
+            }                
+            else
+                return (gridReserve, false);    // On fault 
+        }
     }
 }

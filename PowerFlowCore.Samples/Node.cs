@@ -13,8 +13,8 @@ namespace PowerFlowCore.Samples
         public Complex Ysh { get; set; }
         public Complex S_load { get; set; }
         public Complex S_gen { get; set; }
-        public double Q_min { get; set; }
-        public double Q_max { get; set; }
+        public double? Q_min { get; set; }
+        public double? Q_max { get; set; }
         public double Vpre { get; set; }
     }
 }

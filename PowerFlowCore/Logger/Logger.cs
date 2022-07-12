@@ -13,24 +13,37 @@ namespace PowerFlowCore
     /// </summary>
     public static class Logger
     {
+        #region [Private/Internal interface]
+
         internal static readonly object _lock = new object();
 
         /// <summary>
-        /// <see cref="Logger"/> work status (1 - in work, 0 - out of work)
+        /// Logger status (1 - in work, 0 - out of work)
         /// </summary>
-        private static int inService = 1; 
+        private static int inService = 1;
 
         /// <summary>
-        /// <see cref="Logger"/> modes collection
+        /// Modes collection
         /// </summary>
         private static HashSet<LogMode> Modes = new HashSet<LogMode>();
+
+        /// <summary>
+        /// Collection of custom logger listeners
+        /// </summary>
+        private static List<ILoggerListener> listeners = new List<ILoggerListener>();
+
+        #endregion
+
+        #region [Public interface]
 
         /// <summary>
         /// Broadcast <see cref="Logger"/> messages to receivers.
         /// <para>SenderId (<see cref="String"/>) -> <see cref="String.Empty"/> OR source <see cref="Grid.Id"/></para>
         /// <para>Message (<see cref="String"/>) -> <see cref="Logger"/> message</para>
         /// </summary>
-        public static event LogInfoEvent LogBroadcast;
+        public static event LogInfoEvent? LogBroadcast;
+
+        #endregion
 
         #region [Enable/Disable Log]
 
@@ -59,7 +72,7 @@ namespace PowerFlowCore
         /// <param name="modes">Modes list</param>
         public static void AddModes(params LogMode[] modes)
         {
-            if (modes == null | modes.Length == 0)
+            if (modes == null || modes.Length == 0)
                 return;
 
             foreach (var item in modes)
@@ -69,7 +82,12 @@ namespace PowerFlowCore
         /// <summary>
         /// Clear <see cref="Logger"/> modes list
         /// </summary>
-        public static void ClearModes() => Modes.Clear();
+        public static void ClearModes()
+        {
+            Modes.Clear();
+            if (listeners.Count > 0)
+                listeners.Clear();
+        }
 
         /// <summary>
         /// Add Console to <see cref="Logger"/> output
@@ -81,6 +99,18 @@ namespace PowerFlowCore
         /// </summary>
         public static void AddDebugMode()   => Modes.Add(LogMode.Debug);
 
+        /// <summary>
+        /// Add custom listener to <see cref="Logger"/> output
+        /// </summary>
+        public static void AddCustomMode(ILoggerListener customListener)
+        {
+            if(customListener != null)
+            {
+                Modes.Add(LogMode.Custom);
+                listeners.Add(customListener);
+            }
+        }
+
         #endregion
 
         #region [Logger speakers]
@@ -90,7 +120,7 @@ namespace PowerFlowCore
         /// </summary>
         /// <param name="level">Message status</param>
         /// <param name="message">Message to log</param>
-        private static void Log(LogLevel level, string message, string sourceGridGuid = "")
+        private static void Log(LogLevel level, string message, string sourceGridId = "")
         {
             var delim = "||";   // Set delimiter
             var time = $"{DateTime.UtcNow.ToLocalTime():dd.MM.yy HH:mm:ss.fff}";    // Add timestamp
@@ -107,7 +137,7 @@ namespace PowerFlowCore
             string output = mesBuilder.ToString();
 
             // Invoke logger event
-            LogBroadcast?.Invoke(sourceGridGuid, output);
+            LogBroadcast?.Invoke(sourceGridId, output);
 
             // Logger is enabled
             if (inService == 1)
@@ -146,6 +176,11 @@ namespace PowerFlowCore
                         #region [Debug output]
                         if (Modes.Contains(LogMode.Debug))
                             Debug.WriteLine(output);
+                        #endregion
+
+                        #region [Custom output]
+                        if (Modes.Contains(LogMode.Custom) & listeners.Count > 0)
+                            listeners.ForEach(l => l.ReceiveLoggerMessage(sourceGridId, output));
                         #endregion
                     }
                 }

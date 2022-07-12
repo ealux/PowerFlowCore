@@ -262,16 +262,16 @@ namespace PowerFlowCore.Solvers
         private static bool ChangeQgen(List<int> gensOnLimits,
                                         INode Node,
                                         double Qgen,
-                                        double qmin,
-                                        double qmax)
+                                        double? qmin,
+                                        double? qmax)
         {
             var crossLimits = false;
 
             // Check limits conditions
-            if (Qgen <= qmin)
+            if (qmin.HasValue && Qgen <= qmin)
             {
                 // If Qgen on LOWER limit but voltage BIGGER then Vpre 
-                Node.S_gen = new Complex(Node.S_gen.Real, qmin);
+                Node.S_gen = new Complex(Node.S_gen.Real, qmin.Value);
                 Node.Type = NodeType.PQ;
                 if (!gensOnLimits.Contains(Node.Num))
                 {
@@ -279,10 +279,10 @@ namespace PowerFlowCore.Solvers
                     crossLimits = true;
                 }
             }
-            else if (Qgen >= qmax)
+            else if (qmax.HasValue && Qgen >= qmax)
             {
                 // If Qgen on UPPER limit but voltage LESS then Vpre                        
-                Node.S_gen = new Complex(Node.S_gen.Real, qmax);
+                Node.S_gen = new Complex(Node.S_gen.Real, qmax.Value);
                 Node.Type = NodeType.PQ;
                 if (!gensOnLimits.Contains(Node.Num))
                 {

@@ -188,15 +188,15 @@ namespace PowerFlowCore.Solvers
             bool isOutOfLimits = false;
 
             // Check limits conditions
-            if (Q_new <= qmin)
+            if (qmin.HasValue && Q_new <= qmin)
             {
-                grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin);
+                grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmin.Value);
                 isOutOfLimits = true;
 
             }
-            else if (Q_new >= qmax)
+            else if (qmax.HasValue && Q_new >= qmax)
             {
-                grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax);
+                grid.Nodes[nodeNum].S_gen = new Complex(grid.Nodes[nodeNum].S_gen.Real, qmax.Value);
                 isOutOfLimits = true;
             }
             else

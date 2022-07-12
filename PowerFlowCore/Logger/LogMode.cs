@@ -8,5 +8,6 @@ namespace PowerFlowCore
     {
         Console = 0,
         Debug   = 1,
+        Custom  = 2
     }
 }
