@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 
 using PowerFlowCore.Data;
+using System.Threading.Tasks;
 
 namespace PowerFlowCore
 {
@@ -180,7 +181,14 @@ namespace PowerFlowCore
 
                         #region [Custom output]
                         if (Modes.Contains(LogMode.Custom) && listeners.Count > 0)
-                            listeners.ForEach(l => l.ReceiveLoggerMessage(sourceGridId, output));
+                            Task.Run(() =>
+                            {
+                                try
+                                {
+                                    listeners.ForEach(l => l.ReceiveLoggerMessage(sourceGridId, output));
+                                }
+                                catch (Exception) { }
+                            });
                         #endregion
                     }
                 }

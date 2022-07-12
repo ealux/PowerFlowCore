@@ -8,26 +8,27 @@ using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Samples
 {
-    class Program
+    partial class Program
     {
         static void Main()
         {
             var timer_global = Stopwatch.StartNew();
 
             Logger.AddConsoleMode();
-            Logger.AddDebugMode();
+            Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener
+            //Logger.AddDebugMode();
             Logger.LogInfo("Calculation started");
 
             var timer = Stopwatch.StartNew();
 
-            //// Nodes4_1PV
-            //CalculateAndShow(SampleGrids.Nodes4_1PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            // Nodes4_1PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            //timer.Restart();
-            //// IEEE-14
-            //CalculateAndShow(SampleGrids.IEEE_14());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            timer.Restart();
+            // IEEE-14
+            CalculateAndShow(SampleGrids.IEEE_14());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             timer.Restart();
             // Nodes15_3PV
@@ -39,10 +40,10 @@ namespace PowerFlowCore.Samples
             //CalculateAndShow(SampleGrids.IEEE_57());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
-            //timer.Restart();
-            //// IEEE-118
-            //CalculateAndShow(SampleGrids.IEEE_118());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            timer.Restart();
+            // IEEE-118
+            CalculateAndShow(SampleGrids.IEEE_118());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
             //timer.Restart();
             //// Test Complex Ktr
@@ -80,8 +81,6 @@ namespace PowerFlowCore.Samples
 
         // Logger event handling and print message
         private static void Logger_OnLogBroadcast(string senderID, string message) => Console.WriteLine(message);
-
-
 
         /// <summary>
         /// Make calculus and print calculated params
