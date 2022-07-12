@@ -179,7 +179,7 @@ namespace PowerFlowCore
                         #endregion
 
                         #region [Custom output]
-                        if (Modes.Contains(LogMode.Custom) & listeners.Count > 0)
+                        if (Modes.Contains(LogMode.Custom) && listeners.Count > 0)
                             listeners.ForEach(l => l.ReceiveLoggerMessage(sourceGridId, output));
                         #endregion
                     }

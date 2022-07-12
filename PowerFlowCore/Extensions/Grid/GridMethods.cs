@@ -90,7 +90,7 @@ namespace PowerFlowCore.Data
                 grid.Uinit = Vector<Complex>.Build.Dense(grid.Unominal.Count);
 
             // If input Uinit is null or broken
-            if ((Uinit == null) | (Uinit.Count != grid.Unominal.Count))
+            if ((Uinit == null) || (Uinit.Count != grid.Unominal.Count))
             {
                 for (int i = 0; i < grid.Nodes.Count; i++)
                 {
