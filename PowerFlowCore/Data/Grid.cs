@@ -52,8 +52,13 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Vector of Powers in Nodes (Generation - Load)
         /// </summary>
-        public Vector<Complex> S => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_load);
+        public Vector<Complex> S => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_calc);
 
+
+        /// <summary>
+        /// Collection of Static Load Models to be applied
+        /// </summary>
+        public Dictionary<int, IStaticLoadModel> LoadModels { get; set; } = new Dictionary<int, IStaticLoadModel>();
 
 
         /// <summary>
@@ -76,6 +81,10 @@ namespace PowerFlowCore.Data
         /// </summary>
         public string Id { get; private set; }
 
+        /// <summary>
+        /// Private ctor
+        /// </summary>
+        private Grid() { }
 
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
@@ -92,7 +101,7 @@ namespace PowerFlowCore.Data
         #region [Build Scheme]
 
         /// <summary>
-        /// Initialize (or re-initialize) parameters
+        /// Initialize (or re-initialize) Grid parameters
         /// </summary>
         /// <param name="nodes">Enumerable source of raw-view Nodes</param>
         /// <param name="branches">Enumerable source of raw-view Branches</param>
@@ -118,8 +127,6 @@ namespace PowerFlowCore.Data
                 if (node.Type == NodeType.PV)
                 {
                     var vpreN = node.Vpre == 0.0;
-                    var qminN = node.Q_min.HasValue;
-                    var qmaxN = node.Q_max.HasValue;
 
                     if (vpreN)
                     {
@@ -134,6 +141,7 @@ namespace PowerFlowCore.Data
             for (int i = 0; i < this.Nodes.Count; i++)
             {
                 var node = this.Nodes[i];
+                if(node.S_calc == Complex.Zero) node.S_calc = node.S_load;  // Set load for calculus
 
                 switch (node.Type)
                 {                                      

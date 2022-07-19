@@ -48,6 +48,16 @@ namespace PowerFlowCore.Data
         Complex S_load{ get; set; }
 
         /// <summary>
+        /// Number of Load model in <see cref="Grid.LoadModels"/>
+        /// </summary>
+        public int? LoadModelNum { get; set; }
+
+        /// <summary>
+        /// Load, calculated by <see cref="IStaticLoadModel"/>
+        /// </summary>
+        Complex S_calc { get; set; }
+
+        /// <summary>
         /// Generation
         /// </summary>
         Complex S_gen { get; set; }

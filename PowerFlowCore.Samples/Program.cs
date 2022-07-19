@@ -21,47 +21,43 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
-            // Nodes4_1PV
             CalculateAndShow(SampleGrids.Nodes4_1PV());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
             timer.Restart();
-            // IEEE-14
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
-
-            timer.Restart();
-            // Nodes15_3PV
-            CalculateAndShow(SampleGrids.Nodes15_3PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             //timer.Restart();
-            //// IEEE-57
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes15_3PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+
+            //timer.Restart();
             //CalculateAndShow(SampleGrids.IEEE_57());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
-            timer.Restart();
-            // IEEE-118
-            CalculateAndShow(SampleGrids.IEEE_118());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.IEEE_118());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
             //timer.Restart();
-            //// Test Complex Ktr
             //CalculateAndShow(SampleGrids.Test_Ktr());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
             //timer.Restart();
-            //// Nodes197_36PV
             //CalculateAndShow(SampleGrids.Nodes197_36PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
 
             //timer.Restart();
-            //// Nodes300_27PV
             //CalculateAndShow(SampleGrids.Nodes300_27PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  //Stop timer and show result
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
 
-            //// Parallel calc
+            ////Parallel calc
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
             //Parallel.Invoke(
             //    () => CalculateAndShow(SampleGrids.IEEE_14()),
@@ -91,20 +87,21 @@ namespace PowerFlowCore.Samples
             e.Calculate();                                                       //Performe calculations
             var calc = e.Grid.Ucalc;                                             //Take calculated U values
 
-            ////Voltage and angle
-            //for (int i = 0; i < e.Grid.Nodes.Count; i++)
-            //    Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
-            //                      $" {e.Grid.Nodes[i].Type}" +
-            //                      " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 5) +
-            //                      "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 5));
+            //Voltage and angle
+            for (int i = 0; i < e.Grid.Nodes.Count; i++)
+                Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
+                                  $" {e.Grid.Nodes[i].Type}" +
+                                  " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 5) +
+                                  "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 5));
 
-            //// Load and gen in Nodes
-            //Console.WriteLine("\nPowers");
-            //for (int i = 0; i < e.Grid.Nodes.Count; i++)
-            //    Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
-            //                      $" {e.Grid.Nodes[i].Type}" +
-            //                      "\tSload: " + e.Grid.Nodes[i].S_load.ToString() +
-            //                      "    \tSgen: " + e.Grid.Nodes[i].S_gen.ToString());
+            // Load and gen in Nodes
+            Console.WriteLine("\nPowers");
+            for (int i = 0; i < e.Grid.Nodes.Count; i++)
+                Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
+                                  $" {e.Grid.Nodes[i].Type}" +
+                                  "\tSload: " + e.Grid.Nodes[i].S_load.ToString() +
+                                  "\tScalc: " + e.Grid.Nodes[i].S_calc.ToString("#.###") +
+                                  "    \tSgen: " + e.Grid.Nodes[i].S_gen.ToString());
 
             //// Powers in branches
             //Console.WriteLine("\nPower flows");

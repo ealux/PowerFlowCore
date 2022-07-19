@@ -4,7 +4,10 @@ using System.Text;
 
 namespace PowerFlowCore
 {
-    public enum LogLevel
+    /// <summary>
+    /// Log level based on warnings
+    /// </summary>
+    public enum LogLevel: byte
     {
         Info     = 0,
         Success  = 1,

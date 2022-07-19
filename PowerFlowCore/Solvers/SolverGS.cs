@@ -30,6 +30,7 @@ namespace PowerFlowCore.Solvers
             // Buffer area for log messages
             List<string> LogBuffer = new List<string>();
 
+            // Result success
             success = false;
            
             // Helper variables
@@ -65,6 +66,9 @@ namespace PowerFlowCore.Solvers
                 // Set new value to Nodes
                 for (int n = 0; n < grid.Nodes.Count; n++)
                     grid.Nodes[n].U = U[n];
+
+                // Evaluate static load model
+                EvaluateLoadModel(grid);
 
                 #region [Logging on iteration]
 
@@ -105,8 +109,8 @@ namespace PowerFlowCore.Solvers
             // Logging
             lock (Logger._lock)
             {
-                foreach (var log_item in LogBuffer)
-                    Logger.LogInfo(log_item, grid.Id);
+                for (int i = 0; i < LogBuffer.Count; i++)
+                    Logger.LogInfo(LogBuffer[i], grid.Id);
                 if (success)
                     Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
                 else
@@ -178,7 +182,7 @@ namespace PowerFlowCore.Solvers
                 Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude * 
                          Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
 
-            Q_new += grid.Nodes[nodeNum].S_load.Imaginary;
+            Q_new += grid.Nodes[nodeNum].S_calc.Imaginary;
 
             // Q conststraints
             var qmin = grid.Nodes[nodeNum].Q_min;

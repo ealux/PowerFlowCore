@@ -88,8 +88,8 @@ namespace PowerFlowCore.Tests
 
             for (int i = 0; i < net.Nodes.Count; i++)
             {
-                P[i] = net.Nodes[i].S_gen.Real      - net.Nodes[i].S_load.Real;
-                Q[i] = net.Nodes[i].S_gen.Imaginary - net.Nodes[i].S_load.Imaginary;
+                P[i] = net.Nodes[i].S_gen.Real      - net.Nodes[i].S_calc.Real;
+                Q[i] = net.Nodes[i].S_gen.Imaginary - net.Nodes[i].S_calc.Imaginary;
             }
 
             var options = new CalculationOptions(); //Options
@@ -102,8 +102,8 @@ namespace PowerFlowCore.Tests
 
             for (int i = 0; i < net.Nodes.Count; i++)
             {
-                Pres[i] = net.Nodes[i].S_gen.Real      - net.Nodes[i].S_load.Real;
-                Qres[i] = net.Nodes[i].S_gen.Imaginary - net.Nodes[i].S_load.Imaginary;
+                Pres[i] = net.Nodes[i].S_gen.Real      - net.Nodes[i].S_calc.Real;
+                Qres[i] = net.Nodes[i].S_gen.Imaginary - net.Nodes[i].S_calc.Imaginary;
             }
 
             List<string> res = new List<string>();
