@@ -192,7 +192,7 @@ namespace PowerFlowCore.Solvers
                 return;
 
             foreach (var item in grid.Nodes.Where(n => n.LoadModelNum.HasValue))
-                grid.LoadModels[item.LoadModelNum.Value].ApplyModel(item);
+                grid.LoadModels[item.LoadModelNum!.Value].ApplyModel(item);
         }
 
 

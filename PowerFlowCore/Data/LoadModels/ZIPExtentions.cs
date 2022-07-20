@@ -78,10 +78,10 @@ namespace PowerFlowCore.Data
                         outer.Umin.HasValue & outer.Umax.HasValue)
                     {
                         // On equals values
-                        if (inner.Umax.Value == outer.Umax.Value |
-                            inner.Umax.Value == outer.Umin.Value |
-                            inner.Umin.Value == outer.Umax.Value |
-                            inner.Umin.Value == outer.Umin.Value)
+                        if (inner.Umax!.Value == outer.Umax!.Value |
+                            inner.Umax!.Value == outer.Umin!.Value |
+                            inner.Umin!.Value == outer.Umax!.Value |
+                            inner.Umin!.Value == outer.Umin!.Value)
                         {
                             Logger.LogWarning($"Equal bounds in Umin/Umax ranges. Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -89,10 +89,10 @@ namespace PowerFlowCore.Data
                             continue;
                         }
                         // On ranges intersection
-                        if ((outer.Umax.Value < inner.Umax & outer.Umax.Value > inner.Umin) |
-                           (inner.Umax.Value < outer.Umax & inner.Umax.Value > outer.Umin) |
-                           (outer.Umin.Value < inner.Umax & outer.Umin.Value > inner.Umin) |
-                           (inner.Umin.Value < outer.Umax & inner.Umin.Value > outer.Umin))
+                        if ((outer.Umax!.Value < inner.Umax!.Value & outer.Umax!.Value > inner.Umin!.Value) |
+                            (inner.Umax!.Value < outer.Umax!.Value & inner.Umax!.Value > outer.Umin!.Value) |
+                            (outer.Umin!.Value < inner.Umax!.Value & outer.Umin!.Value > inner.Umin!.Value) |
+                            (inner.Umin!.Value < outer.Umax!.Value & inner.Umin!.Value > outer.Umin!.Value))
                         {
                             Logger.LogWarning($"Intersecting ranges. Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -103,9 +103,9 @@ namespace PowerFlowCore.Data
 
                     // Umax has no value
                     if (!outer.Umax.HasValue & inner.Umax.HasValue &
-                        outer.Umin.HasValue & outer.Umax.HasValue)
+                         outer.Umin.HasValue & outer.Umax.HasValue)
                     {
-                        if (inner.Umax.Value > outer.Umin.Value)
+                        if (inner.Umax!.Value > outer.Umin!.Value)
                         {
                             Logger.LogWarning($"Intersecting ranges (unbound Umax). Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -116,7 +116,7 @@ namespace PowerFlowCore.Data
                     else if (outer.Umax.HasValue & !inner.Umax.HasValue &
                             outer.Umin.HasValue & outer.Umax.HasValue)
                     {
-                        if (outer.Umax.Value > inner.Umin.Value)
+                        if (outer.Umax!.Value > inner.Umin!.Value)
                         {
                             Logger.LogWarning($"Intersecting ranges (unbound Umax). Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -128,7 +128,7 @@ namespace PowerFlowCore.Data
                     else if (outer.Umax.HasValue & inner.Umax.HasValue &
                             !outer.Umin.HasValue & outer.Umax.HasValue)
                     {
-                        if (inner.Umin.Value < outer.Umax.Value)
+                        if (inner.Umin!.Value < outer.Umax!.Value)
                         {
                             Logger.LogWarning($"Intersecting ranges (unbound Umin). Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -139,7 +139,7 @@ namespace PowerFlowCore.Data
                     else if (outer.Umax.HasValue & inner.Umax.HasValue &
                              outer.Umin.HasValue & !outer.Umax.HasValue)
                     {
-                        if (outer.Umin.Value < inner.Umax.Value)
+                        if (outer.Umin!.Value < inner.Umax!.Value)
                         {
                             Logger.LogWarning($"Intersecting ranges (unbound Umin). Models \"{outer.Name}\" and \"{inner.Name}\" are not valid!");
                             outer.IsValid = false;
@@ -159,14 +159,20 @@ namespace PowerFlowCore.Data
         /// <returns><see cref="ZIP"/> model after validation</returns>
         public static ZIP Validate(this ZIP model)
         {
-            if (model.p0 + model.p1 + model.p2 != 1.0 ||
-                model.q0 + model.q1 + model.q2 != 1.0)
+            string alarm = "";
+
+            if (Math.Round(model.p0 + model.p1 + model.p2, 5) != 1.0)
+                    alarm += "P ";
+            if (Math.Round(model.q0 + model.q1 + model.q2, 5) != 1.0)
+                alarm += "Q";
+            if (!string.IsNullOrEmpty(alarm.Trim()))
             {
-                Logger.LogWarning($"Coefficient sum of ZIP model is not equal to 1.0! Model \"{model.Name}\" is invalid!");
+                Logger.LogWarning($"Coefficient ({alarm}) sum of ZIP model is not equal to 1.0! Model \"{model.Name}\" is invalid!");
                 model.IsValid = false;
             }
+
             if (model.Umin.HasValue & model.Umax.HasValue)
-                if (model.Umin.Value >= model.Umax.Value)
+                if (model.Umin!.Value >= model.Umax!.Value)
                 {
                     Logger.LogWarning($"Umax is less or equal Umin. Model \"{model.Name}\" is invalid!");
                     model.IsValid = false;

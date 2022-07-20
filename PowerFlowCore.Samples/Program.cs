@@ -60,11 +60,13 @@ namespace PowerFlowCore.Samples
             ////Parallel calc
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
             //Parallel.Invoke(
+            //    () => CalculateAndShow(SampleGrids.Test_Ktr()),
+            //    () => CalculateAndShow(SampleGrids.Nodes4_1PV()),
+            //    () => CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP()),
             //    () => CalculateAndShow(SampleGrids.IEEE_14()),
             //    () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
             //    () => CalculateAndShow(SampleGrids.IEEE_57()),
             //    () => CalculateAndShow(SampleGrids.IEEE_118()),
-            //    () => CalculateAndShow(SampleGrids.Test_Ktr()),
             //    () => CalculateAndShow(SampleGrids.Nodes197_36PV()),
             //    () => CalculateAndShow(SampleGrids.Nodes300_27PV())
             //);
@@ -87,21 +89,21 @@ namespace PowerFlowCore.Samples
         {
             Engine.CalculateDefault(grid);  //Performe calculations
 
-            ////Voltage and angle
-            //for (int i = 0; i < grid.Nodes.Count; i++)
-            //    Console.WriteLine("Node: " + grid.Nodes[i].Num +
-            //                      $" {grid.Nodes[i].Type}" +
-            //                      " \tV: " + Math.Round(grid.Ucalc[i].Magnitude, 5) +
-            //                      "\tAngle: " + Math.Round(grid.Ucalc[i].Phase * 180 / Math.PI, 5));
+            //Voltage and angle
+            for (int i = 0; i < grid.Nodes.Count; i++)
+                Console.WriteLine("Node: " + grid.Nodes[i].Num +
+                                  $" {grid.Nodes[i].Type}" +
+                                  " \tV: " + Math.Round(grid.Ucalc[i].Magnitude, 5) +
+                                  "\tAngle: " + Math.Round(grid.Ucalc[i].Phase * 180 / Math.PI, 5));
 
-            //// Load and gen in Nodes
-            //Console.WriteLine("\nPowers");
-            //for (int i = 0; i < grid.Nodes.Count; i++)
-            //    Console.WriteLine("Node: " + grid.Nodes[i].Num +
-            //                      $" {grid.Nodes[i].Type}" +
-            //                      "\tSload: " + grid.Nodes[i].S_load.ToString() +
-            //                      "\tScalc: " + grid.Nodes[i].S_calc.ToString("#.###") +
-            //                      "    \tSgen: " + grid.Nodes[i].S_gen.ToString());
+            // Load and gen in Nodes
+            Console.WriteLine("\nPowers");
+            for (int i = 0; i < grid.Nodes.Count; i++)
+                Console.WriteLine("Node: " + grid.Nodes[i].Num +
+                                  $" {grid.Nodes[i].Type}" +
+                                  "\tSload: " + grid.Nodes[i].S_load.ToString() +
+                                  "\tScalc: " + grid.Nodes[i].S_calc.ToString("#.###") +
+                                  "    \tSgen: " + grid.Nodes[i].S_gen.ToString());
 
             //// Powers in branches
             //Console.WriteLine("\nPower flows");

@@ -17,7 +17,7 @@ namespace PowerFlowCore.Samples
             var nodes = new List<Node>()
             {
                 new Node(){Num = 1, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10, 15), LoadModelNum = 1},
-                new Node(){Num = 2, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10, 40), LoadModelNum = 1},    // with ZIP
+                new Node(){Num = 2, Type = NodeType.PQ,     Unom=110, Vpre = 0, S_load = new Complex(10, 40), LoadModelNum = 2}, 
                 new Node(){Num = 3, Type = NodeType.PV,     Unom=110, Vpre = 110, S_load = new Complex(10, 25), S_gen = new Complex(25, 0), Q_min=15, Q_max=35},
                 new Node(){Num = 4, Type = NodeType.Slack,  Unom=115, Vpre = 115}
             };
@@ -31,8 +31,10 @@ namespace PowerFlowCore.Samples
             };
 
             var SLM = new Dictionary<int, IStaticLoadModel>()
-            {
-                [1] = ZIP.Initialize("Test zip",
+            {                
+                [1] = ZIP.IndustrialLoad_110kV(),
+                [2] = ZIP.IndustrialLoad_35kV(),
+                [3] = ZIP.Initialize("Test zip",
                                      p0: 0.6, p1: 0.2, p2: 0.2,
                                      q0: 0.6, q1: 0.2, q2: 0.2,
                                      umin: 0.965, umax: 0.974)
@@ -43,7 +45,7 @@ namespace PowerFlowCore.Samples
                           .AddModel(ZIP.Initialize("Test zip - Child 2",
                                                    p0: 0.8, p1: 0.1, p2: 0.1,
                                                    q0: 0.8, q1: 0.1, q2: 0.1,
-                                                   umin: 0.988, umax: 1.1))
+                                                   umin: 0.988, umax: 1.1)),
             };
 
             var grid = new Grid(nodes, branches);

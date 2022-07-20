@@ -178,6 +178,37 @@ namespace PowerFlowCore.Data
             else
                 node.S_calc = new System.Numerics.Complex(P, Q);
         }
+
+
+        #region [Sample ZIP Models]
+
+        /// <summary>
+        /// Standard, practically received 
+        /// industrial load model characteristics for 110 kV node
+        /// </summary>
+        public static ZIP IndustrialLoad_110kV()
+        {
+            var model = ZIP.Initialize("IndustrialLoad_110kV (from 0.815 to 1.2)",
+                                       p0: 0.83, p1: -0.3, p2: 0.47,
+                                       q0: 3.7, q1: -7.0, q2: 4.3,
+                                       umin: 0.815, umax: 1.2);
+            return model;
+        }
+
+        /// <summary>
+        /// Standard, practically received 
+        /// industrial load model characteristics for 35 kV node
+        /// </summary>
+        public static ZIP IndustrialLoad_35kV()
+        {
+            var model = ZIP.Initialize("IndustrialLoad_35kV (from 0.815 to 1.2)",
+                                       p0: 0.83,  p1: -0.3,  p2: 0.47,
+                                       q0: 4.90,  q1: -10.1, q2: 6.20,
+                                       umin: 0.815, umax: 1.2);
+            return model;
+        }
+
+        #endregion
     }
 
 }
