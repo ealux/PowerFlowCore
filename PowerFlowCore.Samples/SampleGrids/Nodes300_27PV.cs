@@ -8,7 +8,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Engine Nodes300_27PV()
+        public static Grid Nodes300_27PV()
         {
 			Logger.LogInfo("=========================================== ");
 			Logger.LogInfo("300 nodes: 27 - PV  272 - PQ  1 - Slack");
@@ -721,15 +721,9 @@ namespace PowerFlowCore.Samples
 				new Branch(){Start = 81205, End = 81206, Ktr=1, Y=1/(new Complex(0, 0.001))},
 			};
 
+			var grid = new Grid(nodes, branches);
 
-			var options = new CalculationOptions();
-
-			var engine = new Engine(nodes, branches, options);
-
-
-			return engine;
-
-
+			return grid;
 		}
 	}
 }

@@ -82,44 +82,43 @@ namespace PowerFlowCore.Samples
         /// Make calculus and print calculated params
         /// </summary>
         /// <param name="e"><see cref="Engine"/> object to be calculated</param>
-        private static void CalculateAndShow(Engine e)
+        private static void CalculateAndShow(Grid grid)
         {
-            e.Calculate();                                                       //Performe calculations
-            var calc = e.Grid.Ucalc;                                             //Take calculated U values
+            Engine.CalculateDefault(grid);  //Performe calculations
 
-            //Voltage and angle
-            for (int i = 0; i < e.Grid.Nodes.Count; i++)
-                Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
-                                  $" {e.Grid.Nodes[i].Type}" +
-                                  " \tV: " + Math.Round(e.Grid.Ucalc[i].Magnitude, 5) +
-                                  "\tAngle: " + Math.Round(e.Grid.Ucalc[i].Phase * 180 / Math.PI, 5));
+            ////Voltage and angle
+            //for (int i = 0; i < grid.Nodes.Count; i++)
+            //    Console.WriteLine("Node: " + grid.Nodes[i].Num +
+            //                      $" {grid.Nodes[i].Type}" +
+            //                      " \tV: " + Math.Round(grid.Ucalc[i].Magnitude, 5) +
+            //                      "\tAngle: " + Math.Round(grid.Ucalc[i].Phase * 180 / Math.PI, 5));
 
-            // Load and gen in Nodes
-            Console.WriteLine("\nPowers");
-            for (int i = 0; i < e.Grid.Nodes.Count; i++)
-                Console.WriteLine("Node: " + e.Grid.Nodes[i].Num +
-                                  $" {e.Grid.Nodes[i].Type}" +
-                                  "\tSload: " + e.Grid.Nodes[i].S_load.ToString() +
-                                  "\tScalc: " + e.Grid.Nodes[i].S_calc.ToString("#.###") +
-                                  "    \tSgen: " + e.Grid.Nodes[i].S_gen.ToString());
+            //// Load and gen in Nodes
+            //Console.WriteLine("\nPowers");
+            //for (int i = 0; i < grid.Nodes.Count; i++)
+            //    Console.WriteLine("Node: " + grid.Nodes[i].Num +
+            //                      $" {grid.Nodes[i].Type}" +
+            //                      "\tSload: " + grid.Nodes[i].S_load.ToString() +
+            //                      "\tScalc: " + grid.Nodes[i].S_calc.ToString("#.###") +
+            //                      "    \tSgen: " + grid.Nodes[i].S_gen.ToString());
 
             //// Powers in branches
             //Console.WriteLine("\nPower flows");
-            //foreach (var item in e.Grid.Branches)
+            //foreach (var item in grid.Branches)
             //    Console.WriteLine("Branch " + item.Start + "-" + item.End +
             //                        "\tStart: " + item.S_start.ToString() +
             //                        "\tEnd: " + item.S_end.ToString());
 
             //// Currents in branches
             //Console.WriteLine("\nCurrents");
-            //foreach (var item in e.Grid.Branches)
+            //foreach (var item in grid.Branches)
             //    Console.WriteLine("Branch " + item.Start + "-" + item.End +
             //                        "\tStart: " + item.I_start.ToString() +
             //                        "\tEnd: " + item.I_end.ToString());
 
 
-            //Console.WriteLine(e.Grid.GetVoltageDifference().ToVectorString());        // Show voltage differecne in nodes
-            //Console.WriteLine(e.Grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
+            //Console.WriteLine(grid.GetVoltageDifference().ToVectorString());        // Show voltage differecne in nodes
+            //Console.WriteLine(grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
         }
     }
 }

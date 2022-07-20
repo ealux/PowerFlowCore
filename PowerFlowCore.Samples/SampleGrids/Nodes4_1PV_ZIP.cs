@@ -8,7 +8,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Engine Nodes4_1PV_ZIP()
+        public static Grid Nodes4_1PV_ZIP()
         {
             Logger.LogInfo("===========================================");
             Logger.LogInfo("4 nodes (ZIP): 1 - PV  2 - PQ  1 - Slack");
@@ -32,18 +32,24 @@ namespace PowerFlowCore.Samples
 
             var SLM = new Dictionary<int, IStaticLoadModel>()
             {
-                [1] = new ZIP("Test zip",
-                              p0: 0.8, p1: 0.1, p2: 0.1,   
-                              q0: 0.8, q1: 0.1, q2: 0.1,
-                              umin: 107, umax: 110)   
+                [1] = ZIP.Initialize("Test zip",
+                                     p0: 0.6, p1: 0.2, p2: 0.2,
+                                     q0: 0.6, q1: 0.2, q2: 0.2,
+                                     umin: 0.965, umax: 0.974)
+                          .AddModel(ZIP.Initialize("Test zip - Child 1",
+                                                   p0: 0.7, p1: 0.15, p2: 0.15,
+                                                   q0: 0.7, q1: 0.15, q2: 0.15,
+                                                   umin: 0.975, umax: 0.987))
+                          .AddModel(ZIP.Initialize("Test zip - Child 2",
+                                                   p0: 0.8, p1: 0.1, p2: 0.1,
+                                                   q0: 0.8, q1: 0.1, q2: 0.1,
+                                                   umin: 0.988, umax: 1.1))
             };
 
-            var options = new CalculationOptions();
-            var engine  = new Engine(nodes, branches, options);
+            var grid = new Grid(nodes, branches);
+            grid.LoadModels = SLM;
 
-            engine.Grid.LoadModels = SLM;
-
-            return engine;
+            return grid;
         }
     }
 }

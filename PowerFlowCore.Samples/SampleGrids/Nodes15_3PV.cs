@@ -8,7 +8,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Engine Nodes15_3PV()
+        public static Grid Nodes15_3PV()
         {
             Logger.LogInfo("===========================================");
             Logger.LogInfo("15 nodes: 3 - PV  11 - PQ  1 - Slack");
@@ -61,10 +61,9 @@ namespace PowerFlowCore.Samples
                 new Branch(){Start=7, End=71,   Y=1/(new Complex(1.4, 34.7)),   Ktr=0.091,  Ysh=new Complex(2.72e-6, -19.66e-6)}
             };
 
-            var options = new CalculationOptions();
-            var engine = new Engine(nodes, branches, options);                         //Create engine
+            var grid = new Grid(nodes, branches);
 
-            return engine;
+            return grid;
         }
     }
 }

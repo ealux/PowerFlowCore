@@ -8,7 +8,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Engine IEEE_57()
+        public static Grid IEEE_57()
         {
             Logger.LogInfo("===========================================");
             Logger.LogInfo("IEEE-57: 6 - PV  50 - PQ  1 - Slack");
@@ -159,10 +159,9 @@ namespace PowerFlowCore.Samples
                 new Branch(){Start=9,  End=55,  Y=1/(new Complex(0.0, 20.2769)),     Ktr=0.531915,   Ysh=new Complex(0, 0)}
             };
 
-            var options = new CalculationOptions();             //Create options
-            var engine = new Engine(nodes, branches, options);  //Create engine
+            var grid = new Grid(nodes, branches);
 
-            return engine;
+            return grid;
         }
     }
 }

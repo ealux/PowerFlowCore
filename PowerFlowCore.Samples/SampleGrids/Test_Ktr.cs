@@ -8,7 +8,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Engine Test_Ktr()
+        public static Grid Test_Ktr()
         {
             Logger.LogInfo("=====================================================");
             Logger.LogInfo("Complex Ktr Test (4 nodes): 1 - PV  2 - PQ  1 - Slack");
@@ -30,10 +30,9 @@ namespace PowerFlowCore.Samples
                 new Branch(){Start=1, End=4, Y=1/(new Complex(20,  40)), Ktr=1}
             };
 
-            var options = new CalculationOptions();
-            var engine  = new Engine(nodes, branches, options);
+            var grid = new Grid(nodes, branches);
 
-            return engine;
+            return grid;
         }
     }
 }
