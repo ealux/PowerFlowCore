@@ -10,10 +10,9 @@ namespace PowerFlowCore.Samples
         /// </summary>
         public class CustomLoggerListener : ILoggerListener
         {
-            public void ReceiveLoggerMessage(string senderId, string message)
+            public void ReceiveLoggerMessage(string senderId, LoggerMessage message)
             {
-                Debug.WriteLine($"FROM CUSTOM LISTENER: ({senderId}) " + message);
-                //throw new NotImplementedException();
+                Debug.WriteLine($"FROM CUSTOM LISTENER: ({senderId}) " + message.Message);
             }
         }
     }

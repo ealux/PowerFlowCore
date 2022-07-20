@@ -135,7 +135,10 @@ namespace PowerFlowCore
             mesBuilder.Append(message);
 
             // Output message
-            string output = mesBuilder.ToString();
+            string outputStr = mesBuilder.ToString();
+
+            // Output LoggerMessage
+            LoggerMessage output = new LoggerMessage() { DateTimeStamp = time, Level = level, Message = message, Source = sourceGridId };
 
             // Invoke logger event
             LogBroadcast?.Invoke(sourceGridId, output);
@@ -168,7 +171,7 @@ namespace PowerFlowCore
                                         break;
                                 }
                                 Console.ForegroundColor = color;
-                                Console.WriteLine(output);
+                                Console.WriteLine(outputStr);
                                 Console.ResetColor();
                             }
                         }
@@ -176,7 +179,7 @@ namespace PowerFlowCore
 
                         #region [Debug output]
                         if (Modes.Contains(LogMode.Debug))
-                            Debug.WriteLine(output);
+                            Debug.WriteLine(outputStr);
                         #endregion
 
                         #region [Custom output]

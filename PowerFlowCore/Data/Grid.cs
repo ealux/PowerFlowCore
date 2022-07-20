@@ -77,7 +77,7 @@ namespace PowerFlowCore.Data
         public int Slack_Count { get; set; }
 
         /// <summary>
-        /// Object identifier
+        /// Grid identifier
         /// </summary>
         public string Id { get; private set; }
 

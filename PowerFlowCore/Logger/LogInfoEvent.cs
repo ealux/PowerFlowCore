@@ -9,5 +9,5 @@ namespace PowerFlowCore
     /// </summary>
     /// <param name="SenderId">Sender identificator. Can be <see cref="Grid.Id"/> OR <see cref="String.Empty"/></param>
     /// <param name="Message">Logger message</param>
-    public delegate void LogInfoEvent (string SenderId, string Message);
+    public delegate void LogInfoEvent (string SenderId, LoggerMessage Message);
 }

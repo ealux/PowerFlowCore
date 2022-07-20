@@ -11,7 +11,7 @@ namespace PowerFlowCore
         /// Implements logic to receive messages from <see cref="Logger"/>
         /// </summary>
         /// <param name="senderId">Source <see cref="Grid"/> Id</param>
-        /// <param name="message"><see cref="Logger"/> message</param>
-        void ReceiveLoggerMessage(string senderId, string message);
+        /// <param name="message"><see cref="LoggerMessage"/> message</param>
+        void ReceiveLoggerMessage(string senderId, LoggerMessage message);
     }
 }

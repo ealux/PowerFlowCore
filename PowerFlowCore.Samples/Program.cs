@@ -76,7 +76,8 @@ namespace PowerFlowCore.Samples
 
 
         // Logger event handling and print message
-        private static void Logger_OnLogBroadcast(string senderID, string message) => Console.WriteLine(message);
+        private static void Logger_OnLogBroadcast(string senderID, LoggerMessage message) => Console.WriteLine(message.Message);
+
 
         /// <summary>
         /// Make calculus and print calculated params
