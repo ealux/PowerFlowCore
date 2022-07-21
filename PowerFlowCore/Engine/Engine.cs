@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
@@ -74,9 +76,12 @@ namespace PowerFlowCore
         /// Calculate the grid with default <see cref="CalculationOptions"/>
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/></param>
-        /// <returns></returns>
+        /// <returns>Tuple with Grid object and bool calculation result</returns>
         public static (Grid result, bool success) CalculateDefault(Grid grid)
         {
+            if (grid == null)
+                throw new ArgumentNullException(nameof(grid));
+
             // Reserve initial grid
             Grid gridReserve = grid.DeepCopy();
 
@@ -90,6 +95,58 @@ namespace PowerFlowCore
             }                
             else
                 return (gridReserve, false);    // On fault 
+        }
+
+
+        /// <summary>
+        /// Calculate grids collections in parallel with default <see cref="CalculationOptions"/>
+        /// </summary>
+        /// <param name="grids">Input <see cref="Grid"/> collection</param>
+        /// <returns>Dictionary with Grid objects and bool calculation results</returns>
+        public static Dictionary<Grid, bool> CalculateDefaultParallel(IEnumerable<Grid> grids)
+        {
+            if(grids == null)
+                throw new ArgumentNullException(nameof(grids));
+
+            var jobs = new List<Task>();
+            var dict = new ConcurrentDictionary<Grid, bool>();
+
+            // Set jobs
+            foreach (var grid in grids)
+            {
+                jobs.Add(Task.Run(() =>
+                {
+                    // Reserve initial grid
+                    Grid gridReserve = grid.DeepCopy();
+
+                    // Calculate
+                    grid.SolverNR(grid.Uinit, new CalculationOptions(), out bool suc);
+
+                    if (suc)
+                    {
+                        grid.CalculatePowerMatrix();    // Calculate power flows
+                        dict.TryAdd(grid, suc);
+                    }
+                    else
+                        dict.TryAdd(gridReserve, false);
+                }));
+            }
+
+            // Grouping tasks
+            Task t = Task.WhenAll(jobs);
+
+            // Run all
+            try { t.Wait(); }
+            catch { }
+
+            // Save results
+            var output = new Dictionary<Grid, bool>(dict);
+
+            if (t.Status == TaskStatus.Faulted)
+                Logger.LogCritical("Something went wrong! One or several calculations can be failed. " +
+                                    $"Try to check input grids. Inner exception message: \n {t.Exception.Message}");
+
+            return output;
         }
     }
 }
