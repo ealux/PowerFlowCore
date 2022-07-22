@@ -19,6 +19,20 @@ Grid samples list to be tested include (from [PowerFlowCore.Samples](https://git
 
 In addition to the well-known **IEEE** grids, configuration is displayed in grid name. So, **Node300_27PV** means 300 nodes where 27 is PV typed (generators). **Test_Ktr** include 4 nodes.
 
+Tables legend:
+
+-  **N**         : Value of the 'N' parameter
+-  **Mean**      : Arithmetic mean of all measurements
+-  **Error**     : Half of 99.9% confidence interval
+-  **StdDev**    : Standard deviation of all measurements
+-  **Gen 0**     : GC Generation 0 collects per 1000 operations
+-  **Gen 1**     : GC Generation 1 collects per 1000 operations
+-  **Gen 2**     : GC Generation 2 collects per 1000 operations
+-  **Allocated** : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+-  **1 us**      : 1 Microsecond (0.000001 sec)
+-  **1 ms**      : 1 Millisecond (0.001 sec)
+-  **1 s**       : 1 Second (1 sec)
+
 ## Environment :toilet:
 
 ```ini
@@ -75,16 +89,7 @@ Performance tests on grid creation provide several repetitions **N**: 1, 10, 100
 |  Nodes197_36PV | 1000 | 2,393,877.06 us | 17,859.67 us | 16,705.95 us | 333000.000 | 333000.000 | 333000.000 | 1,341,695 KB |
 |  Nodes300_27PV | 1000 | 4,636,352.63 us | 16,864.25 us | 14,949.71 us | 548000.000 | 529000.000 | 500000.000 | 3,003,499 KB |
 
-Notes:
--  **N**         : Value of the 'N' parameter
--  **Mean**      : Arithmetic mean of all measurements
--  **Error**     : Half of 99.9% confidence interval
--  **StdDev**    : Standard deviation of all measurements
--  **Gen 0**     : GC Generation 0 collects per 1000 operations
--  **Gen 1**     : GC Generation 1 collects per 1000 operations
--  **Gen 2**     : GC Generation 2 collects per 1000 operations
--  **Allocated** : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
--  **1 us**      : 1 Microsecond (0.000001 sec)
+
 
 ## Calculate grid :triangular_ruler:
 
@@ -132,17 +137,6 @@ Grid calculation provides several repetitions **N**: 1, 10, 100 and 1000 times f
 |  Nodes197_36PV | 1000 | 155,215,431.9 us | 1,496,599.92 us | 1,249,728.72 us |  9958000.00 | 6062000.00 | 5997000.00 | 40,044,965 KB |
 |  Nodes300_27PV | 1000 | 496,777,406.7 us | 3,758,180.30 us | 3,331,528.95 us | 12857000.00 | 5201000.00 | 4402000.00 | 95,118,289 KB |
 
-Notes:
--  **N**         : Value of the 'N' parameter
--  **Mean**      : Arithmetic mean of all measurements
--  **Error**     : Half of 99.9% confidence interval
--  **StdDev**    : Standard deviation of all measurements
--  **Gen 0**     : GC Generation 0 collects per 1000 operations
--  **Gen 1**     : GC Generation 1 collects per 1000 operations
--  **Gen 2**     : GC Generation 2 collects per 1000 operations
--  **Allocated** : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
--  **1 us**      : 1 Microsecond (0.000001 sec)
-
 ## Parallel calculations :fire:
 
 ### Sample grids in parallel
@@ -155,17 +149,6 @@ Set of all presented sample grids can be calculated in parallel. Repetitions **N
 | All Sample Grids |  10 |  5,303.9 ms |  26.41 ms |  23.41 ms |  231000 |  92000 |  83000 |  1,478 MB |
 | All Sample Grids | 100 | 52,524.4 ms | 229.12 ms | 214.32 ms | 2260000 | 856000 | 780000 | 14,781 MB |
 
-Notes:
--  **N**         : Value of the 'N' parameter
--  **Mean**      : Arithmetic mean of all measurements
--  **Error**     : Half of 99.9% confidence interval
--  **StdDev**    : Standard deviation of all measurements
--  **Gen 0**     : GC Generation 0 collects per 1000 operations
--  **Gen 1**     : GC Generation 1 collects per 1000 operations
--  **Gen 2**     : GC Generation 2 collects per 1000 operations
--  **Allocated** : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
--  **1 ms**      : 1 Millisecond (0.001 sec)
-
 ### Large model in parallel
 
 If you work with a number of different modification of one large grid it is appropriate to apply parallel calculations. Next performance test presents a list of **100 grids** that contains **300 nodes grids** ([Nodes300_27PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes300_27PV.cs)) being calculated in parallel (**N=**) 1 and 10 times.
@@ -175,13 +158,13 @@ If you work with a number of different modification of one large grid it is appr
 | Nodes300_27PV x 100 |  1 |  14.71 s | 0.281 s | 0.335 s |  1012000 |  26000 |  16000 |      9 GB |
 | Nodes300_27PV x 100 | 10 | 150.52 s | 1.314 s | 1.229 s | 10057000 | 262000 | 144000 |     91 GB |
 
-Notes:
--  **N**         : Value of the 'N' parameter
--  **Mean**      : Arithmetic mean of all measurements
--  **Error**     : Half of 99.9% confidence interval
--  **StdDev**    : Standard deviation of all measurements
--  **Gen 0**     : GC Generation 0 collects per 1000 operations
--  **Gen 1**     : GC Generation 1 collects per 1000 operations
--  **Gen 2**     : GC Generation 2 collects per 1000 operations
--  **Allocated** : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
--  **1 s**       : 1 Second (1 sec)
+## Large model summary
+
+Different ways to calculate **1000** large models items ([Nodes300_27PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes300_27PV.cs)) is presented here. Make choices according to your hardware or this benchmark. 
+
+|                         Method |    N |     Mean |   Error |  StdDev |    Gen 0 |   Gen 1 |   Gen 2 | Allocated |
+|------------------------------- |:----:|---------:|--------:|--------:|---------:|--------:|--------:|----------:|
+| Nodes300_27PV (sequental) x1   | 1000 | 496.77 s | 3.758 s | 3.331 s | 12857000 | 5201000 | 4402000 |     91 GB |
+| Nodes300_27PV (parallel) x100  |   10 | 150.52 s | 1.314 s | 1.229 s | 10057000 |  262000 |  144000 |     91 GB |
+| Nodes300_27PV (parallel) x1000 |    1 | 172.30 s | 3.380 s | 4.740 s |  9907000 |  100000 |   17000 |     91 GB |
+

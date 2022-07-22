@@ -10,7 +10,7 @@ namespace PowerFlowCore.Benchmark
             //BenchmarkRunner.Run<CreateGrids>();
             //BenchmarkRunner.Run<CalculateDefault>();
             //BenchmarkRunner.Run<CalculateDefaultParallel_AllSampleGrids>();
-            //BenchmarkRunner.Run<CalculateDefaultParallel_100grids_of_300nodes>();
+            BenchmarkRunner.Run<CalculateDefaultParallel_LargeModel>();
         }
     }
 }
