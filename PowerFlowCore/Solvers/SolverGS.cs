@@ -8,8 +8,7 @@ using PowerFlowCore.Data;
 
 namespace PowerFlowCore.Solvers
 {
-
-    public static partial class Solvers
+    internal static partial class Solvers
     {
         /// <summary>
         /// Gauss-Seidel solver
@@ -18,7 +17,7 @@ namespace PowerFlowCore.Solvers
         /// <param name="U_initial">Initial voltage <see cref="Vector{Complex}"/></param>
         /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
         /// <returns><see cref="Grid"/> with calculated voltages</returns>
-        public static Grid SolverGS(this Grid grid, 
+        internal static Grid SolverGS(this Grid grid, 
                                          Vector<Complex> U_initial,
                                          CalculationOptions options,
                                          out bool success)

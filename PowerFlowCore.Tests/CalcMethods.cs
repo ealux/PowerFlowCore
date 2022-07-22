@@ -21,12 +21,9 @@ namespace PowerFlowCore.Tests
 
             double[] delta = new double[net.Nodes.Count];
 
-
-            var options = new CalculationOptions(); //Options
-
-            Engine e = new Engine(net.Nodes, net.Branches, options);
-            e.Calculate();
-            Vector<Complex> calc = e.Grid.Ucalc;
+            Grid e = new Grid(net.Nodes, net.Branches);
+            Engine.Calculate(e);
+            Vector<Complex> calc = e.Ucalc;
 
 
             for (int i = 0; i < net.Nodes.Count; i++)
@@ -61,8 +58,8 @@ namespace PowerFlowCore.Tests
 
             var options = new CalculationOptions(); //Options
 
-            Engine e = new Engine(net.Nodes, net.Branches, options);
-            e.Calculate();
+            Grid e = new Grid(net.Nodes, net.Branches);
+            Engine.Calculate(e);
 
             List<string> res = new List<string>();
             int[] k = Qgen.Keys.ToArray();
@@ -94,8 +91,8 @@ namespace PowerFlowCore.Tests
 
             var options = new CalculationOptions(); //Options
 
-            Engine e = new Engine(net.Nodes, net.Branches, options);
-            e.Calculate();
+            Grid e = new Grid(net.Nodes, net.Branches);
+            Engine.Calculate(e);
 
             double[] Qres = new double[net.Nodes.Count];
             double[] Pres = new double[net.Nodes.Count];
@@ -126,8 +123,8 @@ namespace PowerFlowCore.Tests
 
             var options = new CalculationOptions(); //Options
 
-            Engine e = new Engine(net.Nodes, net.Branches, options);
-            e.Calculate();
+            Grid e = new Grid(net.Nodes, net.Branches);
+            Engine.Calculate(e);
 
             List<string> res = new List<string>();
             for (int i = 0; i < net.Nodes.Count; i++)
@@ -173,8 +170,6 @@ namespace PowerFlowCore.Tests
                         , Convert.ToString(expexMatrix[ind_row, ind_col].Imaginary) ));
                     }
                 }
-
-
             }
             return res;
         }

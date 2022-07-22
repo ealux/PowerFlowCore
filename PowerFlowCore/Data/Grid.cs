@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using MathNet.Numerics.LinearAlgebra;
 
 using Complex = System.Numerics.Complex;
@@ -35,7 +36,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Vector of nominal Voltages
         /// </summary>
-        public Vector<Complex> Unominal { get; set; }
+        public Vector<Complex> Unominal => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].Unom);
 
         /// <summary>
         /// Vector of Initial Voltages for iteration procedure start
@@ -113,13 +114,8 @@ namespace PowerFlowCore.Data
             ReBuildNodesBranches(renodes: nodes, rebranches: branches);
 
 
-            //S and Uinit vectors filling; PQ, PV and Slack nodes count            
-            this.Unominal = Vector<Complex>.Build.Dense(this.Nodes.Count);
+            //S and Uinit vectors filling; PQ, PV and Slack nodes count    
             this.Uinit    = Vector<Complex>.Build.Dense(this.Nodes.Count);
-
-            // Set nominal voltages
-            for (int i = 0; i < Nodes.Count; i++)
-                this.Unominal[i] = Nodes[i].Unom;
 
             // Reset PV nodes to PQ modes
             foreach (var node in Nodes)
@@ -231,6 +227,7 @@ namespace PowerFlowCore.Data
         /// <param name="nodes">Collection of (transformed) <see cref="INode"/></param>
         /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
         /// <returns><see cref="Matrix{Complex}"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Matrix<Complex> Calc_Y(List<INode> nodes, List<IBranch> branches)
         {
             //Initialize admittance matrix

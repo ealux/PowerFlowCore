@@ -25,6 +25,7 @@ Tables legend:
 -  **Mean**      : Arithmetic mean of all measurements
 -  **Error**     : Half of 99.9% confidence interval
 -  **StdDev**    : Standard deviation of all measurements
+-  **Ratio**     : Mean of the ratio distribution ([Current]/[Baseline = 1.00])
 -  **Gen 0**     : GC Generation 0 collects per 1000 operations
 -  **Gen 1**     : GC Generation 1 collects per 1000 operations
 -  **Gen 2**     : GC Generation 2 collects per 1000 operations
@@ -158,7 +159,7 @@ If you work with a number of different modification of one large grid it is appr
 | Nodes300_27PV x 100 |  1 |  14.71 s | 0.281 s | 0.335 s |  1012000 |  26000 |  16000 |      9 GB |
 | Nodes300_27PV x 100 | 10 | 150.52 s | 1.314 s | 1.229 s | 10057000 | 262000 | 144000 |     91 GB |
 
-## Large model summary
+## Large models collection
 
 Different ways to calculate **1000** large models items ([Nodes300_27PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes300_27PV.cs)) is presented here. Make choices according to your hardware or this benchmark. 
 
@@ -168,3 +169,26 @@ Different ways to calculate **1000** large models items ([Nodes300_27PV](https:/
 | Nodes300_27PV (parallel) x100  |   10 | 150.52 s | 1.314 s | 1.229 s | 10057000 |  262000 |  144000 |     91 GB |
 | Nodes300_27PV (parallel) x1000 |    1 | 172.30 s | 3.380 s | 4.740 s |  9907000 |  100000 |   17000 |     91 GB |
 
+## Multiple solvers
+
+Apply multiple solvers to calculate grid can provide different results within different model configuration.
+Following tests describe:
+
+* `NewtonRaphsonOnly`: use only Newton-Raphson solver;
+* `GaussThenNewtonRaphson`: make 5 iteration with Gauss-Seidel solver at first then solve by Newton-Raphson.
+
+|                               Method |  N |           Mean |       Error |      StdDev |  Ratio |
+|-------------------------------------:|:--:|---------------:|------------:|------------:|-------:|
+|            NewtonRaphsonOnly IEEE_14 |  1 |       614.5 us |      2.9 us |      2.7 us |   1.00 |
+|       GaussThenNewtonRaphson IEEE_14 |  1 |       826.3 us |      9.2 us |      7.7 us |   1.35 |
+|           NewtonRaphsonOnly IEEE_118 |  1 |    28,249.6 us |     78.9 us |     70.0 us |  46.00 |
+|      GaussThenNewtonRaphson IEEE_118 |  1 |    35,226.4 us |     77.3 us |     64.5 us |  57.36 |
+|      NewtonRaphsonOnly Nodes300_27PV |  1 |   514,392.7 us |  9,573.3 us | 10,640.7 us | 834.11 |
+| GaussThenNewtonRaphson Nodes300_27PV |  1 |   445,377.1 us |  8,420.6 us |  7,031.6 us | 725.21 |
+|                                      |    |                |             |             |        |
+|            NewtonRaphsonOnly IEEE_14 | 10 |     6,222.5 us |     18.3 us |     16.2 us |   1.00 |
+|       GaussThenNewtonRaphson IEEE_14 | 10 |     8,325.2 us |     67.4 us |     59.7 us |   1.34 |
+|           NewtonRaphsonOnly IEEE_118 | 10 |   287,576.9 us |  5,324.9 us |  4,720.3 us |  46.22 |
+|      GaussThenNewtonRaphson IEEE_118 | 10 |   357,267.8 us |  3,067.5 us |  2,719.3 us |  57.42 |
+|      NewtonRaphsonOnly Nodes300_27PV | 10 | 4,954,212.4 us | 43,570.4 us | 38,624.1 us | 796.18 |
+| GaussThenNewtonRaphson Nodes300_27PV | 10 | 4,433,039.3 us | 63,913.2 us | 59,784.4 us | 712.03 |

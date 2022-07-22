@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using PowerFlowCore.Data;
 using Complex = System.Numerics.Complex;
+
+using PowerFlowCore.Data;
+using PowerFlowCore.Solvers;
+
 
 
 namespace PowerFlowCore.Samples
@@ -15,18 +18,35 @@ namespace PowerFlowCore.Samples
         {
             var timer_global = Stopwatch.StartNew();
 
-            //Logger.AddConsoleMode();
-            //Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener
-            ////Logger.AddDebugMode();
-            //Logger.LogInfo("Calculation started");
+            Logger.AddConsoleMode();
+            Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener
+            //Logger.AddDebugMode();
+            Logger.LogInfo("Calculation started");
 
-            //var timer = Stopwatch.StartNew();
+            var timer = Stopwatch.StartNew();
+
+            var list = CreateGridList();    // Sample Grid collection
+            list.Calculate();       // Parallel colection
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+
+            timer.Restart();
+            list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5})   // Parallel with multi solver
+                .ApplySolver(SolverType.NewtonRaphson)
+                .Calculate();
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+
 
             //CalculateAndShow(SampleGrids.Nodes4_1PV());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
+            //SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             //timer.Restart();
@@ -57,20 +77,26 @@ namespace PowerFlowCore.Samples
             //CalculateAndShow(SampleGrids.Nodes300_27PV());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
+            //timer.Restart();
+            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                           .ApplySolver(SolverType.NewtonRaphson)
+            //                           .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
-            // --- Parallel calc default ----
-            Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-            var grids = new List<Grid>();
-            grids.Add(SampleGrids.Test_Ktr());
-            grids.Add(SampleGrids.Nodes4_1PV());
-            grids.Add(SampleGrids.Nodes4_1PV_ZIP());
-            grids.Add(SampleGrids.IEEE_14());
-            grids.Add(SampleGrids.Nodes15_3PV());
-            grids.Add(SampleGrids.IEEE_57());
-            grids.Add(SampleGrids.IEEE_118());
-            grids.Add(SampleGrids.Nodes197_36PV());
-            grids.Add(SampleGrids.Nodes300_27PV());
-            var result = Engine.CalculateDefaultParallel(grids);
+
+            //// --- Parallel calc default ----
+            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
+            //var grids = new List<Grid>();
+            //grids.Add(SampleGrids.Test_Ktr());
+            //grids.Add(SampleGrids.Nodes4_1PV());
+            //grids.Add(SampleGrids.Nodes4_1PV_ZIP());
+            //grids.Add(SampleGrids.IEEE_14());
+            //grids.Add(SampleGrids.Nodes15_3PV());
+            //grids.Add(SampleGrids.IEEE_57());
+            //grids.Add(SampleGrids.IEEE_118());
+            //grids.Add(SampleGrids.Nodes197_36PV());
+            //grids.Add(SampleGrids.Nodes300_27PV());
+            //var result = Engine.CalculateParallel(grids);
 
 
             //// ---- Parallel calc ----
@@ -103,7 +129,7 @@ namespace PowerFlowCore.Samples
         /// <param name="e"><see cref="Engine"/> object to be calculated</param>
         private static void CalculateAndShow(Grid grid)
         {
-            Engine.CalculateDefault(grid);  //Performe calculations
+            Engine.Calculate(grid);  //Performe calculations
 
             ////Voltage and angle
             //for (int i = 0; i < grid.Nodes.Count; i++)
@@ -138,6 +164,26 @@ namespace PowerFlowCore.Samples
 
             //Console.WriteLine(grid.GetVoltageDifference().ToVectorString());        // Show voltage differecne in nodes
             //Console.WriteLine(grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
+        }
+
+        /// <summary>
+        /// Create IEnumerable grid collection
+        /// </summary>
+        public static IEnumerable<Grid> CreateGridList()
+        {
+            List<Grid> grids = new List<Grid>();
+
+            grids.Add(SampleGrids.Test_Ktr());
+            grids.Add(SampleGrids.Nodes4_1PV());
+            grids.Add(SampleGrids.Nodes4_1PV_ZIP());
+            grids.Add(SampleGrids.IEEE_14());
+            grids.Add(SampleGrids.Nodes15_3PV());
+            grids.Add(SampleGrids.IEEE_57());
+            grids.Add(SampleGrids.IEEE_118());
+            grids.Add(SampleGrids.Nodes197_36PV());
+            grids.Add(SampleGrids.Nodes300_27PV());
+
+            return grids;
         }
     }
 }

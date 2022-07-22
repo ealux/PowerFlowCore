@@ -7,10 +7,13 @@ namespace PowerFlowCore.Benchmark
     {
         public static void Main()
         {
-            //BenchmarkRunner.Run<CreateGrids>();
-            //BenchmarkRunner.Run<CalculateDefault>();
-            //BenchmarkRunner.Run<CalculateDefaultParallel_AllSampleGrids>();
-            BenchmarkRunner.Run<CalculateDefaultParallel_LargeModel>();
+            // Uncomment required benchmark
+
+            //BenchmarkRunner.Run<CreateGrid>();
+            //BenchmarkRunner.Run<CalculateGrid>();
+            //BenchmarkRunner.Run<CalculateGridParallel_AllSampleGrids>();
+            //BenchmarkRunner.Run<CalculateGridParallel_LargeModel>();
+            //BenchmarkRunner.Run<CalculateGrid_MultipleSolvers>();
         }
     }
 }

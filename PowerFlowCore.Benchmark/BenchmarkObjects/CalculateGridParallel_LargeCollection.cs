@@ -10,14 +10,14 @@ namespace PowerFlowCore.Benchmark
     /// </summary>
     [MemoryDiagnoser]
     [MarkdownExporterAttribute.Default]
-    public class CalculateDefaultParallel_LargeModel
+    public class CalculateGridParallel_LargeModel
     {
         private readonly List<Grid> grids_1000 = new List<Grid>(1000);
         private readonly List<Grid> grids_100 = new List<Grid>(1000);
         private readonly Grid model;
 
 
-        public CalculateDefaultParallel_LargeModel()
+        public CalculateGridParallel_LargeModel()
         {
             model = SampleGrids.Nodes300_27PV();
             for (int i = 0; i < 100; i++)
@@ -31,7 +31,7 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < 1000; i++)
             {
-                Engine.CalculateDefault(model);
+                Engine.Calculate(model);
             }
         }
 
@@ -41,14 +41,14 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < 10; i++)
             {
-                Engine.CalculateDefaultParallel(grids_100);
+                Engine.CalculateParallel(grids_100);
             }
         }
 
         [Benchmark]
         public void CalculateParallel_1000_items()
         {
-            Engine.CalculateDefaultParallel(grids_1000);
+            Engine.CalculateParallel(grids_1000);
         }
     }
 }

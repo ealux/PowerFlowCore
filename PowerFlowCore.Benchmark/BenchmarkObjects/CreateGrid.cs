@@ -8,7 +8,7 @@ namespace PowerFlowCore.Benchmark
     /// </summary>
     [MemoryDiagnoser]
     [MarkdownExporterAttribute.Default]
-    public class CreateGrids
+    public class CreateGrid
     {
         [Params(1, 10, 100, 1000)]
         public int N;

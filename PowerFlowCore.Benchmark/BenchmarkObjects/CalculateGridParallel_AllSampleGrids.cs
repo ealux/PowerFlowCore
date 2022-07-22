@@ -10,14 +10,14 @@ namespace PowerFlowCore.Benchmark
     /// </summary>
     [MemoryDiagnoser]
     [MarkdownExporterAttribute.Default]
-    public class CalculateDefaultParallel_AllSampleGrids
+    public class CalculateGridParallel_AllSampleGrids
     {
-        [Params(1, 10, 100)]
+        [Params(1, 10)]
         public int N;
 
         private readonly List<Grid> grids = new List<Grid>();
 
-        public CalculateDefaultParallel_AllSampleGrids()
+        public CalculateGridParallel_AllSampleGrids()
         {
             grids.Add(SampleGrids.Test_Ktr());
             grids.Add(SampleGrids.Nodes4_1PV());
@@ -34,7 +34,7 @@ namespace PowerFlowCore.Benchmark
         public void CalculateParallel_AllSampleGrids()
         {
             for (int i = 0; i < N; i++)
-                Engine.CalculateDefaultParallel(grids);
+                Engine.CalculateParallel(grids);
         }
     }
 }

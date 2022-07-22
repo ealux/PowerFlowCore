@@ -1,8 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
-using System.Text;
-using MathNet.Numerics.LinearAlgebra;
-
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
@@ -63,10 +60,7 @@ namespace PowerFlowCore.Data
 
             Grid new_grid = new Grid(nodes: nodes, branches: branches); // Create new Grid object
 
-            new_grid.Y = grid.Y.Clone();    // Y matrix
-
-            new_grid.Unominal   = grid.Unominal.Clone();                // Unominal vector
-            new_grid.Uinit      = grid.Uinit?.Clone() ?? grid.Unominal; // Uinit vector 
+            new_grid.Uinit      = grid.Uinit?.Clone() ?? new_grid.Unominal; // Uinit vector 
 
             //Statistic
             new_grid.PQ_Count    = grid.PQ_Count;
