@@ -30,22 +30,21 @@ namespace PowerFlowCore.Samples
                 new Branch(){Start=2, End=4, Y=1/(new Complex(20, 40)), Ktr=1,}
             };
 
-            var SLM = new Dictionary<int, IStaticLoadModel>()
+            var SLM = new Dictionary<int, CompositeLoadModel>()
             {                
-                [1] = ZIP.IndustrialLoad_110kV(),
-                [2] = ZIP.IndustrialLoad_35kV(),
-                [3] = ZIP.Initialize("Test zip",
-                                     p0: 0.6, p1: 0.2, p2: 0.2,
-                                     q0: 0.6, q1: 0.2, q2: 0.2,
-                                     umin: 0.965, umax: 0.974)
-                          .AddModel(ZIP.Initialize("Test zip - Child 1",
-                                                   p0: 0.7, p1: 0.15, p2: 0.15,
-                                                   q0: 0.7, q1: 0.15, q2: 0.15,
-                                                   umin: 0.975, umax: 0.987))
-                          .AddModel(ZIP.Initialize("Test zip - Child 2",
-                                                   p0: 0.8, p1: 0.1, p2: 0.1,
-                                                   q0: 0.8, q1: 0.1, q2: 0.1,
-                                                   umin: 0.988, umax: 1.1)),
+                [1] = CompositeLoadModel.ComplexLoadNode_110kV(),
+                [2] = CompositeLoadModel.ComplexLoadNode_35kV(),
+                [3] = CompositeLoadModel.Initialize(P: ZIP.Initialize("Parent model P", a0: 0.6, a1: 0.2, a2: 0.2),
+                                                    Q: ZIP.Initialize("Parent model Q", a0: 0.6, a1: 0.2, a2: 0.2),
+                                                    umin: 0.965, umax: 0.974)
+                                        .AddModel(CompositeLoadModel.Initialize
+                                                   (P: ZIP.Initialize("Child - 1 model P", a0: 0.7, a1: 0.15, a2: 0.15),
+                                                    Q: ZIP.Initialize("Child - 1 model Q", a0: 0.7, a1: 0.15, a2: 0.15),
+                                                    umin: 0.975, umax: 0.987))
+                                        .AddModel(CompositeLoadModel.Initialize
+                                                   (P: ZIP.Initialize("Child - 2 model P", a0: 0.8, a1: 0.1, a2: 0.1),
+                                                    Q: ZIP.Initialize("Child - 2 model Q", a0: 0.8, a1: 0.1, a2: 0.1),
+                                                    umin: 0.988, umax: 1.1))
             };
 
             var grid = new Grid(nodes, branches);

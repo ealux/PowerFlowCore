@@ -1,47 +1,81 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PowerFlowCore.Data
 {
     /// <summary>
-    /// Extention methods to work with <see cref="ZIP"/> models
+    /// Extention methods to work with <see cref="CompositeLoadModel"/>
     /// </summary>
-    public static class ZIPExtentions
+    public static partial class CompositeLoadModelExtentions
     {
+        #region Public methods
+
+
         /// <summary>
-        /// Add and validate new submodel to parent <see cref="ZIP"/> model
+        /// Add and validate new submodel to parent <see cref="CompositeLoadModel"/>
         /// </summary>
-        /// <param name="parentModel">Parent <see cref="ZIP"/> model</param>
-        /// <param name="childModel">Model to be added to <see cref="ZIP.AdditionalModels"/> list of parent</param>
-        /// <returns>Parent <see cref="ZIP"/> model</returns>
-        public static ZIP AddModel(this ZIP parentModel, ZIP childModel)
+        /// <param name="parentModel">Parent <see cref="CompositeLoadModel"/></param>
+        /// <param name="childModel">Model to be added to <see cref="CompositeLoadModel.SubModels"/> list of parent</param>
+        /// <returns>Parent <see cref="CompositeLoadModel"/></returns>
+        public static CompositeLoadModel AddModel(this CompositeLoadModel parentModel,
+                                                   CompositeLoadModel childModel)
         {
             if (childModel == null)
                 throw new ArgumentNullException(nameof(childModel));
 
-            parentModel.AdditionalModels.Add(childModel);
-            ValidateWithAdditional(parentModel);
+            parentModel.SubModels.Add(childModel);
+            VallidateAggregation(parentModel);
             return parentModel;
         }
 
+        #endregion
+
+        #region Private methods
+
         /// <summary>
-        /// Validate <see cref="ZIP"/> model on Umin/Umax ranges with submodels
+        /// Validate <see cref="CompositeLoadModel"/> model on Umin/Umax ranges with submodels
         /// </summary>
         /// <param name="model">Parent model</param>
-        private static void ValidateWithAdditional(this ZIP model)
+        private static void VallidateAggregation(this CompositeLoadModel model)
         {
-            if (model.AdditionalModels.Count == 0)
+            if (model.SubModels.Count == 0)
                 return;
 
-            var models = model.AdditionalModels.ToList();
-            models.Add(model);
+            List<ILoadModel> modelsP = new List<ILoadModel>();
+            List<ILoadModel> modelsQ = new List<ILoadModel>();
+
+            if (model.P != null && model.P.IsValid) modelsP.Add(model.P);
+            if (model.Q != null && model.Q.IsValid) modelsQ.Add(model.Q);
+
+            // Find all submodels
+            if (model.SubModels.Count > 0)
+            {
+                (List<ILoadModel> subsP, List<ILoadModel> subsQ) = FindRecursive(model);
+                modelsP.AddRange(subsP);
+                modelsQ.AddRange(subsQ);
+            }
+
+            modelsP.ValidateList();
+            modelsQ.ValidateList();            
+        }
+        
+        /// <summary>
+        /// Inner validation of models list
+        /// </summary>
+        /// <param name="models">Input <see cref="ILoadModel"/> list (P or Q)</param>
+        private static void ValidateList(this List<ILoadModel> models)
+        {
+            if (models == null || models.Count == 0)
+                return;
 
             //Check for whole range cover
             if (models.Any(m => !m.Umax.HasValue & !m.Umin.HasValue))
             {
                 var mod = models.Where(m => !m.Umax.HasValue & !m.Umin.HasValue).First();
-                Logger.LogWarning($"Model cover all voltrage range with another model existing. Now works only with model \"{mod.Name}\"!");
-                foreach (var item in models.Where(m => m.Id != mod.Id & 
+                Logger.LogWarning($"Model cover all voltage range including another existing models. Now works only with model \"{mod.Name}\"!");
+                foreach (var item in models.Where(m => m.Id != mod.Id &
                                                        m.IsValid == true))
                 {
                     item.IsValid = false;
@@ -51,13 +85,12 @@ namespace PowerFlowCore.Data
             }
 
             // Are models there?
-            if (models.Where(m => m.IsValid).Count() < 1) 
+            if (models.Where(m => m.IsValid).Count() < 1)
                 return;
 
             // Analyze
             foreach (var outer in models)
             {
-
                 foreach (var inner in models.Where(m => m.Id != outer.Id))
                 {
                     if (!inner.IsValid)
@@ -152,36 +185,31 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
-        /// Validate <see cref="ZIP"/> model and inner submodels
-        ///  by coeffients and Umin/Umax ranges
+        /// Recursively collects all valid submodels in aggregation model
         /// </summary>
-        /// <param name="model"><see cref="ZIP"/> model to be validated</param>
-        /// <returns><see cref="ZIP"/> model after validation</returns>
-        public static ZIP Validate(this ZIP model)
+        /// <param name="model"><see cref="CompositeLoadModel"/> to find in</param>
+        internal static (List<ILoadModel> P, List<ILoadModel> Q) FindRecursive(CompositeLoadModel model)
         {
-            string alarm = "";
+            var listOutP = new List<ILoadModel>();
+            var listOutQ = new List<ILoadModel>();
 
-            if (Math.Round(model.p0 + model.p1 + model.p2, 5) != 1.0)
-                    alarm += "P ";
-            if (Math.Round(model.q0 + model.q1 + model.q2, 5) != 1.0)
-                alarm += "Q";
-            if (!string.IsNullOrEmpty(alarm.Trim()))
+            foreach (var item in model.SubModels)
             {
-                Logger.LogWarning($"Coefficient ({alarm}) sum of ZIP model is not equal to 1.0! Model \"{model.Name}\" is invalid!");
-                model.IsValid = false;
+                if (item.P != null && item.P.IsValid == true) listOutP.Add(item.P);
+                if (item.Q != null && item.Q.IsValid == true) listOutQ.Add(item.Q);
+
+                if (item.SubModels.Count > 0)
+                {
+                    (List<ILoadModel> subsP, List<ILoadModel> subsQ) = FindRecursive(item);
+                    listOutP.AddRange(subsP);
+                    listOutQ.AddRange(subsQ);
+                }
             }
 
-            if (model.Umin.HasValue & model.Umax.HasValue)
-                if (model.Umin!.Value >= model.Umax!.Value)
-                {
-                    Logger.LogWarning($"Umax is less or equal Umin. Model \"{model.Name}\" is invalid!");
-                    model.IsValid = false;
-                }
-
-            if(model.AdditionalModels.Count > 0)
-                ValidateWithAdditional(model);
-
-            return model;
+            return (listOutP, listOutQ);
         }
+
+        #endregion
+
     }
 }

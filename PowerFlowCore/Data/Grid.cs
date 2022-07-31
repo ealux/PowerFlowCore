@@ -59,7 +59,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Collection of Static Load Models to be applied
         /// </summary>
-        public Dictionary<int, IStaticLoadModel> LoadModels { get; set; } = new Dictionary<int, IStaticLoadModel>();
+        public Dictionary<int, CompositeLoadModel> LoadModels { get; set; } = new Dictionary<int, CompositeLoadModel>();
 
 
         /// <summary>

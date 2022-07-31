@@ -25,29 +25,12 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
-            var list = CreateGridList();    // Sample Grid collection
-            list.Calculate();       // Parallel colection
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
             timer.Restart();
-            list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5})   // Parallel with multi solver
-                .ApplySolver(SolverType.NewtonRaphson)
-                .Calculate();
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
-
-
-            //CalculateAndShow(SampleGrids.Nodes4_1PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
-
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
-
-            //timer.Restart();
-            //SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-            //                            .ApplySolver(SolverType.NewtonRaphson)
-            //                            .Calculate();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.IEEE_14());
@@ -112,6 +95,23 @@ namespace PowerFlowCore.Samples
             //    () => CalculateAndShow(SampleGrids.Nodes197_36PV()),
             //    () => CalculateAndShow(SampleGrids.Nodes300_27PV())
             //);
+
+            //// ---- Variant calc ----
+            //var list = CreateGridList();    // Sample Grid collection
+            //list.Calculate();       // Parallel colection
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+
+            //timer.Restart();
+            //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })   // Parallel with multi solver
+            //    .ApplySolver(SolverType.NewtonRaphson)
+            //    .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+
+            //timer.Restart();
+            //SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 
