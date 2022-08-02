@@ -41,14 +41,14 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < 10; i++)
             {
-                Engine.CalculateParallel(grids_100);
+                Engine.Calculate(grids_100);
             }
         }
 
         [Benchmark]
         public void CalculateParallel_1000_items()
         {
-            Engine.CalculateParallel(grids_1000);
+            Engine.Calculate(grids_1000);
         }
     }
 }

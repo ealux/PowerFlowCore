@@ -34,7 +34,7 @@ Tables legend:
 -  **1 ms**      : 1 Millisecond (0.001 sec)
 -  **1 s**       : 1 Second (1 sec)
 
-## Environment :toilet:
+## Environment ⌨️
 
 ```ini
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1826 (21H2)
@@ -192,3 +192,43 @@ Following tests describe:
 |      GaussThenNewtonRaphson IEEE_118 | 10 |   357,267.8 us |  3,067.5 us |  2,719.3 us |  57.42 |
 |      NewtonRaphsonOnly Nodes300_27PV | 10 | 4,954,212.4 us | 43,570.4 us | 38,624.1 us | 796.18 |
 | GaussThenNewtonRaphson Nodes300_27PV | 10 | 4,433,039.3 us | 63,913.2 us | 59,784.4 us | 712.03 |
+
+## Connectivity
+
+Checks for graph connectivity on sample grids. Repetitions **N**: 1, 10 and 100 times.
+
+|         Method |   N |         Mean |      Error |     StdDev |  Gen 0 | Allocated |
+|--------------- |----:|-------------:|-----------:|-----------:|-------:|----------:|
+|       Test_Ktr |   1 |       2.4 us |     0.0 us |     0.0 us |    0.5 |      2 KB |
+|     Nodes4_1PV |   1 |       2.1 us |     0.0 us |     0.0 us |    0.5 |      2 KB |
+| Nodes4_1PV_ZIP |   1 |       2.1 us |     0.0 us |     0.0 us |    0.5 |      2 KB |
+|        IEEE_14 |   1 |      11.1 us |     0.0 us |     0.0 us |    0.9 |      4 KB |
+|    Nodes15_3PV |   1 |      10.9 us |     0.0 us |     0.0 us |    1.0 |      4 KB |
+|        IEEE_57 |   1 |     158.1 us |     2.0 us |     1.9 us |    2.6 |     12 KB |
+|       IEEE_118 |   1 |     927.5 us |     2.6 us |     2.1 us |    4.8 |     23 KB |
+|  Nodes197_36PV |   1 |   3,063.2 us |    17.8 us |    14.9 us |    7.8 |     35 KB |
+|  Nodes300_27PV |   1 |   8,307.2 us |     4.4 us |     3.7 us |      - |     54 KB |
+|                |     |              |            |            |        |           |
+|       Test_Ktr |  10 |      24.5 us |     0.0 us |     0.0 us |    5.4 |     23 KB |
+|     Nodes4_1PV |  10 |      21.7 us |     0.0 us |     0.0 us |    5.1 |     21 KB |
+| Nodes4_1PV_ZIP |  10 |      21.6 us |     0.0 us |     0.0 us |    5.1 |     21 KB |
+|        IEEE_14 |  10 |     115.6 us |     1.9 us |     1.9 us |    9.8 |     41 KB |
+|    Nodes15_3PV |  10 |     111.0 us |     1.5 us |     1.4 us |   10.0 |     41 KB |
+|        IEEE_57 |  10 |   1,550.1 us |     5.2 us |     4.9 us |   27.3 |    119 KB |
+|       IEEE_118 |  10 |   9,373.1 us |    79.1 us |    74.0 us |   46.8 |    225 KB |
+|  Nodes197_36PV |  10 |  30,737.3 us |   247.0 us |   219.0 us |   62.5 |    350 KB |
+|  Nodes300_27PV |  10 |  83,806.6 us |   362.1 us |   321.0 us |      - |    538 KB |
+|                |     |              |            |            |        |           |
+|       Test_Ktr | 100 |     243.5 us |     2.9 us |     2.7 us |   54.9 |    225 KB |
+|     Nodes4_1PV | 100 |     217.8 us |     1.3 us |     1.2 us |   51.2 |    210 KB |
+| Nodes4_1PV_ZIP | 100 |     218.2 us |     1.2 us |     1.2 us |   51.2 |    210 KB |
+|        IEEE_14 | 100 |   1,118.1 us |     8.0 us |     6.7 us |   99.6 |    408 KB |
+|    Nodes15_3PV | 100 |   1,096.9 us |     6.8 us |     6.0 us |   99.6 |    412 KB |
+|        IEEE_57 | 100 |  15,749.3 us |    65.0 us |    57.6 us |  281.2 |  1,190 KB |
+|       IEEE_118 | 100 |  93,272.1 us |   475.7 us |   444.9 us |  500.0 |  2,253 KB |
+|  Nodes197_36PV | 100 | 307,463.7 us | 1,353.9 us | 1,130.6 us |  500.0 |  3,500 KB |
+|  Nodes300_27PV | 100 | 837,892.2 us | 2,655.3 us | 2,483.8 us | 1000.0 |  5,374 KB |
+
+
+
+

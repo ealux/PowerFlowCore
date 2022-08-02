@@ -34,7 +34,7 @@ namespace PowerFlowCore.Benchmark
         public void CalculateParallel_AllSampleGrids()
         {
             for (int i = 0; i < N; i++)
-                Engine.CalculateParallel(grids);
+                Engine.Calculate(grids);
         }
     }
 }

@@ -32,9 +32,9 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_14());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_14());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.Nodes15_3PV());
@@ -58,12 +58,6 @@ namespace PowerFlowCore.Samples
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.Nodes300_27PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
-
-            //timer.Restart();
-            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-            //                           .ApplySolver(SolverType.NewtonRaphson)
-            //                           .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
 
@@ -112,6 +106,20 @@ namespace PowerFlowCore.Samples
             //                            .ApplySolver(SolverType.NewtonRaphson)
             //                            .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
+            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                           .ApplySolver(SolverType.NewtonRaphson)
+            //                           .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+
+
+            //// ---- Connectivity checks ----
+            //var list = CreateGridList();    // Sample Grid collection
+            //foreach (var item in list)  
+            //    if (item.Connectivity())    // Check connectivity
+            //        item.Calculate();       // Run calculations
+
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 

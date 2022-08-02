@@ -96,7 +96,13 @@ namespace PowerFlowCore.Data
         {
             this.Id = Guid.NewGuid().ToString();    // Set id
             InitParameters(nodes, branches);        // Create grid
-        }            
+        }
+
+        /// <summary>
+        /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
+        /// </summary>
+        /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
+        public Grid(IConverter converter) : this(converter.Nodes, converter.Branches) { }
 
 
         #region [Build Scheme]
