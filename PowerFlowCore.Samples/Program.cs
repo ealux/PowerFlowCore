@@ -25,16 +25,20 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
-            CalculateAndShow(SampleGrids.Nodes4_1PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            //CalculateAndShow(SampleGrids.Nodes4_1PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes5_2Slack());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
+
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.Nodes15_3PV());
@@ -60,6 +64,14 @@ namespace PowerFlowCore.Samples
             //CalculateAndShow(SampleGrids.Nodes300_27PV());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes398_35PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
+
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+
 
             //// --- Parallel calc default ----
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
@@ -82,12 +94,15 @@ namespace PowerFlowCore.Samples
             //    () => CalculateAndShow(SampleGrids.Test_Ktr()),
             //    () => CalculateAndShow(SampleGrids.Nodes4_1PV()),
             //    () => CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP()),
+            //    () => CalculateAndShow(SampleGrids.Nodes5_2Slack()),
             //    () => CalculateAndShow(SampleGrids.IEEE_14()),
             //    () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
             //    () => CalculateAndShow(SampleGrids.IEEE_57()),
             //    () => CalculateAndShow(SampleGrids.IEEE_118()),
             //    () => CalculateAndShow(SampleGrids.Nodes197_36PV()),
-            //    () => CalculateAndShow(SampleGrids.Nodes300_27PV())
+            //    () => CalculateAndShow(SampleGrids.Nodes300_27PV()),
+            //    () => CalculateAndShow(SampleGrids.Nodes398_35PV()),
+            //    () => CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP())
             //);
 
             //// ---- Variant calc ----
@@ -114,10 +129,10 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
 
-            //// ---- Connectivity checks ----
+            //// ---- IsConnected checks ----
             //var list = CreateGridList();    // Sample Grid collection
             //foreach (var item in list)  
-            //    if (item.Connectivity())    // Check connectivity
+            //    if (item.IsConnected())    // Check connectivity
             //        item.Calculate();       // Run calculations
 
 
@@ -137,7 +152,7 @@ namespace PowerFlowCore.Samples
         /// <param name="e"><see cref="Engine"/> object to be calculated</param>
         private static void CalculateAndShow(Grid grid)
         {
-            Engine.Calculate(grid);  //Performe calculations
+            grid.Calculate();  //Performe calculations
 
             ////Voltage and angle
             //for (int i = 0; i < grid.Nodes.Count; i++)
@@ -184,12 +199,15 @@ namespace PowerFlowCore.Samples
             grids.Add(SampleGrids.Test_Ktr());
             grids.Add(SampleGrids.Nodes4_1PV());
             grids.Add(SampleGrids.Nodes4_1PV_ZIP());
+            grids.Add(SampleGrids.Nodes5_2Slack());
             grids.Add(SampleGrids.IEEE_14());
             grids.Add(SampleGrids.Nodes15_3PV());
             grids.Add(SampleGrids.IEEE_57());
             grids.Add(SampleGrids.IEEE_118());
             grids.Add(SampleGrids.Nodes197_36PV());
             grids.Add(SampleGrids.Nodes300_27PV());
+            grids.Add(SampleGrids.Nodes398_35PV());
+            grids.Add(SampleGrids.Nodes398_35PV_ZIP());
 
             return grids;
         }

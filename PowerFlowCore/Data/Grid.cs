@@ -9,14 +9,15 @@ using Complex = System.Numerics.Complex;
 namespace PowerFlowCore.Data
 {
     /// <summary>
-    /// PF-problem basic Parameters Description calculated from network topology and characteristics
+    /// PF-problem basic Grid object from network topology and characteristics
     /// </summary>
     public class Grid
     {
+
         /// <summary>
         /// Collection of <see cref="INode">
-        /// Sorted from PQ, through PV nodes, up to Slack nodes at the end
-        /// Also sorted by nominal voltage level (magnitude)
+        /// <para>Sorted from PQ, through PV nodes, up to Slack nodes at the end</para> 
+        /// <para>Also sorted by nominal voltage level (magnitude)</para>
         /// </summary>
         public List<INode> Nodes { get; set; }
 
@@ -83,6 +84,11 @@ namespace PowerFlowCore.Data
         public string Id { get; private set; }
 
         /// <summary>
+        /// Options on breakers policy and checks
+        /// </summary>
+        internal GridOptions GridOptions { get; set; } = new GridOptions();
+
+        /// <summary>
         /// Private ctor
         /// </summary>
         private Grid() { }
@@ -99,10 +105,30 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
+        /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics with options
+        /// </summary>
+        /// <param name="nodes">Enumerable source of <see cref="INode"/> collection</param>
+        /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
+        /// <param name="options">Option for breakers and checks policy</param>
+        public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches, GridOptions options = default)
+        {
+            this.Id = Guid.NewGuid().ToString();                // Set id
+            this.GridOptions = options ?? new GridOptions();    // Set options
+            InitParameters(nodes, branches);                    // Create grid
+        }
+
+        /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
         /// </summary>
         /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
         public Grid(IConverter converter) : this(converter.Nodes, converter.Branches) { }
+
+        /// <summary>
+        /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics with options
+        /// </summary>
+        /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
+        /// <param name="options">Option for breakers and checks policy</param>
+        public Grid(IConverter converter, GridOptions options = default) : this(converter.Nodes, converter.Branches, options) { }
 
 
         #region [Build Scheme]
@@ -161,6 +187,8 @@ namespace PowerFlowCore.Data
                         break;
                 }
             }
+
+            // TODO: CHECKS for GRID
         }
 
 
@@ -176,14 +204,31 @@ namespace PowerFlowCore.Data
             //Counter for nodes renumber
             int counter = 0;
 
-            //Nodes sort and renumber - !Дописать принцип
+            //Nodes sort and renumber
             this.Nodes = renodes.OrderBy(_n => _n.Type).ThenBy(_n => _n.Unom.Magnitude).ToList();
             this.Nodes.ForEach(_n => _n.Num_calc = counter++);
 
-            //!ветви
+            // Branches to list
             this.Branches = rebranches.ToList();
 
-            //!переименование номеров ветви
+            // Transform breakers branches
+            if(GridOptions.BreakersByTemplate)
+                BreakersTemplate.SetBreakers(this);
+
+
+            // Parallel branches amount
+            for (int i = 0; i < this.Branches.Count; i++)
+            {
+                for (int j = 0; j < this.Branches.Count; j++)
+                {
+                    var br = this.Branches[i];
+                    var other = this.Branches[j];
+
+                    if (i != j) if ((br.Start == other.Start & br.End == other.End) | (br.Start == other.End & br.End == other.Start)) br.Count++;
+                }
+            }
+
+            // Create internal numbers for calculation
             this.Nodes.ForEach(_n =>
                 {
                     this.Branches.ForEach(b =>
@@ -198,19 +243,7 @@ namespace PowerFlowCore.Data
                               b.End_calc = _n.Num_calc;
                           }
                       });
-                });
-
-            // Parallel branches amount
-            for (int i = 0; i < this.Branches.Count; i++)
-            {
-                for (int j = 0; j < this.Branches.Count; j++)
-                {
-                    var br = this.Branches[i];
-                    var other = this.Branches[j];
-
-                    if (i != j) if ((br.Start == other.Start & br.End == other.End) | (br.Start == other.End & br.End == other.Start)) br.Count++;
-                }
-            }
+                });            
 
             #endregion [Nodes and Branhces transformation]
 

@@ -12,34 +12,6 @@ Solver for Power Flow Problem.
 
 Samples are presented in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project. Library benchmarking is presented in [PowerFlowCore.Benchmark](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark) project.
 
-## Get started
-
-#### Namespaces
-Provided tool are located in several namespaces:
-
-```csharp
-using PowerFlowCore;
-using PowerFlowCore.Data;
-using PowerFlowCore.Solvers;
-```
-#### Basic components
-
-Central term is `Grid` object from `PowerFlowCore.Data` namespace. To create `Grid` object collections of `INode` and `IBranch` should be explicitly given to the constructor:
-
-```csharp
-public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) { ... }
-```
-
-Another way to create `Grid` is to use `IConverter` object that encapsulated collection of `INode` and `Branch`:
-
-```csharp
-public Grid(IConverter converter) { ... }
-```
-
-## Dependencies
-
-This project works with math library [MathNet.Numeric](https://github.com/mathnet/mathnet-numerics).
-
 ## Quick example
 
 Next example assumes that `Node` and `Branch` classes inherits `INode` and `IBranch` interfaces respectively. 
@@ -73,7 +45,7 @@ var grid = new Grid(nodes, branches);   // Create Grid object
 Inspect connectivity:
 
 ```csharp
-grid.Connectivity();
+bool connected = grid.IsConnected();
 ```
 
 Calculate grid (for more details look [Calculate()](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Engine/Engine.cs) methods):
@@ -91,6 +63,35 @@ grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCo
     .ApplySolver(SolverType.NewtonRaphson)
     .Calculate(out success);
 ```
+
+## Basic concepts
+
+#### Namespaces
+Provided tool are located in several namespaces:
+
+```csharp
+using PowerFlowCore;
+using PowerFlowCore.Data;
+using PowerFlowCore.Solvers;
+```
+#### Components
+
+Central term is `Grid` object from `PowerFlowCore.Data` namespace. To create `Grid` object collections of `INode` and `IBranch` should be explicitly given to the constructor:
+
+```csharp
+public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) { ... }
+```
+
+Another way to create `Grid` is to use `IConverter` object that encapsulated collection of `INode` and `Branch`:
+
+```csharp
+public Grid(IConverter converter) { ... }
+```
+
+## Dependencies
+
+This project works with math library [MathNet.Numeric](https://github.com/mathnet/mathnet-numerics).
+
 
 ## License
 

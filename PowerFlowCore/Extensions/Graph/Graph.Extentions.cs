@@ -18,7 +18,7 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
-        public static bool Connectivity(this Grid grid)
+        public static bool IsConnected(this Grid grid)
         {
             // Check nodes
             switch (grid.Nodes.Count)
@@ -101,7 +101,7 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="grid"><see cref="SolvableGrid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
-        public static bool Connectivity(this SolvableGrid grid) => Connectivity(grid.Grid);
+        public static bool IsConnected(this SolvableGrid grid) => IsConnected(grid.Grid);
 
         #endregion
 

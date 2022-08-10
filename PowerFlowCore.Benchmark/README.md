@@ -3,7 +3,7 @@
 Benchmark of [PowerFlowCore](https://github.com/ealux/PowerFlowCore) library performance is presented.
 Performance tests include grids creation and calculations with default solver ([Newton-Raphson](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Solvers/SolverNR.cs)).
 
-<u>Last update: **21.07.2022** (on [875e333](https://github.com/ealux/PowerFlowCore/commit/875e333cf00704d3b0c87fe839182d0341e3500d))</u>
+<u>Last update: **05.08.2022** (on [875e333](https://github.com/ealux/PowerFlowCore/commit/875e333cf00704d3b0c87fe839182d0341e3500d))</u>
 
 Grid samples list to be tested include (from [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project):
 
