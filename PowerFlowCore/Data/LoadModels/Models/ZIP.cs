@@ -13,6 +13,7 @@ namespace PowerFlowCore.Data
     /// <c>ZIP[Load(U)]:  Load = Load_spec*[a0 + a1*(U/U0) + a2*(U/U0)^2]</c>
     /// </para>
     /// </summary>
+    [Serializable]
     public class ZIP : ILoadModel
     {
         /// <inheritdoc/>

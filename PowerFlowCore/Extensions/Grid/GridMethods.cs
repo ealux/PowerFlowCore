@@ -1,5 +1,7 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
@@ -9,15 +11,17 @@ namespace PowerFlowCore.Data
     /// </summary>
     public static partial class ExtensionsMethods
     {
+        #region Grid components
+
         /// <summary>
         /// Make full copy of <see cref="Grid"/> object
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> object</param>
         /// <returns>New <see cref="Grid"/> object</returns>
         public static Grid DeepCopy(this Grid grid)
-        {           
+        {
             // Create empty lists for nodes and branches
-            var nodes = new List<INode>(grid.Nodes.Count);         
+            var nodes = new List<INode>(grid.Nodes.Count);
             var branches = new List<IBranch>(grid.Branches.Count);
 
             //Fill new Nodes
@@ -25,17 +29,19 @@ namespace PowerFlowCore.Data
             {
                 nodes.Add((INode)(new Node()
                 {
-                    Num      = node.Num,
+                    Num = node.Num,
                     Num_calc = node.Num_calc,
-                    Q_max    = node.Q_max,
-                    Q_min    = node.Q_min,
-                    S_gen    = node.S_gen,
-                    S_load   = node.S_load,
-                    Type     = node.Type,
-                    U        = node.U,
-                    Unom     = node.Unom,
-                    Vpre     = node.Vpre,
-                    Ysh      = node.Ysh
+                    Q_max = node.Q_max,
+                    Q_min = node.Q_min,
+                    S_gen = node.S_gen,
+                    S_load = node.S_load,
+                    Type = node.Type,
+                    U = node.U,
+                    Unom = node.Unom,
+                    Vpre = node.Vpre,
+                    Ysh = node.Ysh,
+                    LoadModelNum = node.LoadModelNum,
+                    S_calc = node.S_calc
                 }));
             }
             //Fill new Branches
@@ -43,32 +49,108 @@ namespace PowerFlowCore.Data
             {
                 branches.Add((IBranch)(new Branch()
                 {
-                    Count       = branch.Count,
-                    Start       = branch.Start,
-                    End         = branch.End,
-                    Start_calc  = branch.Start_calc,
-                    End_calc    = branch.End_calc,
-                    Y           = branch.Y,
-                    Ysh         = branch.Ysh,
-                    Ktr         = branch.Ktr,
-                    I_start     = branch.I_start,
-                    I_end       = branch.I_end,
-                    S_start     = branch.S_start,
-                    S_end       = branch.S_end,
+                    Count = branch.Count,
+                    Start = branch.Start,
+                    End = branch.End,
+                    Start_calc = branch.Start_calc,
+                    End_calc = branch.End_calc,
+                    Y = branch.Y,
+                    Ysh = branch.Ysh,
+                    Ktr = branch.Ktr,
+                    I_start = branch.I_start,
+                    I_end = branch.I_end,
+                    S_start = branch.S_start,
+                    S_end = branch.S_end,
                 }));
             }
 
-            Grid new_grid = new Grid(nodes: nodes, branches: branches); // Create new Grid object
+            // Create new Grid object
+            Grid new_grid = new Grid(nodes: nodes, branches: branches);
 
-            new_grid.Uinit      = grid.Uinit?.Clone() ?? new_grid.Unominal; // Uinit vector 
+            // Load models copy
+            if (grid.LoadModels.Count != 0)
+            {
+                var formatter = new BinaryFormatter();
+                using (var stream = new MemoryStream())
+                {
+                    formatter.Serialize(stream, grid.LoadModels);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    new_grid.LoadModels = (Dictionary<int, CompositeLoadModel>)formatter.Deserialize(stream);
+                }
+            }
 
-            //Statistic
-            new_grid.PQ_Count    = grid.PQ_Count;
-            new_grid.PV_Count    = grid.PV_Count;
-            new_grid.Slack_Count = grid.Slack_Count;
+            // Uinit vector
+            new_grid.Uinit = grid.Uinit?.Clone() ?? new_grid.Unominal;
 
             return new_grid;
         }
+
+
+        /// <summary>
+        /// Make full copy of <see cref="Grid.Nodes"/> collection
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <returns><see cref="List{INode}"/> of Nodes</returns>
+        public static List<INode> DeepCopyNodes(this Grid grid)
+        {
+            var nodes = new List<INode>(grid.Nodes.Count);
+            //Fill new Nodes
+            foreach (var node in grid.Nodes)
+            {
+                nodes.Add((INode)(new Node()
+                {
+                    Num = node.Num,
+                    Num_calc = node.Num_calc,
+                    Q_max = node.Q_max,
+                    Q_min = node.Q_min,
+                    S_gen = node.S_gen,
+                    S_load = node.S_load,
+                    Type = node.Type,
+                    U = node.U,
+                    Unom = node.Unom,
+                    Vpre = node.Vpre,
+                    Ysh = node.Ysh,
+                    LoadModelNum = node.LoadModelNum,
+                    S_calc = node.S_calc
+                }));
+            }
+
+            return nodes;
+        }
+
+
+        /// <summary>
+        /// Make full copy of <see cref="Grid.Branches"/> collection
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <returns><see cref="List{IBranch}"/> of Branches</returns>
+        public static List<IBranch> DeepCopyBranches(this Grid grid)
+        {
+            var branches = new List<IBranch>(grid.Branches.Count);
+            //Fill new Branches
+            foreach (var branch in grid.Branches)
+            {
+                branches.Add((IBranch)(new Branch()
+                {
+                    Count = branch.Count,
+                    Start = branch.Start,
+                    End = branch.End,
+                    Start_calc = branch.Start_calc,
+                    End_calc = branch.End_calc,
+                    Y = branch.Y,
+                    Ysh = branch.Ysh,
+                    Ktr = branch.Ktr,
+                    I_start = branch.I_start,
+                    I_end = branch.I_end,
+                    S_start = branch.S_start,
+                    S_end = branch.S_end,
+                }));
+            }
+
+            return branches;
+        }
+
+        #endregion
 
 
         /// <summary>

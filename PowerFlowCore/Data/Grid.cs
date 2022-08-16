@@ -13,7 +13,6 @@ namespace PowerFlowCore.Data
     /// </summary>
     public class Grid
     {
-
         /// <summary>
         /// Collection of <see cref="INode">
         /// <para>Sorted from PQ, through PV nodes, up to Slack nodes at the end</para> 
@@ -84,11 +83,6 @@ namespace PowerFlowCore.Data
         public string Id { get; private set; }
 
         /// <summary>
-        /// Options on breakers policy and checks
-        /// </summary>
-        internal GridOptions GridOptions { get; set; } = new GridOptions();
-
-        /// <summary>
         /// Private ctor
         /// </summary>
         private Grid() { }
@@ -105,30 +99,10 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
-        /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics with options
-        /// </summary>
-        /// <param name="nodes">Enumerable source of <see cref="INode"/> collection</param>
-        /// <param name="branches">Enumerable source of <see cref="IBranch"/> collection</param>
-        /// <param name="options">Option for breakers and checks policy</param>
-        public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches, GridOptions options = default)
-        {
-            this.Id = Guid.NewGuid().ToString();                // Set id
-            this.GridOptions = options ?? new GridOptions();    // Set options
-            InitParameters(nodes, branches);                    // Create grid
-        }
-
-        /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
         /// </summary>
         /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
         public Grid(IConverter converter) : this(converter.Nodes, converter.Branches) { }
-
-        /// <summary>
-        /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics with options
-        /// </summary>
-        /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
-        /// <param name="options">Option for breakers and checks policy</param>
-        public Grid(IConverter converter, GridOptions options = default) : this(converter.Nodes, converter.Branches, options) { }
 
 
         #region [Build Scheme]
@@ -212,9 +186,8 @@ namespace PowerFlowCore.Data
             this.Branches = rebranches.ToList();
 
             // Transform breakers branches
-            if(GridOptions.BreakersByTemplate)
-                BreakersTemplate.SetBreakers(this);
-
+            foreach (var item in this.Branches.Where(b => b.Y == 0.0))
+                item.Y = 1 / new Complex(0, 0.001);
 
             // Parallel branches amount
             for (int i = 0; i < this.Branches.Count; i++)

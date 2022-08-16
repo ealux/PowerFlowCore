@@ -15,7 +15,7 @@ namespace PowerFlowCore.Samples
 			Logger.LogInfo(" =========================================== ");
 			var nodes = new List<Node>()
 			{
-				new Node(){ Num = 10101,Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(500.214, 0), S_gen = new Complex(103.618, 593.852)},
+				new Node(){ Num = 10101,Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(500.214, 0)},
 				new Node(){Num = 10102,  Type = NodeType.PQ,    Unom=500},
 				new Node(){Num = 10103,  Type = NodeType.PQ,    Unom=500},
 				new Node(){Num = 10104,  Type = NodeType.PQ,    Unom=500},

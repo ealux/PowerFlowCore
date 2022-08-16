@@ -12,6 +12,7 @@ namespace PowerFlowCore.Data
     /// <para>Also includes list of submodels of <see cref="CompositeLoadModel"/> with own voltage limits. To add submodel:</para>
     /// <para><code>ParentModel.AddModel(ChildModel)</code></para>
     /// </summary>
+    [Serializable]
     public sealed class CompositeLoadModel
     {
         #region ILoadModel properties

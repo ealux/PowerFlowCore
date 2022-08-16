@@ -33,5 +33,10 @@
         /// Logging internal solver's info (on iterations)
         /// </summary>
         public bool SolverInternalLogging { get; set; } = true;
+
+        /// <summary>
+        /// Replaces branches with low or no impedance with specific breakers 
+        /// </summary>
+        public bool UseBreakerImpedance { get; set; } = true;
     }
 }

@@ -3,6 +3,9 @@ using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Samples
 {
+    /// <summary>
+    /// Internal <see cref="INode"/> implementation
+    /// </summary>
     class Node : INode
     {
         public int Num { get; set; }

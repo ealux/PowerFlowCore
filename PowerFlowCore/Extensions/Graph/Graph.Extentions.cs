@@ -14,7 +14,7 @@ namespace PowerFlowCore.Data
         #region Connectivity
 
         /// <summary>
-        /// Inspect <see cref="Grid"/> graphs on connectivity
+        /// Inspect <see cref="Grid"/> graph connectivity
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
@@ -97,7 +97,7 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
-        /// Inspect <see cref="Grid"/> graphs on connectivity
+        /// Inspect <see cref="SolvableGrid"/> graphs on connectivity
         /// </summary>
         /// <param name="grid"><see cref="SolvableGrid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>

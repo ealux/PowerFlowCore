@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 using Complex = System.Numerics.Complex;
 
@@ -21,44 +18,46 @@ namespace PowerFlowCore.Data
         internal static bool SetBreakers(this Grid grid)
         {
             // Check for transformes value
-            foreach (var item in grid.Branches.Where(b => b.Ktr.Magnitude >= 0 & b.Ktr.Magnitude != Complex.One))
-                if(1 / item.Y.Magnitude < 0.01)
+            foreach (var item in grid.Branches.Where(b => b.Ktr.Magnitude > 0 & b.Ktr.Magnitude != Complex.One))
+                if (1 / item.Y.Magnitude <= 0.001)
                 {
-                    Logger.LogCritical($"Transformer branch {item.Start}-{item.End} has equals to or zero impedance! Check the input data!");
+                    Logger.LogCritical($"Transformer branch {item.Start}-{item.End} has around or zero impedance! Check the input data!");
                     return false;
                 }
 
             // Find non-transformers branches
-            var brs = grid.Branches.Where(b => b.Ktr.Magnitude <= 0 | b.Ktr.Magnitude == Complex.One);
+            var brs = grid.Branches
+                          .Where(b => b.Ktr.Magnitude <= 0 | b.Ktr.Magnitude == Complex.One)
+                          .Where(b => 1 / b.Y.Magnitude <= 0.001);
+
+            // No low impedance branches
+            if (!brs.Any()) 
+                return true;
 
             // Iterate branches
             foreach (var item in brs)
             {
                 var start = grid.Nodes.Where(n => n.Num == item.Start).FirstOrDefault();
-                var end   = grid.Nodes.Where(n => n.Num == item.End).FirstOrDefault();
+                var end = grid.Nodes.Where(n => n.Num == item.End).FirstOrDefault();
 
                 // Check nodes existatnce
-                if(start == null)
+                if (start == null)
                 {
                     Logger.LogCritical($"Branch {item.Start}-{item.End} start node does not existing! Check the input data!");
                     return false;
                 }
-                else if(end == null)
+                else if (end == null)
                 {
                     Logger.LogCritical($"Branch {item.Start}-{item.End} end node does not existing! Check the input data!");
                     return false;
                 }
 
-                // Check impedance and set new if low
-                if(1 / item.Y.Magnitude < 0.01)
-                {
-                    var z = 1 / item.Y.Magnitude;
-                    item.Y = 1 / new Complex(0.0, 0.00044 * start.Unom.Magnitude);
-                    z = 1 / item.Y.Magnitude;
-                }                
+                // Set new impedance
+                item.Y = 1 / new Complex(0.0, 0.00044 * start.Unom.Magnitude);
             }
+
             return true;
         }
     }
-    
+
 }

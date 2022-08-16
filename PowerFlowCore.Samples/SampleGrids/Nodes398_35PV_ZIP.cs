@@ -10,12 +10,12 @@ namespace PowerFlowCore.Samples
     {
         public static Grid Nodes398_35PV_ZIP()
         {
-			Logger.LogInfo(" =========================================== ");
-			Logger.LogInfo("398 nodes: 35 - PV  362 - PQ  1 - Slack");
-			Logger.LogInfo(" =========================================== ");
+			Logger.LogInfo(" ============================================ ");
+			Logger.LogInfo("398 nodes (ZIP): 35 - PV  362 - PQ  1 - Slack");
+			Logger.LogInfo(" ============================================ ");
 			var nodes = new List<Node>()
 			{
-				new Node(){ Num = 10101,Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(500.214, 0), S_gen = new Complex(103.618, 593.852)},
+				new Node(){ Num = 10101,Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(500.214, 0)},
 				new Node(){Num = 10102,  Type = NodeType.PQ,    Unom=500},
 				new Node(){Num = 10103,  Type = NodeType.PQ,    Unom=500},
 				new Node(){Num = 10104,  Type = NodeType.PQ,    Unom=500},

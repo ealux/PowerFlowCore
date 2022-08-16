@@ -10,6 +10,7 @@ namespace PowerFlowCore.Data
     /// <c>Linear[Load(U)]:  Load = Load_spec*[<see cref="Linear.a"/> + <see cref="Linear.b"/>*(U/U0)]</c>
     /// </para>
     /// </summary>
+    [Serializable]
     public class Linear: ILoadModel
     {
         /// <inheritdoc/>

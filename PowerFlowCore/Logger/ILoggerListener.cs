@@ -12,6 +12,6 @@ namespace PowerFlowCore
         /// </summary>
         /// <param name="senderId">Source <see cref="Grid"/> Id</param>
         /// <param name="message"><see cref="LoggerMessage"/> message</param>
-        void ReceiveLoggerMessage(string senderId, LoggerMessage message);
+        void ReceiveMessage(string senderId, LoggerMessage message);
     }
 }

@@ -39,8 +39,8 @@ namespace PowerFlowCore
 
         /// <summary>
         /// Broadcast <see cref="Logger"/> messages to receivers.
-        /// <para>SenderId (<see cref="String"/>) -> <see cref="String.Empty"/> OR source <see cref="Grid.Id"/></para>
-        /// <para>Message (<see cref="String"/>) -> <see cref="Logger"/> message</para>
+        /// <para>Sender Id (<see cref="String"/>) -> <see cref="String.Empty"/> OR source <see cref="Grid.Id"/></para>
+        /// <para>Message content (<see cref="LoggerMessage"/>)</para>
         /// </summary>
         public static event LogInfoEvent? LogBroadcast;
 
@@ -138,7 +138,7 @@ namespace PowerFlowCore
             string outputStr = mesBuilder.ToString();
 
             // Output LoggerMessage
-            LoggerMessage output = new LoggerMessage() { DateTimeStamp = time, Level = level, Message = message, Source = sourceGridId };
+            LoggerMessage output = new LoggerMessage(dateTimeStamp: time, level: level, message: message, source: sourceGridId);
 
             // Invoke logger event
             LogBroadcast?.Invoke(sourceGridId, output);
@@ -188,7 +188,7 @@ namespace PowerFlowCore
                             {
                                 try
                                 {
-                                    listeners.ForEach(l => l.ReceiveLoggerMessage(sourceGridId, output));
+                                    listeners.ForEach(l => l.ReceiveMessage(sourceGridId, output));
                                 }
                                 catch (Exception) { }
                             });

@@ -10,6 +10,7 @@ namespace PowerFlowCore.Data
     /// <c>Exponential[Load(U)]:  Load = Load_spec*[(U/U0)^<see cref="Exponential.p"/>]</c>
     /// </para>
     /// </summary>
+    [Serializable]
     public class Exponential : ILoadModel
     {
         /// <inheritdoc/>

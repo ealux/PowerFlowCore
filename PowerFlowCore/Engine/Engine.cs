@@ -35,19 +35,25 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
 
-            // Reserve initial grid
-            Grid gridReserve = grid.DeepCopy();
+            // Calc grid
+            Grid calc = grid.DeepCopy();
+
+            // Set breaker impedance for calculus. Checks
+            if (!calc.SetBreakers())
+                return (grid, false);
+            calc.InitParameters(calc.Nodes, calc.Branches);
 
             // Calculate
-            grid.SolverNR(grid.Uinit, new CalculationOptions(), out bool suc);
+            calc.SolverNR(calc.Uinit, new CalculationOptions(), out bool suc);
 
             if (suc)
             {
+                grid.Nodes = calc.DeepCopyNodes();
                 grid.CalculatePowerMatrix();    // Calculate power flows
                 return (grid, suc);             // On success
             }
             else
-                return (gridReserve, false);    // On fault 
+                return (grid, false);    // On fault
         }
 
         /// <summary>
@@ -72,18 +78,28 @@ namespace PowerFlowCore
             if(grids == null)
                 throw new ArgumentNullException(nameof(grids));
 
-            List<(Grid, bool)> list = grids.Select(g => (g, false)).ToList();
+            IEnumerable<(Grid, bool)> list = grids.Select(g => (g, false));
 
             list.AsParallel().ForAll( item =>
             {
-                // Reserve initial grid
-                Grid gridReserve = item.Item1.DeepCopy();
+                // Calc grid
+                Grid calc = item.Item1.DeepCopy();
+
+                // Set breaker impedance for calculus
+                if (!calc.SetBreakers())
+                {
+                    item.Item2 = false;
+                    return;
+                }              
+                calc.InitParameters(calc.Nodes, calc.Branches);
+
 
                 // Calculate
-                item.Item1.SolverNR(item.Item1.Uinit, new CalculationOptions(), out bool suc);
+                calc.SolverNR(calc.Uinit, new CalculationOptions(), out bool suc);
 
                 if (suc)
                 {
+                    item.Item1.Nodes = calc.DeepCopyNodes();
                     item.Item1.CalculatePowerMatrix();    // Calculate power flows
                     item.Item2 = true;
                 }
@@ -91,7 +107,7 @@ namespace PowerFlowCore
                     item.Item2 = false;
             });           
 
-            return list.AsEnumerable();
+            return list; 
         }
 
         /// <summary>
@@ -102,15 +118,15 @@ namespace PowerFlowCore
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
         public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, out bool success)
         {
-            var res = new List<(Grid, bool)>();
+            IEnumerable<(Grid, bool)> res;
             success = true;
 
-            res = Calculate(grids).ToList();
+            res = Calculate(grids);
 
             if(res.Any(v => v.Item2 == false))
                 success = false;
 
-            return res.AsEnumerable();
+            return res;
         }
 
         #endregion
@@ -130,19 +146,29 @@ namespace PowerFlowCore
             if (options == null)
                 options = new CalculationOptions();
 
-            // Reserve initial grid
-            Grid gridReserve = grid.DeepCopy();
+            // Calc grid
+            Grid calc = grid.DeepCopy();
 
+            // Set breaker impedance for calculus
+            if (options.UseBreakerImpedance)
+            {
+                if (!calc.SetBreakers())
+                    return (grid, false);
+                calc.InitParameters(calc.Nodes, calc.Branches);
+            }
+            
             // Calculate
-            grid.SolverNR(grid.Uinit, options, out bool suc);
+            calc.SolverNR(calc.Uinit, options, out bool suc);
 
             if (suc)
             {
+                grid.Nodes = calc.DeepCopyNodes();
                 grid.CalculatePowerMatrix();    // Calculate power flows
                 return (grid, suc);             // On success
             }
             else
-                return (gridReserve, false);    // On fault 
+                return (grid, false);    // On fault 
+
         }
 
         /// <summary>
@@ -171,18 +197,30 @@ namespace PowerFlowCore
             if(options == null)
                 options = new CalculationOptions();
 
-            List<(Grid, bool)> list = grids.Select(g => (g, false)).ToList();
+            IEnumerable<(Grid, bool)> list = grids.Select(g => (g, false));
 
             list.AsParallel().ForAll(item =>
             {
-                // Reserve initial grid
-                Grid gridReserve = item.Item1.DeepCopy();
+                // Calc grid
+                Grid calc = item.Item1.DeepCopy();
+
+                // Set breaker impedance for calculus
+                if (options.UseBreakerImpedance)
+                {
+                    if (!calc.SetBreakers())
+                    {
+                        item.Item2 = false;
+                        return;
+                    }
+                    calc.InitParameters(calc.Nodes, calc.Branches);
+                }
 
                 // Calculate
-                item.Item1.SolverNR(item.Item1.Uinit, options, out bool suc);
+                calc.SolverNR(calc.Uinit, options, out bool suc);
 
                 if (suc)
                 {
+                    item.Item1.Nodes = calc.DeepCopyNodes();
                     item.Item1.CalculatePowerMatrix();    // Calculate power flows
                     item.Item2 = true;
                 }
@@ -190,7 +228,7 @@ namespace PowerFlowCore
                     item.Item2 = false;
             });
 
-            return list.AsEnumerable();
+            return list;
         }
 
         /// <summary>
@@ -202,15 +240,15 @@ namespace PowerFlowCore
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
         public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, CalculationOptions options, out bool success)
         {
-            var res = new List<(Grid, bool)>();
+            IEnumerable<(Grid, bool)> res;
             success = true;
 
-            res = Calculate(grids, options).ToList();
+            res = Calculate(grids, options);
 
             if (res.Any(v => v.Item2 == false))
                 success = false;
 
-            return res.AsEnumerable();
+            return res;
         }
 
         #endregion
@@ -227,11 +265,19 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
 
-            // Reserve initial grid
-            Grid gridReserve = grid.Grid.DeepCopy();
+            // Calc grid
+            Grid calc = grid.Grid.DeepCopy();
+
+            // Set breaker impedance for calculus
+            if(grid.Solvers.Any(s => s.Item2.UseBreakerImpedance))
+            {
+                if (!calc.SetBreakers())
+                    return (grid.Grid, false);
+                calc.InitParameters(calc.Nodes, calc.Branches);
+            }          
 
             // Voltage vector to initialialize calculations for each solver
-            Vector<Complex> Uinitial = grid.Grid.Uinit;
+            Vector<Complex> Uinitial = calc.Uinit;
 
             // Solver aplication result
             var success = false;
@@ -243,20 +289,22 @@ namespace PowerFlowCore
 
                 // Calculate
                 if(solver.Item1 == SolverType.GaussSeidel)
-                    grid.Grid.SolverGS(Uinitial, solver.Item2, out success);
+                    calc.SolverGS(Uinitial, solver.Item2, out success);
                 else if(solver.Item1 == SolverType.NewtonRaphson)
-                    grid.Grid.SolverNR(Uinitial, solver.Item2, out success);
+                    calc.SolverNR(Uinitial, solver.Item2, out success);
                 // Set next initialization
-                Uinitial = grid.Grid.Ucalc;
+                Uinitial = calc.Ucalc;
             }
 
             if (success)
             {
+                grid.Grid.Nodes = calc.DeepCopyNodes();
                 grid.Grid.CalculatePowerMatrix(); // Calculate power flows
                 return (grid.Grid, true);         // On success
             }
             else
-                return (gridReserve, false);      // On fault 
+                return (grid.Grid, false);    // On fault 
+
         }
 
         /// <summary>
@@ -281,15 +329,26 @@ namespace PowerFlowCore
             if (grids == null)
                 throw new ArgumentNullException(nameof(grids));
 
-            List<(SolvableGrid, bool)> list = grids.Select(g => (g, false)).ToList();
+            IEnumerable<(SolvableGrid, bool)> list = grids.Select(g => (g, false));
 
             list.AsParallel().ForAll(item =>
             {
-                // Reserve initial grid
-                Grid gridReserve = item.Item1.Grid.DeepCopy();
+                // Calc grid
+                Grid calc = item.Item1.Grid.DeepCopy();
+
+                // Set breaker impedance for calculus
+                if (item.Item1.Solvers.Any(s => s.Item2.UseBreakerImpedance))
+                {
+                    if (!calc.SetBreakers())
+                    {
+                        item.Item2 = false;
+                        return;
+                    }
+                    calc.InitParameters(calc.Nodes, calc.Branches);
+                }
 
                 // Voltage vector to initialialize calculations for each solver
-                Vector<Complex> Uinitial = item.Item1.Grid.Uinit;
+                Vector<Complex> Uinitial = calc.Uinit;
 
                 // Solver aplication result
                 var success = false;
@@ -301,15 +360,16 @@ namespace PowerFlowCore
 
                     // Calculate
                     if (solver.Item1 == SolverType.GaussSeidel)
-                        item.Item1.Grid.SolverGS(Uinitial, solver.Item2, out success);
+                        calc.SolverGS(Uinitial, solver.Item2, out success);
                     else if (solver.Item1 == SolverType.NewtonRaphson)
-                        item.Item1.Grid.SolverNR(Uinitial, solver.Item2, out success);
+                        calc.SolverNR(Uinitial, solver.Item2, out success);
                     // Set next initialization
-                    Uinitial = item.Item1.Grid.Ucalc;
+                    Uinitial = calc.Ucalc;
                 }
 
                 if (success)
                 {
+                    item.Item1.Grid.Nodes = calc.DeepCopyNodes();
                     item.Item1.Grid.CalculatePowerMatrix();    // Calculate power flows
                     item.Item2 = true;
                 }
@@ -317,7 +377,7 @@ namespace PowerFlowCore
                     item.Item2 = false;
             });
 
-            return list.Select(item => (item.Item1.Grid, item.Item2)).AsEnumerable();
+            return list.Select(item => (item.Item1.Grid, item.Item2));
         }
 
         /// <summary>
@@ -328,20 +388,22 @@ namespace PowerFlowCore
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
         public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<SolvableGrid> grids, out bool success)
         {
-            var res = new List<(Grid, bool)>();
+            IEnumerable<(Grid, bool)> res;
             success = true;
 
-            res = Calculate(grids).ToList();
+            res = Calculate(grids);
 
             if (res.Any(v => v.Item2 == false))
                 success = false;
 
-            return res.AsEnumerable();
+            return res;
         }
 
         #endregion
 
         #region Solver appliers
+
+        // Grid
 
         /// <summary>
         /// Creates new <see cref="SolvableGrid"/> object with selected solver
@@ -419,6 +481,8 @@ namespace PowerFlowCore
             return output.AsEnumerable();
         }
 
+
+        // SolvableGrid
 
         /// <summary>
         /// Creates new <see cref="SolvableGrid"/> object with selected solver

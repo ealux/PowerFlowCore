@@ -16,6 +16,8 @@ namespace PowerFlowCore.Samples
     {
         static void Main()
         {
+            // Uncomment required group
+
             var timer_global = Stopwatch.StartNew();
 
             Logger.AddConsoleMode();
@@ -24,6 +26,12 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Calculation started");
 
             var timer = Stopwatch.StartNew();
+
+            #region Individual calcs
+
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.BreakersScheme());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
             //CalculateAndShow(SampleGrids.Nodes4_1PV());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
@@ -72,23 +80,22 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
+            #endregion
+
+
+            #region Parallel calcs
 
             //// --- Parallel calc default ----
+
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-            //var grids = new List<Grid>();
-            //grids.Add(SampleGrids.Test_Ktr());
-            //grids.Add(SampleGrids.Nodes4_1PV());
-            //grids.Add(SampleGrids.Nodes4_1PV_ZIP());
-            //grids.Add(SampleGrids.IEEE_14());
-            //grids.Add(SampleGrids.Nodes15_3PV());
-            //grids.Add(SampleGrids.IEEE_57());
-            //grids.Add(SampleGrids.IEEE_118());
-            //grids.Add(SampleGrids.Nodes197_36PV());
-            //grids.Add(SampleGrids.Nodes300_27PV());
-            //var result = Engine.CalculateParallel(grids);
+
+            // ---- Parallel calc from box ----
+            //var list = CreateGridList();    // Sample Grid collection
+            //list.Calculate();       // Parallel colection
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
 
-            //// ---- Parallel calc ----
+            //// ---- Parallel calc with Invoke ----
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
             //Parallel.Invoke(
             //    () => CalculateAndShow(SampleGrids.Test_Ktr()),
@@ -105,11 +112,12 @@ namespace PowerFlowCore.Samples
             //    () => CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP())
             //);
 
-            //// ---- Variant calc ----
-            //var list = CreateGridList();    // Sample Grid collection
-            //list.Calculate();       // Parallel colection
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+            #endregion
 
+
+            #region Multiple solvers calcs
+
+            // ---- Multiple solvers calc ----
             //timer.Restart();
             //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })   // Parallel with multi solver
             //    .ApplySolver(SolverType.NewtonRaphson)
@@ -128,12 +136,24 @@ namespace PowerFlowCore.Samples
             //                           .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
+            //timer.Restart();
+            //SampleGrids.Nodes398_35PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
+            //                               .ApplySolver(SolverType.NewtonRaphson)
+            //                               .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+
+            #endregion
+
+
+            #region Graph inspects
 
             //// ---- IsConnected checks ----
-            //var list = CreateGridList();    // Sample Grid collection
-            //foreach (var item in list)  
+            //list = CreateGridList();    // Sample Grid collection
+            //foreach (var item in list)
             //    if (item.IsConnected())    // Check connectivity
             //        item.Calculate();       // Run calculations
+
+            #endregion
 
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
@@ -142,14 +162,12 @@ namespace PowerFlowCore.Samples
         }
 
 
-        // Logger event handling and print message
-        private static void Logger_OnLogBroadcast(string senderID, LoggerMessage message) => Console.WriteLine(message.Message);
-
+        #region Helper methods       
 
         /// <summary>
         /// Make calculus and print calculated params
         /// </summary>
-        /// <param name="e"><see cref="Engine"/> object to be calculated</param>
+        /// <param name="grid"><see cref="Grid"/> object to be calculated</param>
         private static void CalculateAndShow(Grid grid)
         {
             grid.Calculate();  //Performe calculations
@@ -189,6 +207,7 @@ namespace PowerFlowCore.Samples
             //Console.WriteLine(grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
         }
 
+
         /// <summary>
         /// Create IEnumerable grid collection
         /// </summary>
@@ -211,5 +230,13 @@ namespace PowerFlowCore.Samples
 
             return grids;
         }
+
+
+        /// <summary>
+        /// Logger event handling and print message
+        /// </summary>
+        private static void Logger_OnLogBroadcast(string senderID, LoggerMessage message) => Console.WriteLine(message.Message);
+
+        #endregion
     }
 }

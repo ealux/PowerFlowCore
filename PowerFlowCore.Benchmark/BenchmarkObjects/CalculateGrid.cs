@@ -11,30 +11,36 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class CalculateGrid
     {
-        [Params(1, 10, 100, 1000)]
+        [Params(1, 10)]//, 100, 1000)]
         public int N;
 
         private readonly Grid _Test_Ktr;
         private readonly Grid _Nodes4_1PV;
         private readonly Grid _Nodes4_1PV_ZIP;
+        private readonly Grid _Nodes5_2Slack;
         private readonly Grid _IEEE_14;
         private readonly Grid _Nodes15_3PV;
         private readonly Grid _IEEE_57;
         private readonly Grid _IEEE_118;
         private readonly Grid _Nodes197_36PV;
         private readonly Grid _Nodes300_27PV;
+        private readonly Grid _Nodes398_35PV;
+        private readonly Grid _Nodes398_35PV_ZIP;
 
         public CalculateGrid()
         {
-            _Test_Ktr        = SampleGrids.Test_Ktr();
-            _Nodes4_1PV      = SampleGrids.Nodes4_1PV();
-            _Nodes4_1PV_ZIP  = SampleGrids.Nodes4_1PV_ZIP();
-            _IEEE_14         = SampleGrids.IEEE_14();
-            _Nodes15_3PV     = SampleGrids.Nodes15_3PV();
-            _IEEE_57         = SampleGrids.IEEE_57();
-            _IEEE_118        = SampleGrids.IEEE_118();
-            _Nodes197_36PV   = SampleGrids.Nodes197_36PV();
-            _Nodes300_27PV   = SampleGrids.Nodes300_27PV();
+            _Test_Ktr          = SampleGrids.Test_Ktr();
+            _Nodes4_1PV        = SampleGrids.Nodes4_1PV();
+            _Nodes4_1PV_ZIP    = SampleGrids.Nodes4_1PV_ZIP();
+            _Nodes5_2Slack     = SampleGrids.Nodes5_2Slack();
+            _IEEE_14           = SampleGrids.IEEE_14();
+            _Nodes15_3PV       = SampleGrids.Nodes15_3PV();
+            _IEEE_57           = SampleGrids.IEEE_57();
+            _IEEE_118          = SampleGrids.IEEE_118();
+            _Nodes197_36PV     = SampleGrids.Nodes197_36PV();
+            _Nodes300_27PV     = SampleGrids.Nodes300_27PV();
+            _Nodes398_35PV     = SampleGrids.Nodes398_35PV();
+            _Nodes398_35PV_ZIP = SampleGrids.Nodes398_35PV_ZIP();
         }
 
         [Benchmark]
@@ -56,6 +62,13 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 Engine.Calculate(_Nodes4_1PV_ZIP);
+        }
+
+        [Benchmark]
+        public void Nodes5_2Slack()
+        {
+            for (int i = 0; i < N; i++)
+                Engine.Calculate(_Nodes5_2Slack);
         }
 
         [Benchmark]
@@ -98,6 +111,20 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 Engine.Calculate(_Nodes300_27PV);
+        }
+
+        [Benchmark]
+        public void Nodes398_35PV()
+        {
+            for (int i = 0; i < N; i++)
+                Engine.Calculate(_Nodes398_35PV);
+        }
+
+        [Benchmark]
+        public void Nodes398_35PV_ZIP()
+        {
+            for (int i = 0; i < N; i++)
+                Engine.Calculate(_Nodes398_35PV_ZIP);
         }
     }
 }
