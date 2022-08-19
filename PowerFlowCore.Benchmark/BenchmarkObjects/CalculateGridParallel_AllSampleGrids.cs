@@ -28,6 +28,8 @@ namespace PowerFlowCore.Benchmark
             grids.Add(SampleGrids.IEEE_118());
             grids.Add(SampleGrids.Nodes197_36PV());
             grids.Add(SampleGrids.Nodes300_27PV());
+            grids.Add(SampleGrids.Nodes398_35PV());
+            grids.Add(SampleGrids.Nodes398_35PV_ZIP());
         }
 
         [Benchmark]

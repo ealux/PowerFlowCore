@@ -1,7 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
@@ -69,15 +67,8 @@ namespace PowerFlowCore.Data
 
             // Load models copy
             if (grid.LoadModels.Count != 0)
-            {
-                var formatter = new BinaryFormatter();
-                using (var stream = new MemoryStream())
-                {
-                    formatter.Serialize(stream, grid.LoadModels);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    new_grid.LoadModels = (Dictionary<int, CompositeLoadModel>)formatter.Deserialize(stream);
-                }
-            }
+                foreach (var item in grid.LoadModels)
+                    new_grid.LoadModels.Add(item.Key, item.Value.DeepCopy());
 
             // Uinit vector
             new_grid.Uinit = grid.Uinit?.Clone() ?? new_grid.Unominal;

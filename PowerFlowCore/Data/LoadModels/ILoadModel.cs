@@ -46,5 +46,11 @@ namespace PowerFlowCore.Data
         /// Validate model
         /// </summary>
         public void Validate();
+
+        /// <summary>
+        /// Make full cope of load model
+        /// </summary>
+        /// <returns>New instance of <see cref="ILoadModel"/></returns>
+        public ILoadModel DeepCopy();
     }
 }

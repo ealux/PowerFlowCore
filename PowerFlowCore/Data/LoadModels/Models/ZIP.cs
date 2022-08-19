@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Complex = System.Numerics.Complex;
-
 
 namespace PowerFlowCore.Data
 {
@@ -13,7 +8,6 @@ namespace PowerFlowCore.Data
     /// <c>ZIP[Load(U)]:  Load = Load_spec*[a0 + a1*(U/U0) + a2*(U/U0)^2]</c>
     /// </para>
     /// </summary>
-    [Serializable]
     public class ZIP : ILoadModel
     {
         /// <inheritdoc/>
@@ -117,6 +111,12 @@ namespace PowerFlowCore.Data
             }                
             else
                 IsValid = true;
+        }
+
+        /// <<inheritdoc/>
+        public ILoadModel DeepCopy()
+        {
+            return Initialize(this.Name, this.a0, this.a1, this.a2);
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PowerFlowCore.Data
 {
@@ -10,7 +8,6 @@ namespace PowerFlowCore.Data
     /// <c>Exponential[Load(U)]:  Load = Load_spec*[(U/U0)^<see cref="Exponential.p"/>]</c>
     /// </para>
     /// </summary>
-    [Serializable]
     public class Exponential : ILoadModel
     {
         /// <inheritdoc/>
@@ -90,6 +87,12 @@ namespace PowerFlowCore.Data
             }
             else
                 IsValid = true;
+        }
+
+        /// <<inheritdoc/>
+        public ILoadModel DeepCopy()
+        {
+            return Initialize(this.Name, this.p);
         }
     }
 }

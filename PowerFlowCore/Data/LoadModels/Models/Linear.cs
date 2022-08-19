@@ -10,7 +10,6 @@ namespace PowerFlowCore.Data
     /// <c>Linear[Load(U)]:  Load = Load_spec*[<see cref="Linear.a"/> + <see cref="Linear.b"/>*(U/U0)]</c>
     /// </para>
     /// </summary>
-    [Serializable]
     public class Linear: ILoadModel
     {
         /// <inheritdoc/>
@@ -62,8 +61,8 @@ namespace PowerFlowCore.Data
         /// <param name="b">Voltage dependent term of Linear model</param>
         /// <returns>Inctance of <see cref="Linear"/> model</returns>
         public static Linear Initialize(string name,
-                                     double a = 0.0,
-                                     double b = 0.0)
+                                        double a = 0.0,
+                                        double b = 0.0)
         {
 
             var model = new Linear(name, a, b);
@@ -105,6 +104,13 @@ namespace PowerFlowCore.Data
             }
             else
                 IsValid = true;
+        }
+
+
+        /// <<inheritdoc/>
+        public ILoadModel DeepCopy()
+        {
+            return Initialize(this.Name, this.a, this.b);
         }
     }
 }
