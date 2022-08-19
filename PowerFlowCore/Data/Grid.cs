@@ -85,7 +85,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Private ctor
         /// </summary>
-        private Grid() { }
+        protected Grid() { }
 
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics

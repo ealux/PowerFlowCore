@@ -29,56 +29,56 @@ namespace PowerFlowCore.Samples
 
             #region Individual calcs
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.BreakersScheme());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.BreakersScheme());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
-            CalculateAndShow(SampleGrids.Nodes4_1PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            //CalculateAndShow(SampleGrids.Nodes4_1PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes5_2Slack());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes5_2Slack());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.IEEE_14());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.IEEE_14());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes15_3PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes15_3PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.IEEE_57());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.IEEE_57());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.IEEE_118());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.IEEE_118());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Test_Ktr());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Test_Ktr());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes197_36PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes197_36PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes300_27PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes300_27PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes398_35PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes398_35PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
 
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
             #endregion
 
@@ -90,7 +90,7 @@ namespace PowerFlowCore.Samples
             //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
 
             // ---- Parallel calc from box ----
-            //var list = CreateGridList();    // Sample Grid collection
+            //var list = CreateGridList();    // Sample Grids collection
             //list.Calculate();       // Parallel colection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
@@ -117,30 +117,31 @@ namespace PowerFlowCore.Samples
 
             #region Multiple solvers calcs
 
-            // ---- Multiple solvers calc ----
+            //// ---- Multiple solvers calcs ----
             //timer.Restart();
+            //var list = CreateGridList();    // Sample Grids collection
             //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })   // Parallel with multi solver
             //    .ApplySolver(SolverType.NewtonRaphson)
             //    .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
-            //timer.Restart();
-            //SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-            //                            .ApplySolver(SolverType.NewtonRaphson)
-            //                            .Calculate();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            timer.Restart();
+            SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+                                        .ApplySolver(SolverType.NewtonRaphson)
+                                        .Calculate();
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            //timer.Restart();
-            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-            //                           .ApplySolver(SolverType.NewtonRaphson)
-            //                           .Calculate();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+            timer.Restart();
+            SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+                                       .ApplySolver(SolverType.NewtonRaphson)
+                                       .Calculate();
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
-            //timer.Restart();
-            //SampleGrids.Nodes398_35PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
-            //                               .ApplySolver(SolverType.NewtonRaphson)
-            //                               .Calculate();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+            timer.Restart();
+            SampleGrids.Nodes398_35PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
+                                           .ApplySolver(SolverType.NewtonRaphson)
+                                           .Calculate();
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
             #endregion
 

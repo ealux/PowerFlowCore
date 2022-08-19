@@ -39,5 +39,12 @@ namespace PowerFlowCore.Solvers
             Grid = grid;
             Solvers.Enqueue((type, options));
         }
+
+        /// <summary>
+        /// Cast <see cref="SolvableGrid"/> to <see cref="Grid"/> object by deep copy of internal Grid property
+        /// </summary>
+        /// <param name="grid"><see cref="SolvableGrid"/> to be casted to</param>
+        public static implicit operator Grid(SolvableGrid grid) => grid.Grid.DeepCopy();
+
     }
 }
