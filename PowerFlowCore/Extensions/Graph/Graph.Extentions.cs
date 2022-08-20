@@ -63,10 +63,7 @@ namespace PowerFlowCore.Data
             RecurseFinder(linked, ref exNodes);
 
             if (exNodes.Count == 0)
-            {
-                Logger.LogSuccess($"Grid graph is connected!");
                 return true;
-            }
 
             var orphanNodes = string.Join(", ", FindOrphanNodes(grid).Select(n=>n.Num));
             Logger.LogWarning($"Grid graph is not connected. Orphan node: {orphanNodes}");

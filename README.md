@@ -67,7 +67,7 @@ grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCo
 ## Basic concepts
 
 #### Namespaces
-Provided tool are located in several namespaces:
+Provided tools are located in several namespaces:
 
 ```csharp
 using PowerFlowCore;
@@ -75,6 +75,12 @@ using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
 ```
 #### Components
+
+##### INode, IBranch
+
+
+
+##### Grid
 
 Central term is `Grid` object from `PowerFlowCore.Data` namespace. To create `Grid` object collections of `INode` and `IBranch` should be explicitly given to the constructor:
 
@@ -95,4 +101,4 @@ This project works with math library [MathNet.Numeric](https://github.com/mathne
 
 ## License
 
-Distributed under [MIT license](https://github.com/ealux/PowerFlowCore/blob/master/LICENSE.md)
+Published under [MIT license](https://github.com/ealux/PowerFlowCore/blob/master/LICENSE.md)

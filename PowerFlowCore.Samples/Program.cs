@@ -22,7 +22,9 @@ namespace PowerFlowCore.Samples
 
             Logger.AddConsoleMode();
             Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener
-            //Logger.AddDebugMode();
+            //Logger.AddDebugMode();            
+            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
+
             Logger.LogInfo("Calculation started");
 
             var timer = Stopwatch.StartNew();
@@ -83,13 +85,9 @@ namespace PowerFlowCore.Samples
             #endregion
 
 
-            #region Parallel calcs
+            #region Parallel calcs            
 
-            //// --- Parallel calc default ----
-
-            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-
-            // ---- Parallel calc from box ----
+            //// ----Parallel calc from box----
             //var list = CreateGridList();    // Sample Grids collection
             //list.Calculate();       // Parallel colection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
@@ -120,28 +118,28 @@ namespace PowerFlowCore.Samples
             //// ---- Multiple solvers calcs ----
             //timer.Restart();
             //var list = CreateGridList();    // Sample Grids collection
-            //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })   // Parallel with multi solver
+            //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })   // Parallel with multi solver
             //    .ApplySolver(SolverType.NewtonRaphson)
             //    .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
-            timer.Restart();
-            SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-                                        .ApplySolver(SolverType.NewtonRaphson)
-                                        .Calculate();
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            //timer.Restart();
+            //SampleGrids.Nodes4_1PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            timer.Restart();
-            SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
-                                       .ApplySolver(SolverType.NewtonRaphson)
-                                       .Calculate();
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+            //timer.Restart();
+            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //                           .ApplySolver(SolverType.NewtonRaphson)
+            //                           .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
-            timer.Restart();
-            SampleGrids.Nodes398_35PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
-                                           .ApplySolver(SolverType.NewtonRaphson)
-                                           .Calculate();
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+            //timer.Restart();
+            //SampleGrids.Nodes398_35PV_ZIP().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
+            //                               .ApplySolver(SolverType.NewtonRaphson)
+            //                               .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
             #endregion
 
