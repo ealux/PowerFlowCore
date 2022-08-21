@@ -43,7 +43,7 @@ namespace PowerFlowCore
                 return (grid, false);
 
             // Calc grid
-            Grid calc = grid.DeepCopy();
+            Grid calc = grid.DeepCopy().WithId(grid.Id);
 
             // Set breaker impedance for calculus. Checks
             if (!calc.SetBreakers())
@@ -103,7 +103,7 @@ namespace PowerFlowCore
                 }                    
 
                 // Calc grid
-                Grid calc = item.Item1.DeepCopy();
+                Grid calc = item.Item1.DeepCopy().WithId(item.Item1.Id);
 
                 // Set breaker impedance for calculus
                 if (!calc.SetBreakers())
@@ -175,7 +175,7 @@ namespace PowerFlowCore
                 return (grid, false);
 
             // Calc grid
-            Grid calc = grid.DeepCopy();
+            Grid calc = grid.DeepCopy().WithId(grid.Id);
 
             // Set breaker impedance for calculus
             if (options.UseBreakerImpedance)
@@ -244,7 +244,7 @@ namespace PowerFlowCore
                 }
 
                 // Calc grid
-                Grid calc = item.Item1.DeepCopy();
+                Grid calc = item.Item1.DeepCopy().WithId(item.Item1.Id);
 
                 // Set breaker impedance for calculus
                 if (options.UseBreakerImpedance)
@@ -315,7 +315,7 @@ namespace PowerFlowCore
                 return (grid, false);
 
             // Calc grid
-            Grid calc = grid.Grid.DeepCopy();
+            Grid calc = grid.Grid.DeepCopy().WithId(grid.Grid.Id);
 
             // Set breaker impedance for calculus
             if(grid.Solvers.Any(s => s.Item2.UseBreakerImpedance))
@@ -397,7 +397,7 @@ namespace PowerFlowCore
                 }
 
                 // Calc grid
-                Grid calc = item.Item1.Grid.DeepCopy();
+                Grid calc = item.Item1.Grid.DeepCopy().WithId(item.Item1.Grid.Id);
 
                 // Set breaker impedance for calculus
                 if (item.Item1.Solvers.Any(s => s.Item2.UseBreakerImpedance))

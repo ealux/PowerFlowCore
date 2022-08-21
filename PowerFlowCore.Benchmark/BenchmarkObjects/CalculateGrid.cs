@@ -11,8 +11,8 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class CalculateGrid
     {
-        //[Params(1, 10)]//, 100, 1000)]
-        public int N = 1;
+        [Params(1, 10)]
+        public int N;
 
         private readonly Grid _Test_Ktr;
         private readonly Grid _Nodes4_1PV;

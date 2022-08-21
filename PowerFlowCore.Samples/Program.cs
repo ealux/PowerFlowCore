@@ -31,16 +31,16 @@ namespace PowerFlowCore.Samples
 
             #region Individual calcs
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.BreakersScheme());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
+            timer.Restart();
+            CalculateAndShow(SampleGrids.BreakersScheme());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
-            //CalculateAndShow(SampleGrids.Nodes4_1PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             //timer.Restart();
             //CalculateAndShow(SampleGrids.Nodes5_2Slack());

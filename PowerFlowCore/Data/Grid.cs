@@ -82,6 +82,8 @@ namespace PowerFlowCore.Data
         /// </summary>
         public string Id { get; private set; }
 
+        #region Constructors
+
         /// <summary>
         /// Private ctor
         /// </summary>
@@ -104,6 +106,7 @@ namespace PowerFlowCore.Data
         /// <param name="converter"><see cref="IConverter"/> object that incupsulate <see cref="IEnumerable{T}"/> Nodes and Branches</param>
         public Grid(IConverter converter) : this(converter.Nodes, converter.Branches) { }
 
+        #endregion
 
         #region [Build Scheme]
 
@@ -287,6 +290,20 @@ namespace PowerFlowCore.Data
 
 
         #endregion [Build Scheme]       
+
+        #region Internal Helper methods
+
+        /// <summary>
+        /// Set to <see cref="Grid.Id"/>
+        /// </summary>
+        /// <param name="id">Id to set</param>
+        internal Grid WithId(string id)
+        {
+            this.Id = id;
+            return this;
+        }
+
+        #endregion
 
     }
 }

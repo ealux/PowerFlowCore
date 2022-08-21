@@ -36,11 +36,10 @@ namespace PowerFlowCore.Data
                 Logger.LogWarning($"Branhces count is equals 0!");
                 return false;
             }
-
-            // Unique branches list
-            var branches = grid.Branches.Distinct(new BranchEqualityComparer()).OrderBy(b => b.Start).ToList();
-            // Nodes list for excluding
-            var exNodes  = grid.Nodes.OrderBy(n => n.Num).Select(n => n.Num).ToList();
+            
+            var branches = grid.Branches.Distinct(new BranchEqualityComparer()).OrderBy(b => b.Start).ToList(); // Unique branches list
+            var exNodes  = grid.Nodes.OrderBy(n => n.Num).Select(n => n.Num).ToList();                          // Nodes list for excluding
+            
             // If first node is orphan
             if (!branches.Any(b => (b.Start == exNodes[0]) | (b.End == exNodes[0])))
             {
@@ -49,8 +48,8 @@ namespace PowerFlowCore.Data
                 return false;
             }                         
 
-            // List for accepted nodes
-            List<int> linked = new List<int>(grid.Nodes.Count);
+            List<int> linked = new List<int>(grid.Nodes.Count); // List for accepted nodes
+            
             // Connected list for the first node
             foreach (var b in branches) 
             {
@@ -59,8 +58,9 @@ namespace PowerFlowCore.Data
             } 
             // Remove first node from excluding list
             exNodes.Remove(exNodes[0]);
+
             // Run recursive finder
-            RecurseFinder(linked, ref exNodes);
+            RecurseConnectionFinder(linked, ref exNodes);
 
             if (exNodes.Count == 0)
                 return true;
@@ -71,7 +71,7 @@ namespace PowerFlowCore.Data
 
 
             // Private recursive function for depth search
-            void RecurseFinder(List<int> Linked, ref List<int> Exnodes)
+            void RecurseConnectionFinder(List<int> Linked, ref List<int> Exnodes)
             {
                 foreach (int j in Linked)
                     if (Exnodes.Contains(j)) Exnodes.Remove(j);
@@ -88,7 +88,7 @@ namespace PowerFlowCore.Data
                         else if (b.End == link & Exnodes.Contains(b.Start)) linker.Add(b.Start);
                     }
 
-                    if (linker.Count != 0) RecurseFinder(new List<int>(linker), ref Exnodes);
+                    if (linker.Count != 0) RecurseConnectionFinder(new List<int>(linker), ref Exnodes);
                 }
             }
         }

@@ -9,7 +9,47 @@ namespace PowerFlowCore.Data
     /// </summary>
     public static partial class ExtensionsMethods
     {
-        #region Grid components
+        #region Grid Initialization
+
+        /// <summary>
+        /// Set custom voltage initial vector
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/> object</param>
+        /// <param name="Uinit">Input <see cref="Vector{Complex}"/> of Uinit valus</param>
+        /// <returns>Modified <see cref="Grid"/> object</returns>
+        public static Grid SetUinit(this Grid grid, Vector<Complex> Uinit = null)
+        {
+            // If grid Uinit doesn't exist
+            if (grid.Uinit == null)
+                grid.Uinit = Vector<Complex>.Build.Dense(grid.Unominal.Count);
+
+            // If input Uinit is null or broken
+            if ((Uinit == null) || (Uinit.Count != grid.Unominal.Count))
+            {
+                for (int i = 0; i < grid.Nodes.Count; i++)
+                {
+                    switch (grid.Nodes[i].Type)
+                    {
+                        case NodeType.Slack:
+                        case NodeType.PQ:
+                            grid.Uinit[i] = grid.Unominal[i];       // Slack and PQ nodes = nominal
+                            break;
+                        case NodeType.PV:
+                            grid.Uinit[i] = grid.Nodes[i].Vpre;     // PV nodes = Vpre
+                            break;
+                    }
+                }
+            }
+            // If input is normal
+            else
+                Uinit.CopyTo(grid.Uinit);
+
+            return grid;
+        }
+
+        #endregion
+
+        #region Grid DeepCopy
 
         /// <summary>
         /// Make full copy of <see cref="Grid"/> object
@@ -142,44 +182,6 @@ namespace PowerFlowCore.Data
         }
 
         #endregion
-
-
-        /// <summary>
-        /// Set custom voltage initial vector
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/> object</param>
-        /// <param name="Uinit">Input <see cref="Vector{Complex}"/> of Uinit valus</param>
-        /// <returns>Modified <see cref="Grid"/> object</returns>
-        public static Grid SetUinit(this Grid grid, Vector<Complex> Uinit = null)
-        {
-            // If grid Uinit doesn't exist
-            if (grid.Uinit == null)
-                grid.Uinit = Vector<Complex>.Build.Dense(grid.Unominal.Count);
-
-            // If input Uinit is null or broken
-            if ((Uinit == null) || (Uinit.Count != grid.Unominal.Count))
-            {
-                for (int i = 0; i < grid.Nodes.Count; i++)
-                {
-                    switch (grid.Nodes[i].Type)
-                    {
-                        case NodeType.Slack:
-                        case NodeType.PQ:
-                            grid.Uinit[i] = grid.Unominal[i];       // Slack and PQ nodes = nominal
-                            break;
-                        case NodeType.PV:
-                            grid.Uinit[i] = grid.Nodes[i].Vpre;     // PV nodes = Vpre
-                            break;
-                    }
-                }
-            }
-            // If input is normal
-            else
-                Uinit.CopyTo(grid.Uinit);
-
-            return grid;
-        }
-
     }   
 
 
