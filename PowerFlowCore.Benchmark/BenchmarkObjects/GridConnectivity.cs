@@ -11,12 +11,13 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class GridConnectivity
     {
-        [Params(1, 10)]//, 100)]
+        [Params(1, 10)]
         public int N;
 
         private readonly Grid _Test_Ktr;
         private readonly Grid _Nodes4_1PV;
         private readonly Grid _Nodes4_1PV_ZIP;
+        private readonly Grid _Nodes5_2Slack;
         private readonly Grid _IEEE_14;
         private readonly Grid _Nodes15_3PV;
         private readonly Grid _IEEE_57;
@@ -31,6 +32,7 @@ namespace PowerFlowCore.Benchmark
             _Test_Ktr        = SampleGrids.Test_Ktr();
             _Nodes4_1PV      = SampleGrids.Nodes4_1PV();
             _Nodes4_1PV_ZIP  = SampleGrids.Nodes4_1PV_ZIP();
+            _Nodes5_2Slack   = SampleGrids.Nodes5_2Slack();
             _IEEE_14         = SampleGrids.IEEE_14();
             _Nodes15_3PV     = SampleGrids.Nodes15_3PV();
             _IEEE_57         = SampleGrids.IEEE_57();
@@ -60,6 +62,13 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 _Nodes4_1PV_ZIP.IsConnected();
+        }
+
+        [Benchmark]
+        public void Nodes5_2Slack()
+        {
+            for (int i = 0; i < N; i++)
+                _Nodes5_2Slack.IsConnected();
         }
 
         [Benchmark]

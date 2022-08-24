@@ -22,6 +22,7 @@ namespace PowerFlowCore.Benchmark
             grids.Add(SampleGrids.Test_Ktr());
             grids.Add(SampleGrids.Nodes4_1PV());
             grids.Add(SampleGrids.Nodes4_1PV_ZIP());
+            grids.Add(SampleGrids.Nodes5_2Slack());
             grids.Add(SampleGrids.IEEE_14());
             grids.Add(SampleGrids.Nodes15_3PV());
             grids.Add(SampleGrids.IEEE_57());

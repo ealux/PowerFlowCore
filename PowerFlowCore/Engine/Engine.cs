@@ -38,10 +38,6 @@ namespace PowerFlowCore
             if (!grid.Validate())
                 return (grid, false);
 
-            // Inspect connectivity
-            if (!grid.IsConnected())
-                return (grid, false);
-
             // Calc grid
             Grid calc = grid.DeepCopy().WithId(grid.Id);
 
@@ -93,14 +89,7 @@ namespace PowerFlowCore
                 {
                     item.Item2 = false;
                     return;
-                }
-
-                // Inspect connectivity
-                if (!item.Item1.IsConnected())
-                {
-                    item.Item2 = false;
-                    return;
-                }                    
+                }                 
 
                 // Calc grid
                 Grid calc = item.Item1.DeepCopy().WithId(item.Item1.Id);
@@ -161,17 +150,12 @@ namespace PowerFlowCore
         /// <returns>Tuple with Grid object and bool calculation result</returns>
         public static (Grid Grid, bool Succsess) Calculate(this Grid grid, CalculationOptions options)
         {
-            if (grid == null)
-                throw new ArgumentNullException(nameof(grid));
+            _ = grid ?? throw new ArgumentNullException(nameof(grid));
             if (options == null)
                 options = new CalculationOptions();
 
             // Validate grid
             if (!grid.Validate())
-                return (grid, false);
-
-            // Inspect connectivity
-            if (!grid.IsConnected())
                 return (grid, false);
 
             // Calc grid
@@ -220,8 +204,7 @@ namespace PowerFlowCore
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
         public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, CalculationOptions options)
         {
-            if (grids == null)
-                throw new ArgumentNullException(nameof(grids));
+            _ = grids ?? throw new ArgumentNullException(nameof(grids));
             if(options == null)
                 options = new CalculationOptions();
 
@@ -231,13 +214,6 @@ namespace PowerFlowCore
             {
                 // Validate grid
                 if (!item.Item1.Validate())
-                {
-                    item.Item2 = false;
-                    return;
-                }
-
-                // Inspect connectivity
-                if (!item.Item1.IsConnected())
                 {
                     item.Item2 = false;
                     return;
@@ -310,10 +286,6 @@ namespace PowerFlowCore
             if (!grid.Grid.Validate())
                 return (grid, false);
 
-            // Inspect connectivity
-            if (!grid.Grid.IsConnected())
-                return (grid, false);
-
             // Calc grid
             Grid calc = grid.Grid.DeepCopy().WithId(grid.Grid.Id);
 
@@ -375,8 +347,7 @@ namespace PowerFlowCore
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
         public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<SolvableGrid> grids)
         {
-            if (grids == null)
-                throw new ArgumentNullException(nameof(grids));
+            _ = grids ?? throw new ArgumentNullException(nameof(grids));
 
             IEnumerable<(SolvableGrid, bool)> list = grids.Select(g => (g, false));
 
@@ -384,13 +355,6 @@ namespace PowerFlowCore
             {
                 // Validate grid
                 if (!item.Item1.Grid.Validate())
-                {
-                    item.Item2 = false;
-                    return;
-                }
-
-                // Inspect connectivity
-                if (!item.Item1.Grid.IsConnected())
                 {
                     item.Item2 = false;
                     return;

@@ -10,7 +10,7 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class CreateGrid
     {
-        [Params(1, 10, 100, 1000)]
+        [Params(1)]//, 10, 100)]
         public int N;
 
 
@@ -33,6 +33,13 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 SampleGrids.Nodes4_1PV_ZIP();
+        }
+
+        [Benchmark]
+        public void Nodes5_2Slack()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes5_2Slack();
         }
 
         [Benchmark]
@@ -75,6 +82,20 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 SampleGrids.Nodes300_27PV();
+        }
+
+        [Benchmark]
+        public void Nodes398_35PV()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes398_35PV();
+        }
+
+        [Benchmark]
+        public void Nodes398_35PV_ZIP()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes398_35PV_ZIP();
         }
     }
 }

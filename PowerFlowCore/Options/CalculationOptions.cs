@@ -16,13 +16,6 @@
         /// </summary>
         public int IterationsCount { get; set; } = 25;
 
-
-        /// <summary>
-        /// Voltage tolerance evaluation towards the nominal one
-        /// </summary>
-        public double VotageRate { get; set; } = 0.5;
-
-
         /// <summary>
         /// Gauss-Seidel solver acceleration rate
         /// </summary>
@@ -35,7 +28,7 @@
         public bool SolverInternalLogging { get; set; } = true;
 
         /// <summary>
-        /// Replaces branches with low or no impedance with specific breakers 
+        /// Replaces branches with low or zero impedance with specific breakers 
         /// </summary>
         public bool UseBreakerImpedance { get; set; } = true;
     }

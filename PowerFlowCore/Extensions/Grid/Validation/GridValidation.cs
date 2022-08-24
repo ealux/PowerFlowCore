@@ -20,13 +20,16 @@ namespace PowerFlowCore.Data
 
             bool nodesSuccess = true;
             bool branchesSuccess = true;
+            bool isConnected = true;
+
             bool success = true;
 
-            // Validate Nodes and Branches
+            // Validate Nodes and Branches. Conectivity
             nodesSuccess    = grid.ValidateNodes();
             branchesSuccess = grid.ValidateBranches();
+            isConnected     = grid.IsConnected();
 
-            if (!nodesSuccess || !branchesSuccess)
+            if (!nodesSuccess || !branchesSuccess || !isConnected)
                 success = false;
 
             return success;

@@ -42,7 +42,7 @@ namespace PowerFlowCore
         /// <para>Sender Id (<see cref="String"/>) -> <see cref="String.Empty"/> OR source <see cref="Grid.Id"/></para>
         /// <para>Message content (<see cref="LoggerMessage"/>)</para>
         /// </summary>
-        public static event LogInfoEvent? LogBroadcast;
+        public static event LogMessageEventHandler? LogBroadcast;
 
         #endregion
 
