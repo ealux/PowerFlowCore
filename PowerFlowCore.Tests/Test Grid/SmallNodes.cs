@@ -1,10 +1,6 @@
+using PowerFlowCore.Data;
 using System;
 using System.Collections.Generic;
-using PowerFlowCore.Data;
-using System.Linq;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
-
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Tests
@@ -38,9 +34,9 @@ namespace PowerFlowCore.Tests
             return net;
         }
 
-        public static Matrix<Complex> PV_110_AdmittanceMatrix()
+        public static Complex[,] PV_110_AdmittanceMatrix()
         {
-            Matrix<Complex> Y = Matrix<Complex>.Build.Dense(3, 3);
+            Complex[,] Y = new Complex[3,3];
             //Y*10^3
             Y[0, 0] = new Complex(-11.76471, 46.7782);
             Y[1, 0] = new Complex(11.76471, -46.7782);
@@ -51,7 +47,16 @@ namespace PowerFlowCore.Tests
             Y[0, 2] = new Complex(0, 0);
             Y[1, 2] = new Complex(11.76471, -46.7782);
             Y[2, 2] = new Complex(-11.76471, 46.7782);
-            return -Y*0.001;
+
+            for (int i = 0; i < Y.GetLength(0); i++)
+            {
+                for (int j = 0; j < Y.GetLength(1); j++)
+                {
+                    Y[i,j] = -Y[i,j] * 0.001;
+                }
+            }
+
+            return Y;
         }
 
         public static Grid PQ_110()

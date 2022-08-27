@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
 {
-    internal static class Matrix
+    public static partial class MatrixDouble
     {
-        internal static double[] Solve(this double[,] A, double[] B)
+        public static double[] Solve(this double[,] A, double[] B)
         {
             int n = A.GetLength(0);
             int[] perm;

@@ -9,7 +9,7 @@ using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Algebra
 {
-    internal static class MatrixComplex
+    public static class MatrixComplex
     {
         #region Create
 

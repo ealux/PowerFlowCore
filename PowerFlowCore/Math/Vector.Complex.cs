@@ -7,7 +7,7 @@ using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Algebra
 {
-    internal static class VectorComplex
+    public static class VectorComplex
     {
         #region Create
 

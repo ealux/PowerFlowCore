@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
 {
-    internal static class VectorDouble
+    public static class VectorDouble
     {
         #region Create
 

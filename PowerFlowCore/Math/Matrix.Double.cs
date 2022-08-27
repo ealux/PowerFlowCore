@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
 {
-    internal static class MatrixDouble
+    public static partial class MatrixDouble
     {
         #region Create
 

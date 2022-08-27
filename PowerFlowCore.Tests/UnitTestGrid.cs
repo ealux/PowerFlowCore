@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PowerFlowCore.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MathNet.Numerics.LinearAlgebra;
+using System.Collections.Generic;
 using Complex = System.Numerics.Complex;
 
 
@@ -32,7 +30,7 @@ namespace PowerFlowCore.Tests
 
             Grid net = new Grid(nodes, branches);
 
-            Matrix<Complex> Y = Matrix<Complex>.Build.Dense(3, 3);
+            Complex[,] Y = new Complex[3,3];
             
             Y[0, 0] = new Complex(-5.1,4.9);
             Y[1, 0] = new Complex(5,-5);
@@ -44,8 +42,15 @@ namespace PowerFlowCore.Tests
             Y[1, 2] = new Complex(8,-8);
             Y[2, 2] = new Complex(-18.65,-2.65);
 
+            for (int i = 0; i < Y.GetLength(0); i++)
+            {
+                for (int j = 0; j < Y.GetLength(1); j++)
+                {
+                    Y[i, j] = -Y[i, j];
+                }
+            }
 
-            List<string> report = CalcMethods.CheckAdmittanceMatrix(net, -Y);
+            List<string> report = CalcMethods.CheckAdmittanceMatrix(net, Y);
             for (int i = 0; i < report.Count; i++)
             {
                 TestContext.WriteLine(report[i]);

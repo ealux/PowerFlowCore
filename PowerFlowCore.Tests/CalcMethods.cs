@@ -1,9 +1,7 @@
-﻿using System;
-using PowerFlowCore.Data;
-using PowerFlowCore;
-using System.Linq;
+﻿using PowerFlowCore.Data;
+using System;
 using System.Collections.Generic;
-using MathNet.Numerics.LinearAlgebra;
+using System.Linq;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Tests
@@ -23,7 +21,7 @@ namespace PowerFlowCore.Tests
 
             Grid e = new Grid(net.Nodes, net.Branches);
             Engine.Calculate(e);
-            Vector<Complex> calc = e.Ucalc;
+            Complex[] calc = e.Ucalc;
 
 
             for (int i = 0; i < net.Nodes.Count; i++)
@@ -140,12 +138,12 @@ namespace PowerFlowCore.Tests
             return res;
         }
 
-        public static List<string>  CheckAdmittanceMatrix(Grid net, Matrix<Complex> expexMatrix)
+        public static List<string>  CheckAdmittanceMatrix(Grid net, Complex[,] expexMatrix)
         {
             List<string> res = new List<string>();
-            for (int ind_row = 0; ind_row < expexMatrix.RowCount; ind_row++)
+            for (int ind_row = 0; ind_row < expexMatrix.GetLength(0); ind_row++)
             {
-                for (int ind_col = 0; ind_col < expexMatrix.ColumnCount; ind_col++)
+                for (int ind_col = 0; ind_col < expexMatrix.GetLength(1); ind_col++)
                 {
                     if ( (Math.Round( (net.Y[ind_row,ind_col] - expexMatrix[ind_row, ind_col]).Real, 4) > 0.0001))
                     {
