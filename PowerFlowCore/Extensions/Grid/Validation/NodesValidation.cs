@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security;
-using MathNet.Numerics;
-using PowerFlowCore.Data;
 
 using Complex = System.Numerics.Complex;
 

@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MathNet.Numerics;
-using PowerFlowCore.Data;
-
-using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
 {

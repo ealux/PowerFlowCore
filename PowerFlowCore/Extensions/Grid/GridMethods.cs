@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using PowerFlowCore.Algebra;
 using System.Collections.Generic;
 using Complex = System.Numerics.Complex;
 
@@ -15,16 +15,16 @@ namespace PowerFlowCore.Data
         /// Set custom voltage initial vector
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> object</param>
-        /// <param name="Uinit">Input <see cref="Vector{Complex}"/> of Uinit valus</param>
+        /// <param name="Uinit">Input <see cref="Complex[]"/> of Uinit valus</param>
         /// <returns>Modified <see cref="Grid"/> object</returns>
-        public static Grid SetUinit(this Grid grid, Vector<Complex> Uinit = null)
+        public static Grid SetUinit(this Grid grid, Complex[] Uinit = default)
         {
             // If grid Uinit doesn't exist
             if (grid.Uinit == null)
-                grid.Uinit = Vector<Complex>.Build.Dense(grid.Unominal.Count);
+                grid.Uinit = VectorComplex.Create(grid.Unominal.Length);
 
             // If input Uinit is null or broken
-            if ((Uinit == null) || (Uinit.Count != grid.Unominal.Count))
+            if ((Uinit == null) || (Uinit.Length != grid.Unominal.Length))
             {
                 for (int i = 0; i < grid.Nodes.Count; i++)
                 {
@@ -111,7 +111,7 @@ namespace PowerFlowCore.Data
                     new_grid.LoadModels.Add(item.Key, item.Value.DeepCopy());
 
             // Uinit vector
-            new_grid.Uinit = grid.Uinit?.Clone() ?? new_grid.Unominal;
+            new_grid.Uinit = grid.Uinit?.Copy() ?? new_grid.Unominal;
 
             return new_grid;
         }

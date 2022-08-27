@@ -78,8 +78,6 @@ using PowerFlowCore.Solvers;
 
 ##### INode, IBranch
 
-
-
 ##### Grid
 
 Central term is `Grid` object from `PowerFlowCore.Data` namespace. To create `Grid` object collections of `INode` and `IBranch` should be explicitly given to the constructor:
@@ -93,11 +91,6 @@ Another way to create `Grid` is to use `IConverter` object that encapsulated col
 ```csharp
 public Grid(IConverter converter) { ... }
 ```
-
-## Dependencies
-
-This project works with math library [MathNet.Numeric](https://github.com/mathnet/mathnet-numerics).
-
 
 ## License
 

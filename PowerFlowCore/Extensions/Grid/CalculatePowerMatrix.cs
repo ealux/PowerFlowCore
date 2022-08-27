@@ -1,6 +1,5 @@
-﻿using System;
-using MathNet.Numerics;
-using PowerFlowCore.Data;
+﻿using PowerFlowCore.Algebra;
+using System;
 
 using Complex = System.Numerics.Complex;
 

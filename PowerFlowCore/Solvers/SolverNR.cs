@@ -1,11 +1,10 @@
-﻿using System;
+﻿using PowerFlowCore.Algebra;
+using PowerFlowCore.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MathNet.Numerics.LinearAlgebra;
-
-using Complex = System.Numerics.Complex;
-using PowerFlowCore.Data;
 using System.Threading.Tasks;
+using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Solvers
 {
@@ -15,18 +14,16 @@ namespace PowerFlowCore.Solvers
         /// Newton-Raphson Solver
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U_initial">Initial voltage <see cref="Vector{Complex}"/></param>
+        /// <param name="U_initial">Initial voltage <see cref="Complex[]"/></param>
         /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
         /// <returns><see cref="Grid"/> with calculated voltages</returns>
         internal static Grid SolverNR(this Grid grid,
-                                         Vector<Complex> U_initial,
+                                         Complex[] U_initial,
                                          CalculationOptions options,
                                          out bool success)
         {                        
             // Save PV nodes being transformed
             List<int> gensOnLimits = new List<int>();
-            // Logger lock
-            object _lock = new object();
 
             // Buffer area for log messages
             List<string> LogBuffer = new List<string>();
@@ -37,7 +34,7 @@ namespace PowerFlowCore.Solvers
             int  iter        = 0;
 
             // U vectors 
-            var U = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
+            var U = VectorComplex.Create(U_initial);
 
             while (crossLimits & success)
             {
@@ -55,7 +52,7 @@ namespace PowerFlowCore.Solvers
                     grid.InitParameters(grid.Nodes, grid.Branches);
 
                 // Set up voltages after rebuilding
-                U = grid.Ucalc.Clone();
+                U = grid.Ucalc.Copy();
             }
 
             // Logging
@@ -86,21 +83,21 @@ namespace PowerFlowCore.Solvers
         /// Calculate Voltage <see cref="Vector{Complex}"/> by Newton-Raphson technique
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U_initial">Present voltage <see cref="Vector{Complex}"/> to start from</param>
+        /// <param name="U_initial">Present voltage <see cref="Complex[]"/> to start from</param>
         /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
-        /// <returns>Return <see cref="Tuple{Vector{Complex}, bool, int}"/> as (Voltage, Success indicator, Iteration count)</returns>
-        private static (Vector<Complex>, bool success, int iter) NewtonRaphson(Grid grid,
-                                                                               Vector<Complex> U_initial,
-                                                                               CalculationOptions options,
-                                                                               int current_iter,
-                                                                               ref List<string> logBuffer)
+        /// <returns>Return <see cref="Tuple{Complex[], bool, int}"/> as (Voltage, Success indicator, Iteration count)</returns>
+        private static (Complex[], bool success, int iter) NewtonRaphson(Grid grid,
+                                                                         Complex[] U_initial,
+                                                                         CalculationOptions options,
+                                                                         int current_iter,
+                                                                         ref List<string> logBuffer)
         {
             // U vectors 
-            var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
-            var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);
+            var U    = VectorComplex.Create(U_initial);
+            var Uold = VectorComplex.Create(U_initial);
 
-            Vector<double> dPQ; // Residuals
-            Matrix<double> J;   // Jacobian matrix
+            double[] dPQ; // Residuals
+            double[,] J;   // Jacobian matrix
 
             // Iter number
             int iter = current_iter;
@@ -115,14 +112,14 @@ namespace PowerFlowCore.Solvers
             while (iter < options.IterationsCount)
             {
                 // Input voltage magnitude and phase vectors
-                var Um = U.Map(x => x.Magnitude).ToArray(); 
-                var ph = U.Map(x => x.Phase).ToArray();
+                var Um = U.Map(x => x.Magnitude); 
+                var ph = U.Map(x => x.Phase);
 
                 dPQ = Resuduals_Polar(grid, U);         // Residuals vector 
                 J   = p_degree ? Jacobian_Polar_Parallel(grid, U) : Jacobian_Polar(grid, U); // Jacoby matrix
 
                 // Calculation of increments
-                Vector<double> dx = J.Solve(-dPQ);
+                double[] dx = J.Solve(dPQ.Negative());
 
                 // Update angles
                 for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
@@ -133,8 +130,8 @@ namespace PowerFlowCore.Solvers
                     Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
 
                 // Save old and calc new voltages
-                Uold = U.Clone();
-                U = Vector<Complex>.Build.DenseOfEnumerable(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
+                Uold = U.Copy();
+                U = VectorComplex.Create(Um.Zip(ph, (u, angle) => Complex.FromPolarCoordinates(u, angle)));
 
                 // Set new value to Nodes
                 for (int n = 0; n < grid.Nodes.Count; n++)
@@ -187,8 +184,6 @@ namespace PowerFlowCore.Solvers
         {
             if(grid.LoadModels.Count == 0) 
                 return;
-            if (grid.Nodes.All(n => n.LoadModelNum == null))
-                return;
 
             foreach (var item in grid.Nodes.Where(n => n.LoadModelNum.HasValue))
                 grid.LoadModels[item.LoadModelNum!.Value].ApplyModel(item);
@@ -199,11 +194,11 @@ namespace PowerFlowCore.Solvers
         /// Logic on PV busses inspection for Q limits (switch-bus)
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Actual voltage <see cref="Vector{Complex}"/></param>
+        /// <param name="U">Actual voltage <see cref="Complex[]"/></param>
         /// <param name="gensOnLimits"><see cref="List{int}"/> of PV buses on limits</param>
         /// <param name="crossLimits">PV bus switching flag</param>
         private static void InspectPV_Classic(Grid grid,
-                                             ref Vector<Complex> U,
+                                             ref Complex[] U,
                                              ref List<int> gensOnLimits,
                                              out bool crossLimits)
         {
@@ -330,22 +325,22 @@ namespace PowerFlowCore.Solvers
 
 
         /// <summary>
-        /// Jacobian <see cref="Matrix{Complex}"/> calculation on each iteration
+        /// Jacobian matrix calculation on each iteration
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <see cref="Vector{Complex}"/>voltage value</param>
-        /// <returns>Jacobian <see cref="Matrix{double}"/></returns>
-        private static Matrix<double> Jacobian_Polar(Grid grid, Vector<Complex> U)
+        /// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
+        /// <returns>Jacobian matrix</returns>
+        private static double[,] Jacobian_Polar(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
             var Um = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
 
-            var P_Delta = Matrix<double>.Build.Dense(dim, dim);
-            var P_V = Matrix<double>.Build.Dense(dim, grid.PQ_Count);
-            var Q_Delta = Matrix<double>.Build.Dense(grid.PQ_Count, dim);
-            var Q_V = Matrix<double>.Build.Dense(grid.PQ_Count, grid.PQ_Count);
+            var P_Delta = MatrixDouble.Create(dim, dim);
+            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
+            var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
+            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
 
             //P_Delta
             for (int i = 0; i < dim; i++)
@@ -438,28 +433,28 @@ namespace PowerFlowCore.Solvers
             }
 
             // Form result matrix
-            var res = Matrix<double>.Build.DenseOfMatrixArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
+            var res = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
 
             return res;
         }
 
         /// <summary>
-        /// Jacobian <see cref="Matrix{Complex}"/> calculation (Parallel) on each iteration
+        /// Jacobian matrix calculation (Parallel) on each iteration
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <see cref="Vector{Complex}"/>voltage value</param>
-        /// <returns>Jacobian <see cref="Matrix{double}"/></returns>
-        private static Matrix<double> Jacobian_Polar_Parallel(Grid grid, Vector<Complex> U)
+        /// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
+        /// <returns>Jacobian matrix</returns>
+        private static double[,] Jacobian_Polar_Parallel(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
             var Um = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
 
-            var P_Delta = Matrix<double>.Build.Dense(dim, dim);
-            var P_V = Matrix<double>.Build.Dense(dim, grid.PQ_Count);
-            var Q_Delta = Matrix<double>.Build.Dense(grid.PQ_Count, dim);
-            var Q_V = Matrix<double>.Build.Dense(grid.PQ_Count, grid.PQ_Count);
+            var P_Delta = MatrixDouble.Create(dim, dim);
+            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
+            var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
+            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
 
             
             Parallel.For(0, dim, (i) =>
@@ -546,18 +541,18 @@ namespace PowerFlowCore.Solvers
             });
 
             // Form result matrix
-            var res = Matrix<double>.Build.DenseOfMatrixArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
+            var res = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
 
             return res;
         }
 
         /// <summary>
-        /// Power residuals <see cref="Vector{Complex}"/>
+        /// Power residuals vector
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <see cref="Vector{Complex}"/>voltage value</param>
-        /// <returns> Power residuals <see cref="Vector{Complex}"/></returns>
-        private static Vector<double> Resuduals_Polar(Grid grid, Vector<Complex> U)
+        /// <param name="U">Present voltage value</param>
+        /// <returns> Power residuals vector</returns>
+        private static double[] Resuduals_Polar(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
@@ -567,29 +562,29 @@ namespace PowerFlowCore.Solvers
             var Um = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
 
-            var dP = Vector<double>.Build.Dense(dim);
-            var dQ = Vector<double>.Build.Dense(grid.PQ_Count);
+            var dP = VectorDouble.Create(dim);
+            var dQ = VectorDouble.Create(grid.PQ_Count);
 
             //dP
-            for (int i = 0; i < dim; i++)
+            Parallel.For(0, dim, i =>
             {
                 dP[i] = grid.S[i].Real;
                 for (int j = 0; j < dim + grid.Slack_Count; j++)
                     dP[i] -= Um[i] * Um[j] * grid.Y[i, j].Magnitude *
                              Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-            }
+            });
 
             //dQ
-            for (int i = 0; i < grid.PQ_Count; i++)
+            Parallel.For(0, grid.PQ_Count, i =>
             {
                 dQ[i] = grid.S[i].Imaginary;
                 for (int j = 0; j < dim + grid.Slack_Count; j++)
                     dQ[i] -= -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
                               Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-            }
+            });
 
             // Form result vector
-            var res = Vector<double>.Build.DenseOfEnumerable(dP.Concat(dQ));
+            var res = VectorDouble.Create(dP.Concat(dQ));
 
             return res;
         }
@@ -600,7 +595,7 @@ namespace PowerFlowCore.Solvers
         /// <param name="grid">Input <see cref="Grid"/> object</param>
         /// <param name="dPQ">Residuals vector</param>
         /// <returns>(Max dP node, Max dP value, Max dQ node, Max dQ value)</returns>
-        private static (INode maxPnode, double max_dP, INode maxQnode, double max_dQ) GetMaximumResiduals(this Grid grid, Vector<double> dPQ)
+        private static (INode maxPnode, double max_dP, INode maxQnode, double max_dQ) GetMaximumResiduals(this Grid grid, double[] dPQ)
         {
             var dP = dPQ.SubVector(0, grid.PQ_Count + grid.PV_Count);
             var dQ = dPQ.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count);
@@ -615,8 +610,5 @@ namespace PowerFlowCore.Solvers
 
             return (maxPnode, Math.Round(max_dP, 3), maxQnode, Math.Round(max_dQ, 3));
         }
-
-
-
     }
 }

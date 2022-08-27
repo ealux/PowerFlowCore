@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using PowerFlowCore.Algebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,8 +72,8 @@ namespace PowerFlowCore.Data
         public static (INode, double) MinVoltageNode(this Grid grid)
         {
             var vlts = grid.Ucalc.Map(u => u.Magnitude)
-                                 .PointwiseDivide(Vector<double>.Build.DenseOfEnumerable(grid.Nodes.Select(n => n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)));
-            var index = (vlts - Vector<double>.Build.One).Map(v => Math.Round(v, 2)).MinimumIndex();
+                                 .Divide(VectorDouble.Create(grid.Nodes.Select(n => n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)));
+            var index = vlts.Substract(1).Map(v => Math.Round(v, 2)).MinimumIndex();
             var vol = vlts.Minimum();
             var node = grid.Nodes[index];
 
@@ -89,8 +89,8 @@ namespace PowerFlowCore.Data
         public static (INode, double) MaxVoltageNode(this Grid grid)
         {
             var vlts = grid.Ucalc.Map(u => u.Magnitude)
-                                 .PointwiseDivide(Vector<double>.Build.DenseOfEnumerable(grid.Nodes.Select(n => n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)));
-            var index = (vlts - Vector<double>.Build.One).Map(v => Math.Round(v, 2)).MaximumIndex();
+                                 .Divide(VectorDouble.Create(grid.Nodes.Select(n => n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)));
+            var index = vlts.Substract(1).Map(v => Math.Round(v, 2)).MaximumIndex();
             var vol = vlts.Maximum();
             var node = grid.Nodes[index];
 

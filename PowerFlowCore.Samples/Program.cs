@@ -58,29 +58,29 @@ namespace PowerFlowCore.Samples
             //CalculateAndShow(SampleGrids.IEEE_57());
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_118());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_118());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Test_Ktr());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Test_Ktr());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes197_36PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes197_36PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes300_27PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes300_27PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes398_35PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes398_35PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
             #endregion
 

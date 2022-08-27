@@ -1,8 +1,8 @@
-﻿using System;
+﻿using PowerFlowCore.Algebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using MathNet.Numerics.LinearAlgebra;
 
 using Complex = System.Numerics.Complex;
 
@@ -29,31 +29,31 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Admittance matrix
         /// </summary>
-        public Matrix<Complex> Y { get; set; }
+        public Complex[,] Y { get; private set; }
 
 
 
         /// <summary>
         /// Vector of nominal Voltages
         /// </summary>
-        public Vector<Complex> Unominal => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].Unom);
+        public Complex[] Unominal => VectorComplex.Create(this.Nodes.Count, (i) => this.Nodes[i].Unom);
 
         /// <summary>
         /// Vector of Initial Voltages for iteration procedure start
         /// </summary>
-        public Vector<Complex> Uinit { get; set; }
+        public Complex[] Uinit { get; set; }
 
         /// <summary>
         /// Vector of calculated Voltages
         /// </summary>
-        public Vector<Complex> Ucalc => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].U);
+        public Complex[] Ucalc => VectorComplex.Create(this.Nodes.Count, (i) => this.Nodes[i].U);
 
 
 
         /// <summary>
         /// Vector of Powers in Nodes (Generation - Load)
         /// </summary>
-        public Vector<Complex> S => Vector<Complex>.Build.Dense(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_calc);
+        public Complex[] S => VectorComplex.Create(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_calc);
 
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace PowerFlowCore.Data
 
 
             //S and Uinit vectors filling; PQ, PV and Slack nodes count    
-            this.Uinit    = Vector<Complex>.Build.Dense(this.Nodes.Count);
+            this.Uinit    = VectorComplex.Create(this.Nodes.Count);
 
             // Reset PV nodes to PQ modes
             foreach (var node in Nodes)
@@ -164,8 +164,6 @@ namespace PowerFlowCore.Data
                         break;
                 }
             }
-
-            // TODO: CHECKS for GRID
         }
 
 
@@ -241,12 +239,12 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="nodes">Collection of (transformed) <see cref="INode"/></param>
         /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
-        /// <returns><see cref="Matrix{Complex}"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
+        /// <returns><see cref=Complex[,]"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Matrix<Complex> Calc_Y(List<INode> nodes, List<IBranch> branches)
+        private Complex[,] Calc_Y(List<INode> nodes, List<IBranch> branches)
         {
             //Initialize admittance matrix
-            var Y = Matrix<Complex>.Build.Dense(nodes.Count, nodes.Count);
+            var Y = MatrixComplex.Create(nodes.Count, nodes.Count);
 
             for (int i = 0; i < branches.Count; i++)
             {
@@ -284,7 +282,7 @@ namespace PowerFlowCore.Data
             for (int i = 0; i < nodes.Count; i++) 
                 Y[i, i] += -nodes[i].Ysh;
 
-            return -Y;
+            return Y.PointwiseMultiply(-1);
         }
 
 

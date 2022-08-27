@@ -14,7 +14,7 @@
         /// <summary>
         /// Maximum number of iterations
         /// </summary>
-        public int IterationsCount { get; set; } = 25;
+        public int IterationsCount { get; set; } = 20;
 
         /// <summary>
         /// Gauss-Seidel solver acceleration rate

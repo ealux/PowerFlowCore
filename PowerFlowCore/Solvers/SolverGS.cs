@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
-
-using Complex = System.Numerics.Complex;
+﻿using PowerFlowCore.Algebra;
 using PowerFlowCore.Data;
+using System;
+using System.Collections.Generic;
+using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Solvers
 {
@@ -18,13 +16,13 @@ namespace PowerFlowCore.Solvers
         /// <param name="options"><see cref="CalculationOptions"/> for calculus</param>
         /// <returns><see cref="Grid"/> with calculated voltages</returns>
         internal static Grid SolverGS(this Grid grid, 
-                                         Vector<Complex> U_initial,
+                                         Complex[] U_initial,
                                          CalculationOptions options,
                                          out bool success)
         {          
-            var U    = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for calc voltages
-            var Uold = Vector<Complex>.Build.DenseOfEnumerable(U_initial);  // Vector for voltages on previous iteration
-            var dU   = Vector<Complex>.Build.Dense(U_initial.Count);        // Voltage difference on iteration
+            var U    = VectorComplex.Create(U_initial);         // Vector for calc voltages
+            var Uold = VectorComplex.Create(U_initial);         // Vector for voltages on previous iteration
+            var dU   = VectorComplex.Create(U_initial.Length);  // Voltage difference on iteration
 
             // Buffer area for log messages
             List<string> LogBuffer = new List<string>();
@@ -51,15 +49,13 @@ namespace PowerFlowCore.Solvers
                         CaclNodeAsPV(grid, i, ref U, ref Uold, ref dU, options.AccelerationRateGS);
 
                     // TODO:
-                    // 1. SHN
                     // 2. Ktr changes
-
 
                     if (grid.Nodes[i].Type == NodeType.Slack) 
                         continue;  //Take Slack nodes
                 }
 
-                Uold       = U.Clone();        // Set as previous calculated voltages  
+                Uold       = U.Copy();        // Set as previous calculated voltages  
                 difference = dU.InfinityNorm();// Find the bigest defference
 
                 // Set new value to Nodes
@@ -131,9 +127,9 @@ namespace PowerFlowCore.Solvers
         /// <param name="accRate">Acceleration ratio for GS procedure</param>
         private static void CalcNodeAsPQ(Grid grid,
                                          int nodeNum,
-                                         ref Vector<Complex> U, 
-                                         ref Vector<Complex> Uold, 
-                                         ref Vector<Complex> dU,
+                                         ref Complex[] U, 
+                                         ref Complex[] Uold, 
+                                         ref Complex[] dU,
                                          double accRate)
         {
             // Summator
@@ -152,7 +148,7 @@ namespace PowerFlowCore.Solvers
             U[nodeNum] = Uold[nodeNum] + accRate * (U[nodeNum] - Uold[nodeNum]);
 
             // Complete voltage difference vector
-            dU = U - Uold;
+            dU = U.Substract(Uold);
         }
 
 
@@ -168,9 +164,9 @@ namespace PowerFlowCore.Solvers
         /// <param name="accRate">Acceleration ratio for GS procedure</param>
         private static void CaclNodeAsPV(Grid grid,
                                          int nodeNum,
-                                         ref Vector<Complex> U,
-                                         ref Vector<Complex> Uold,
-                                         ref Vector<Complex> dU,
+                                         ref Complex[] U,
+                                         ref Complex[] Uold,
+                                         ref Complex[] dU,
                                          double accRate)
         {
             // New Q element
@@ -240,7 +236,7 @@ namespace PowerFlowCore.Solvers
         /// <param name="grid">Input <see cref="Grid"/> object</param>
         /// <param name="U">Voltage vector on current iteration</param>
         /// <returns>(Max dU node, Max dU value)</returns>
-        private static (INode node, double du) GetMaxVoltageResidual(this Grid grid, Vector<Complex> dU)
+        private static (INode node, double du) GetMaxVoltageResidual(this Grid grid, Complex[] dU)
         {
             var index = dU.Map(v => Math.Abs(v.Magnitude)).MaximumIndex();
             var du    = dU[index].Magnitude;

@@ -4,6 +4,9 @@ using System.Text;
 
 namespace PowerFlowCore.Data
 {
+    /// <summary>
+    /// Load model contract
+    /// </summary>
     public interface ILoadModel
     {
         /// <summary>

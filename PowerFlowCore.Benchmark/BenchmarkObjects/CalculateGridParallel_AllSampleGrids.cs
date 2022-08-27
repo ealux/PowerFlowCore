@@ -12,7 +12,7 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class CalculateGridParallel_AllSampleGrids
     {
-        [Params(1, 10)]
+        [Params(1)]
         public int N;
 
         private readonly List<Grid> grids = new List<Grid>();

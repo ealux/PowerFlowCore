@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using MathNet.Numerics.LinearAlgebra;
-
+﻿using PowerFlowCore.Algebra;
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore
@@ -298,7 +293,7 @@ namespace PowerFlowCore
             }          
 
             // Voltage vector to initialialize calculations for each solver
-            Vector<Complex> Uinitial = calc.Uinit;
+            Complex[] Uinitial = calc.Uinit.Copy();
 
             // Solver aplication result
             var success = false;
@@ -375,7 +370,7 @@ namespace PowerFlowCore
                 }
 
                 // Voltage vector to initialialize calculations for each solver
-                Vector<Complex> Uinitial = calc.Uinit;
+                Complex[] Uinitial = calc.Uinit.Copy();
 
                 // Solver aplication result
                 var success = false;

@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using PowerFlowCore.Algebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +13,8 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <param name="precision">Value precision</param>
-        /// <returns><see cref="Vector{double}"/> of angle absolute differences</returns>
-        public static Vector<double> GetAngleAbsoluteDifference(this Grid grid, uint precision = 2)
+        /// <returns><see cref="double[]"/> of angle absolute differences</returns>
+        public static double[] GetAngleAbsoluteDifference(this Grid grid, uint precision = 2)
         {
             List<double> res = new List<double>();
 
@@ -28,7 +28,7 @@ namespace PowerFlowCore.Data
                 res.Add(diff);
             }            
 
-            return Vector<double>.Build.DenseOfEnumerable(res);
+            return VectorDouble.Create(res);
         }
 
         /// <summary>
