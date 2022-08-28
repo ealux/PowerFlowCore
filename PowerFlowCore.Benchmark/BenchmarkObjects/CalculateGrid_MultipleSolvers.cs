@@ -11,7 +11,7 @@ namespace PowerFlowCore.Benchmark
     [MarkdownExporterAttribute.Default]
     public class CalculateGrid_MultipleSolvers
     {
-        [Params(1, 10)]
+        [Params(1)]
         public int N;
 
         private readonly Grid _Nodes300_27PV;

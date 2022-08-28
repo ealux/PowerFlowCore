@@ -47,10 +47,7 @@ namespace PowerFlowCore.Solvers
 
                     if (grid.Nodes[i].Type == NodeType.PV) 
                         CaclNodeAsPV(grid, i, ref U, ref Uold, ref dU, options.AccelerationRateGS);
-
-                    // TODO:
-                    // 2. Ktr changes
-
+                                       
                     if (grid.Nodes[i].Type == NodeType.Slack) 
                         continue;  //Take Slack nodes
                 }
@@ -64,6 +61,9 @@ namespace PowerFlowCore.Solvers
 
                 // Evaluate static load model
                 EvaluateLoadModel(grid);
+
+                // TODO:
+                // 2. Ktr changes
 
                 #region [Logging on iteration]
 

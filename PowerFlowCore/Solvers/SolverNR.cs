@@ -3,6 +3,7 @@ using PowerFlowCore.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
@@ -69,7 +70,6 @@ namespace PowerFlowCore.Solvers
             // Nodes convert back
             for (int i = 0; i < gensOnLimits.Count; i++) 
                 grid.Nodes.First(n => n.Num == gensOnLimits[i]).Type = NodeType.PV;
-            gensOnLimits.Clear();
 
             //Re - building scheme back
             grid.InitParameters(grid.Nodes, grid.Branches);
@@ -198,9 +198,9 @@ namespace PowerFlowCore.Solvers
         /// <param name="gensOnLimits"><see cref="List{int}"/> of PV buses on limits</param>
         /// <param name="crossLimits">PV bus switching flag</param>
         private static void InspectPV_Classic(Grid grid,
-                                             ref Complex[] U,
-                                             ref List<int> gensOnLimits,
-                                             out bool crossLimits)
+                                              ref Complex[] U,
+                                              ref List<int> gensOnLimits,
+                                              out bool crossLimits)
         {
             // Constraints flag
             crossLimits = false;
@@ -338,9 +338,9 @@ namespace PowerFlowCore.Solvers
             var Uph = U.Map(u => u.Phase);
 
             var P_Delta = MatrixDouble.Create(dim, dim);
-            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
+            var P_V     = MatrixDouble.Create(dim, grid.PQ_Count);
             var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
+            var Q_V     = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
 
             //P_Delta
             for (int i = 0; i < dim; i++)
@@ -452,9 +452,9 @@ namespace PowerFlowCore.Solvers
             var Uph = U.Map(u => u.Phase);
 
             var P_Delta = MatrixDouble.Create(dim, dim);
-            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
+            var P_V     = MatrixDouble.Create(dim, grid.PQ_Count);
             var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
+            var Q_V     = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
 
             
             Parallel.For(0, dim, (i) =>
@@ -595,6 +595,7 @@ namespace PowerFlowCore.Solvers
         /// <param name="grid">Input <see cref="Grid"/> object</param>
         /// <param name="dPQ">Residuals vector</param>
         /// <returns>(Max dP node, Max dP value, Max dQ node, Max dQ value)</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static (INode maxPnode, double max_dP, INode maxQnode, double max_dQ) GetMaximumResiduals(this Grid grid, double[] dPQ)
         {
             var dP = dPQ.SubVector(0, grid.PQ_Count + grid.PV_Count);

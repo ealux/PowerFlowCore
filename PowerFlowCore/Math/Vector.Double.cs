@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -209,21 +210,28 @@ namespace PowerFlowCore.Algebra
 
         #region MinMax
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Maximum(this double[] vec)
         {
             _ = vec ?? throw new ArgumentNullException(nameof(vec));
             return vec.Max();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Minimum(this double[] vec)
         {
             _ = vec ?? throw new ArgumentNullException(nameof(vec));
             return vec.Min();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int MaximumIndex(this double[] vec)
         {
             _ = vec ?? throw new ArgumentNullException(nameof(vec));
             return Array.IndexOf(vec, vec.Max());
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int MinimumIndex(this double[] vec)
         {
             _ = vec ?? throw new ArgumentNullException(nameof(vec));
@@ -233,6 +241,23 @@ namespace PowerFlowCore.Algebra
         #endregion
 
         #region Mapping
+
+        public static double[] Map(this int[] vec, Func<int, double> func)
+        {
+            _ = vec ?? throw new ArgumentNullException(nameof(vec));
+
+            if (vec.Length == 0)
+                return new double[0];
+
+            double[] res = new double[vec.Length];
+
+            Parallel.For(0, vec.Length, i =>
+            {
+                res[i] = func(vec[i]);
+            });
+
+            return res;
+        }
 
         public static double[] Map(this double[] vec, Func<double, double> func)
         {

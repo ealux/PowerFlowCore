@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace PowerFlowCore.Data
 {
@@ -15,6 +16,7 @@ namespace PowerFlowCore.Data
         /// <param name="precision">Value precision</param>
         /// <param name="inPercent">Show result in percent</param>
         /// <returns><see cref="IEnumerable{double}"/> of differences</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<double> GetVoltageDifference(this Grid grid, uint precision = 2, bool inPercent = false)
         {
             IEnumerable<double> res;
@@ -36,6 +38,7 @@ namespace PowerFlowCore.Data
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <param name="voltageRate">Voltage tolerance rate (voltageRate = 0.1 means 10% difference)</param>
         /// <returns>Collection of Nodes and differences in percentage if violation was found</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<(INode, double)> CheckVoltageLack(this Grid grid, double voltageRate=0.1)
         {
             var k = 1 - Math.Abs(voltageRate);  // Set coef less then 100%
@@ -52,6 +55,7 @@ namespace PowerFlowCore.Data
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <param name="voltageRate">Voltage tolerance rate (voltageRate = 0.1 means 10% difference)</param>
         /// <returns>Collection of Nodes and differences in percentage if violation was found</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<(INode, double)> CheckVoltageOverflow(this Grid grid, double voltageRate=0.1)
         {
             var k = 1 + Math.Abs(voltageRate);  // Set coef over 100%
@@ -69,6 +73,7 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <returns>(Minimum voltage INode, Minimum voltage level [o.e.])</returns>    
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (INode, double) MinVoltageNode(this Grid grid)
         {
             var vlts = grid.Ucalc.Map(u => u.Magnitude)
@@ -86,6 +91,7 @@ namespace PowerFlowCore.Data
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <returns>(Maximum voltage INode, maximum voltage level [o.e.])</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (INode, double) MaxVoltageNode(this Grid grid)
         {
             var vlts = grid.Ucalc.Map(u => u.Magnitude)

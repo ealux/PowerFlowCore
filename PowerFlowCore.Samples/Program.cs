@@ -32,6 +32,10 @@ namespace PowerFlowCore.Samples
             #region Individual calcs
 
             timer.Restart();
+            CalculateAndShow(SampleGrids.Test_Ktr());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+
+            timer.Restart();
             CalculateAndShow(SampleGrids.BreakersScheme());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
@@ -42,29 +46,25 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes5_2Slack());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes5_2Slack());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_14());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_14());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes15_3PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes15_3PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_57());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_57());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
             timer.Restart();
             CalculateAndShow(SampleGrids.IEEE_118());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118
-
-            timer.Restart();
-            CalculateAndShow(SampleGrids.Test_Ktr());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118            
 
             timer.Restart();
             CalculateAndShow(SampleGrids.Nodes197_36PV());
@@ -88,27 +88,9 @@ namespace PowerFlowCore.Samples
             #region Parallel calcs            
 
             //// ----Parallel calc from box----
-            //var list = CreateGridList();    // Sample Grids collection
+            //var list = CreateSamplesList();    // Sample Grids collection
             //list.Calculate();       // Parallel colection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
-
-
-            //// ---- Parallel calc with Invoke ----
-            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
-            //Parallel.Invoke(
-            //    () => CalculateAndShow(SampleGrids.Test_Ktr()),
-            //    () => CalculateAndShow(SampleGrids.Nodes4_1PV()),
-            //    () => CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP()),
-            //    () => CalculateAndShow(SampleGrids.Nodes5_2Slack()),
-            //    () => CalculateAndShow(SampleGrids.IEEE_14()),
-            //    () => CalculateAndShow(SampleGrids.Nodes15_3PV()),
-            //    () => CalculateAndShow(SampleGrids.IEEE_57()),
-            //    () => CalculateAndShow(SampleGrids.IEEE_118()),
-            //    () => CalculateAndShow(SampleGrids.Nodes197_36PV()),
-            //    () => CalculateAndShow(SampleGrids.Nodes300_27PV()),
-            //    () => CalculateAndShow(SampleGrids.Nodes398_35PV()),
-            //    () => CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP())
-            //);
 
             #endregion
 
@@ -117,7 +99,7 @@ namespace PowerFlowCore.Samples
 
             //// ---- Multiple solvers calcs ----
             //timer.Restart();
-            //var list = CreateGridList();    // Sample Grids collection
+            //var list = CreateSamplesList();    // Sample Grids collection
             //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })   // Parallel with multi solver
             //    .ApplySolver(SolverType.NewtonRaphson)
             //    .Calculate();
@@ -147,10 +129,9 @@ namespace PowerFlowCore.Samples
             #region Graph inspects
 
             //// ---- IsConnected checks ----
-            //list = CreateGridList();    // Sample Grid collection
+            //var list = CreateSamplesList();    // Sample Grid collection
             //foreach (var item in list)
-            //    if (item.IsConnected())    // Check connectivity
-            //        item.Calculate();       // Run calculations
+            //    item.IsConnected();    // Check connectivity
 
             #endregion
 
@@ -210,7 +191,7 @@ namespace PowerFlowCore.Samples
         /// <summary>
         /// Create IEnumerable grid collection
         /// </summary>
-        public static IEnumerable<Grid> CreateGridList()
+        public static IEnumerable<Grid> CreateSamplesList()
         {
             List<Grid> grids = new List<Grid>();
 

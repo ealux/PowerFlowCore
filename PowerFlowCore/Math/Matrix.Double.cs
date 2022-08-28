@@ -129,18 +129,21 @@ namespace PowerFlowCore.Algebra
 
         #region Dimensions
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int RowsCount(this double[,] mat)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
             return mat.GetLength(0);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ColumnsCount(this double[,] mat)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
             return mat.GetLength(1);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSquare(this double[,] mat)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
@@ -154,25 +157,28 @@ namespace PowerFlowCore.Algebra
 
         public static (int, int) GetDimension(this double[,] mat) => (mat.GetLength(0), mat.GetLength(1));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double[] GetRow(this double[,] mat, int index)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
             if(index < 0 || index >= mat.GetLength(0))
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            var row = new double[mat.ColumnsCount()];
+            var row = new double[mat.GetLength(1)];
 
             for (int i = 0; i < row.Length; i++)
                 row[i] = mat[index, i];
             return row;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double[] GetColumn(this double[,] mat, int index)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
             if (index < 0 || index >= mat.GetLength(1))
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            var col = new double[mat.RowsCount()];
+            var col = new double[mat.GetLength(0)];
 
             for (int i = 0; i < col.Length; i++)
                 col[i] = mat[i, index];
@@ -288,24 +294,17 @@ namespace PowerFlowCore.Algebra
 
         #region Manipulate
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SwapRow(this double[,] target, int i, int j)
         {
-            if (i < 0 || i >= target.GetLength(0))
-                throw new ArgumentOutOfRangeException(nameof(i));
-            if (j < 0 || j >= target.GetLength(0))
-                throw new ArgumentOutOfRangeException(nameof(j));
-
             var tmp_i = target.GetRow(i);
             target.SetRow(i, target.GetRow(j));
             target.SetRow(j, tmp_i);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SwapColumn(this double[,] target, int i, int j)
         {
-            if (i < 0 || i >= target.GetLength(1))
-                throw new ArgumentOutOfRangeException(nameof(i));
-            if (j < 0 || j >= target.GetLength(1))
-                throw new ArgumentOutOfRangeException(nameof(j));
-
             var tmp_i = target.GetColumn(i);
             target.SetColumn(i, target.GetColumn(j));
             target.SetColumn(j, tmp_i);
@@ -607,11 +606,13 @@ namespace PowerFlowCore.Algebra
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
 
-            double[,] res = MatrixDouble.Create(mat.RowsCount(), mat.ColumnsCount());
+            double[,] res = Create(mat.RowsCount(), mat.ColumnsCount());
 
-            for (int i = 0; i < res.RowsCount(); i++)
-                for (int j = 0; j < res.ColumnsCount(); j++)
+            Parallel.For(0, res.GetLength(0), (i, state) =>
+            {
+                for (int j = 0; j < res.GetLength(1); j++)
                     res[i, j] = func(mat[i, j]);
+            });                
 
             return res;
         }

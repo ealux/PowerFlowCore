@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PowerFlowCore.Data;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Security;
@@ -14,9 +15,7 @@ namespace PowerFlowCore.Algebra
             int[] perm;
             double[,] luMatrix;
             (luMatrix, perm, _) = A.MatrixDecompose();
-            double[] bp = new double[B.Length];
-            for (int i = 0; i < n; ++i)
-                bp[i] = B[perm[i]];
+            double[] bp = perm.Map(i => B[i]);
             double[] x = HelperSolve(luMatrix, bp);
             return x;
         }
@@ -43,18 +42,17 @@ namespace PowerFlowCore.Algebra
                 if (pRow != j)
                 {
                     result.SwapRow(pRow, j);
-                    int tmp = perm[pRow]; 
+                    int tmp = perm[pRow];
                     perm[pRow] = perm[j];
                     perm[j] = tmp;
                     toggle = -toggle;
                 }
-
                 Parallel.For(j + 1, n, i =>
                 {
                     result[i, j] /= result[j, j];
                     for (int k = j + 1; k < n; ++k)
                         result[i, k] -= result[i, j] * result[j, k];
-                });
+                });                
             } 
 
             return (result, perm, toggle);
@@ -91,16 +89,15 @@ namespace PowerFlowCore.Algebra
             double[] b = new double[n];
             for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n; ++j)
+                Parallel.For(0, n, j =>
                 {
                     if (i == perm[j])
                         b[j] = 1.0;
                     else
                         b[j] = 0.0;
-                }
+                });
                 double[] x = HelperSolve(lum, b);
-                for (int j = 0; j < n; ++j)
-                    result[j, i] = x[j];
+                Parallel.For(0, n, j => result[j, i] = x[j]);
             }
             return result;
         }

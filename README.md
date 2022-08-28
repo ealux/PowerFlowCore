@@ -1,7 +1,8 @@
-# Power Flow Core
 
-Solver for Power Flow Problem. 
+<p align="center"><img src="content/main.png" alt="alt text" width="400" height="186"/></p>
+<h2 align="center"><b>Solver for Power Flow Problem</b></h2>
 
+### Features:
 * Three-phase AC mode grids calculations
 * Flexible system to set up configuration of calculations
 * `Newton-Raphson` and `Gauss-Seidel` solvers
@@ -12,7 +13,7 @@ Solver for Power Flow Problem.
 
 Samples are presented in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project. Library benchmarking is presented in [PowerFlowCore.Benchmark](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark) project.
 
-## Quick example
+### Quick example
 
 Next example assumes that `Node` and `Branch` classes inherits `INode` and `IBranch` interfaces respectively. 
 More examples can be found in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project.
@@ -64,7 +65,7 @@ grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCo
     .Calculate(out success);
 ```
 
-## Basic concepts
+### Basic concepts
 
 #### Namespaces
 Provided tools are located in several namespaces:
@@ -92,6 +93,6 @@ Another way to create `Grid` is to use `IConverter` object that encapsulated col
 public Grid(IConverter converter) { ... }
 ```
 
-## License
+### License
 
 Published under [MIT license](https://github.com/ealux/PowerFlowCore/blob/master/LICENSE.md)
