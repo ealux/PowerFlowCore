@@ -18,7 +18,7 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("4 nodes (Breakers only): 0 - PV  3 - PQ  1 - Slack");
             Logger.LogInfo(" ================================================ ");
 
-            var nodes = new List<Node>()
+            var nodes = new List<INode>()
             {
                 new Node(){ Num = 1,Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(110, 0), S_gen = new Complex(109.979, 150.369)},
                 new Node(){Num = 2,  Type = NodeType.PQ,    Unom=110},
@@ -26,7 +26,7 @@ namespace PowerFlowCore.Samples
                 new Node(){Num = 4,  Type = NodeType.PQ,    Unom=110, S_load = new Complex(110, 150)},
             };
 
-            var branches = new List<Branch>()
+            var branches = new List<IBranch>()
             {
 
                 new Branch(){Start = 1, End = 2, Ktr=1 },

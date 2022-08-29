@@ -6,7 +6,7 @@ namespace PowerFlowCore.Samples
     /// <summary>
     /// Internal <see cref="INode"/> implementation
     /// </summary>
-    class Node : INode
+    struct Node : INode
     {
         public int Num { get; set; }
         public int Num_calc { get; set; }

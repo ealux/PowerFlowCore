@@ -14,7 +14,7 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Complex Ktr Test (4 nodes): 1 - PV  2 - PQ  1 - Slack");
             Logger.LogInfo("=====================================================");
 
-            var nodes = new List<Node>()
+            var nodes = new List<INode>()
             {
                 new Node(){Num = 1, Type = NodeType.PQ,    Unom=115,  Vpre = 0,     S_load = new Complex(10, 15)},
                 new Node(){Num = 2, Type = NodeType.PQ,    Unom=230,  Vpre = 0,     S_load = new Complex(10, 40)},
@@ -22,7 +22,7 @@ namespace PowerFlowCore.Samples
                 new Node(){Num = 4, Type = NodeType.Slack, Unom=115,  Vpre = 115}
             };
 
-            var branches = new List<Branch>()
+            var branches = new List<IBranch>()
             {
                 new Branch(){Start=2, End=1, Y=1/(new Complex(0.5, 10)), Ktr=Complex.FromPolarCoordinates(0.495,    15 * Math.PI/180), Ysh = new Complex(0, -55.06e-6)},
                 new Branch(){Start=2, End=3, Y=1/(new Complex(10,  20)), Ktr=Complex.FromPolarCoordinates(0.045652, 0 * Math.PI/180), Ysh = new Complex(0, 0)},

@@ -13,7 +13,7 @@ namespace PowerFlowCore.Samples
 			Logger.LogInfo("=========================================== ");
 			Logger.LogInfo("197 nodes: 36 - PV  160 - PQ  1 - Slack");
 			Logger.LogInfo("=========================================== ");
-			var nodes = new List<Node>()
+			var nodes = new List<INode>()
 			{			
 				new Node(){Num = 1,  Type = NodeType.PV,    Unom=520, Vpre = 520, S_load = new Complex(0, 63.609), S_gen = new Complex(1928, 0), Q_min = 0, Q_max = 816, Ysh = new Complex(0, 1306e-6)},
 				new Node(){Num = 2,  Type = NodeType.PQ,    Unom=508},
@@ -214,7 +214,7 @@ namespace PowerFlowCore.Samples
 				new Node(){Num = 2001,  Type = NodeType.PQ,    Unom=230},
 			};
 
-			var branches = new List<Branch>()
+			var branches = new List<IBranch>()
 			{			
 				new Branch(){Start = 1, End = 19, Ktr=1, Y=1/new Complex(6.4, 65.7), Ysh = new Complex(0, 820e-6)},
 				new Branch(){Start = 1, End = 42, Ktr=1, Y=1/new Complex(1.5, 14), Ysh = new Complex(0, 179e-6)},

@@ -87,7 +87,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Private ctor
         /// </summary>
-        protected Grid() { }
+        private Grid() { }
 
         /// <summary>
         /// Calculate initial parameters for Power Flow task computation based on network topology and characteristics
@@ -240,7 +240,6 @@ namespace PowerFlowCore.Data
         /// <param name="nodes">Collection of (transformed) <see cref="INode"/></param>
         /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
         /// <returns><see cref=Complex[,]"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Complex[,] Calc_Y(List<INode> nodes, List<IBranch> branches)
         {
             //Initialize admittance matrix
@@ -289,7 +288,7 @@ namespace PowerFlowCore.Data
 
         #endregion [Build Scheme]       
 
-        #region Internal Helper methods
+        #region [Internal Helper methods]
 
         /// <summary>
         /// Set to <see cref="Grid.Id"/>

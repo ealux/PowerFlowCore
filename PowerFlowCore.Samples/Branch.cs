@@ -3,7 +3,7 @@ using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Samples
 {
-    class Branch : IBranch
+    struct Branch : IBranch
     {
         public int Start { get; set; }
         public int Start_calc { get; set; }

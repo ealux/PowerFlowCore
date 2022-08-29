@@ -1,5 +1,5 @@
 
-<p align="center"><img src="content/main.png" alt="alt text" width="400" height="186"/></p>
+<p align="center"><img src="content/main.png" alt="alt text" width="400" height="188"/></p>
 <h2 align="center"><b>Solver for Power Flow Problem</b></h2>
 
 ### Features:
@@ -74,6 +74,7 @@ Provided tools are located in several namespaces:
 using PowerFlowCore;
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
+using PowerFlowCore.Algebra;
 ```
 #### Components
 
