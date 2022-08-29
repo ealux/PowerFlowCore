@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
 using PowerFlowCore.Data;
+using PowerFlowCore.Algebra;
 using PowerFlowCore.Solvers;
 
 
@@ -110,6 +111,12 @@ namespace PowerFlowCore.Samples
             //                            .ApplySolver(SolverType.NewtonRaphson)
             //                            .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
+            //SampleGrids.Nodes197_36PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
+            //                           .ApplySolver(SolverType.NewtonRaphson)
+            //                           .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
 
             //timer.Restart();
             //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })

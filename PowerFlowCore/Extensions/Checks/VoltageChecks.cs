@@ -26,7 +26,7 @@ namespace PowerFlowCore.Data
                             Math.Round(n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude), (int)precision));
             else
                 res = grid.Nodes.Select(n =>
-                            Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, (int)precision));
+                            Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude), (int)precision));
 
             return res;
         }
@@ -42,8 +42,8 @@ namespace PowerFlowCore.Data
         public static IEnumerable<(INode, double)> CheckVoltageLack(this Grid grid, double voltageRate=0.1)
         {
             var k = 1 - Math.Abs(voltageRate);  // Set coef less then 100%
-            var res = grid.Nodes.Where(n => (n.Unom.Magnitude * k - n.U.Magnitude) >= 0.0)
-                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, 2)));
+            var res = grid.Nodes.Where(n => ((n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude) * k - n.U.Magnitude) >= 0.0)
+                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude), 2)));
 
             return res;
         }
@@ -59,8 +59,8 @@ namespace PowerFlowCore.Data
         public static IEnumerable<(INode, double)> CheckVoltageOverflow(this Grid grid, double voltageRate=0.1)
         {
             var k = 1 + Math.Abs(voltageRate);  // Set coef over 100%
-            var res = grid.Nodes.Where(n  => (n.U.Magnitude - n.Unom.Magnitude * k) >= 0.0)
-                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / n.Unom.Magnitude, 2)));
+            var res = grid.Nodes.Where(n  => (n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude) * k) >= 0.0)
+                                .Select(n => (n, Math.Round((n.U.Magnitude - (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude)) * 100 / (n.Type == NodeType.PV ? n.Vpre : n.Unom.Magnitude), 2)));
 
             return res;
         }

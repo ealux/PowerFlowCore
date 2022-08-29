@@ -21,7 +21,7 @@ namespace PowerFlowCore
         #region Calc Grid default
 
         /// <summary>
-        /// Calculate the grid with default <see cref="CalculationOptions"/>
+        /// Calculate the grid with engine static <see cref="CalculationOptions"/>
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/></param>
         /// <returns>Tuple with <see cref="Grid"/> object and <see cref="bool"/> calculation result</returns>
@@ -42,7 +42,7 @@ namespace PowerFlowCore
             calc.InitParameters(calc.Nodes, calc.Branches);
 
             // Calculate
-            calc.SolverNR(calc.Uinit, new CalculationOptions(), out bool suc);
+            calc.SolverNR(calc.Uinit, Options, out bool suc);
 
             if (suc)
             {
@@ -55,7 +55,7 @@ namespace PowerFlowCore
         }
 
         /// <summary>
-        /// Calculate the grid with default <see cref="CalculationOptions"/>
+        /// Calculate the grid with engine static <see cref="CalculationOptions"/>
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/></param>
         /// <param name="success">Calcutaion result</param>
@@ -67,7 +67,7 @@ namespace PowerFlowCore
         }
 
         /// <summary>
-        /// Calculate grids collections in parallel with default <see cref="CalculationOptions"/>
+        /// Calculate grids collections in parallel with engine static <see cref="CalculationOptions"/>
         /// </summary>
         /// <param name="grids">Input <see cref="Grid"/> collection</param>
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
@@ -99,7 +99,7 @@ namespace PowerFlowCore
 
 
                 // Calculate
-                calc.SolverNR(calc.Uinit, new CalculationOptions(), out bool suc);
+                calc.SolverNR(calc.Uinit, Options, out bool suc);
 
                 if (suc)
                 {
@@ -115,7 +115,7 @@ namespace PowerFlowCore
         }
 
         /// <summary>
-        /// Calculate grids collections in parallel with default <see cref="CalculationOptions"/>
+        /// Calculate grids collections in parallel with engine static <see cref="CalculationOptions"/>
         /// </summary>
         /// <param name="grids">Input <see cref="Grid"/> collection</param>
         /// <param name="success">Calcutaion result. False if any grid calculation is failed</param>
@@ -147,7 +147,7 @@ namespace PowerFlowCore
         {
             _ = grid ?? throw new ArgumentNullException(nameof(grid));
             if (options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             // Validate grid
             if (!grid.Validate())
@@ -201,7 +201,7 @@ namespace PowerFlowCore
         {
             _ = grids ?? throw new ArgumentNullException(nameof(grids));
             if(options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             IEnumerable<(Grid, bool)> list = grids.Select(g => (g, false));
 
@@ -439,7 +439,7 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
 
-            return new SolvableGrid(grid, solver, new CalculationOptions());
+            return new SolvableGrid(grid, solver, Options ?? new CalculationOptions());
         }
 
         /// <summary>
@@ -455,7 +455,7 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
             if (options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             return new SolvableGrid(grid, solver, options);
         }
@@ -475,7 +475,7 @@ namespace PowerFlowCore
             var output = new List<SolvableGrid>(grids.Count());
 
             foreach (var item in grids)
-                output.Add(new SolvableGrid(item, solver, new CalculationOptions()));
+                output.Add(new SolvableGrid(item, solver, Options ?? new CalculationOptions()));
 
             return output.AsEnumerable();
         }
@@ -493,7 +493,7 @@ namespace PowerFlowCore
             if (grids == null)
                 throw new ArgumentNullException(nameof(grids));
             if (options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             var output = new List<SolvableGrid>(grids.Count());
 
@@ -518,7 +518,7 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
 
-            grid.Solvers.Enqueue((solver, new CalculationOptions()));
+            grid.Solvers.Enqueue((solver, Options ?? new CalculationOptions()));
 
             return grid;
         }
@@ -536,7 +536,7 @@ namespace PowerFlowCore
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
             if (options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             grid.Solvers.Enqueue((solver, options));
 
@@ -556,7 +556,7 @@ namespace PowerFlowCore
                 throw new ArgumentNullException(nameof(grids));
 
             foreach (var item in grids)
-                item.Solvers.Enqueue((solver, new CalculationOptions()));
+                item.Solvers.Enqueue((solver, Options ?? new CalculationOptions()));
 
             return grids;
         }
@@ -574,7 +574,7 @@ namespace PowerFlowCore
             if (grids == null)
                 throw new ArgumentNullException(nameof(grids));
             if (options == null)
-                options = new CalculationOptions();
+                options = Options ?? new CalculationOptions();
 
             foreach (var item in grids)
                 item.Solvers.Enqueue((solver, options));

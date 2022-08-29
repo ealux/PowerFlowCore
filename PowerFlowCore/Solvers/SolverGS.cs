@@ -2,6 +2,7 @@
 using PowerFlowCore.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Solvers
@@ -110,7 +111,25 @@ namespace PowerFlowCore.Solvers
                     Logger.LogSuccess($"Converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
                 else
                     Logger.LogCritical($"Not converged (G-S solver) in {iter} of {options.IterationsCount} iterations", grid.Id);
-            }                
+            }
+
+            // Constraints
+            if (options.UseVoltageConstraint)
+            {
+                // Check voltage constraints
+                var outOfVoltageOverflow = grid.CheckVoltageOverflow(options.VoltageConstraintPercentage / 100);
+                var outOfVoltageLack = grid.CheckVoltageLack(options.VoltageConstraintPercentage / 100);
+
+                if (outOfVoltageOverflow.Any() || outOfVoltageLack.Any())
+                {
+                    success = false;
+                    foreach (var item in outOfVoltageOverflow.OrderByDescending(i => i.Item2))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} (+{item.Item2}%)", grid.Id);
+                    foreach (var item in outOfVoltageLack.OrderByDescending(i => i.Item2))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} ({item.Item2}%)", grid.Id);
+                    Logger.LogCritical($"Calculation failed due to voltage restrictions violation", grid.Id);
+                }
+            }
 
             return grid;
         }

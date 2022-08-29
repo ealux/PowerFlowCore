@@ -54,7 +54,7 @@ namespace PowerFlowCore.Solvers
 
                 // Set up voltages after rebuilding
                 U = grid.Ucalc.Copy();
-            }
+            }            
 
             // Logging
             lock (Logger._lock)
@@ -73,6 +73,24 @@ namespace PowerFlowCore.Solvers
 
             //Re - building scheme back
             grid.InitParameters(grid.Nodes, grid.Branches);
+
+            // Constraints
+            if (options.UseVoltageConstraint)
+            {
+                // Check voltage constraints
+                var outOfVoltageOverflow = grid.CheckVoltageOverflow(options.VoltageConstraintPercentage / 100);
+                var outOfVoltageLack = grid.CheckVoltageLack(options.VoltageConstraintPercentage / 100);
+
+                if (outOfVoltageOverflow.Any() || outOfVoltageLack.Any())
+                {
+                    success = false;
+                    foreach (var item in outOfVoltageOverflow.OrderByDescending(i => i.Item2))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} (+{item.Item2}%)", grid.Id);
+                    foreach (var item in outOfVoltageLack.OrderByDescending(i => i.Item2))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} ({item.Item2}%)", grid.Id);
+                    Logger.LogCritical($"Calculation failed due to voltage restrictions violation", grid.Id);
+                }
+            }
 
             return grid;
         }
@@ -135,7 +153,7 @@ namespace PowerFlowCore.Solvers
 
                 // Set new value to Nodes
                 for (int n = 0; n < grid.Nodes.Count; n++)
-                    grid.Nodes[n].U = U[n];
+                    grid.Nodes[n].U = U[n];                
 
                 // Evaluate static load model
                 EvaluateLoadModel(grid);

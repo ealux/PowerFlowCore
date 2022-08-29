@@ -762,7 +762,7 @@ namespace PowerFlowCore.Algebra
             Parallel.For(0, target.GetLength(0), i =>
             {
                 for (int j = 0; j < other.GetLength(1); j++)
-                res[i, j] = target.GetRow(i).DotProduct(other.GetColumn(j));
+                    res[i, j] = target.GetRow(i).DotProduct(other.GetColumn(j));
             });
 
             return res;
