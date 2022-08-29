@@ -20,10 +20,10 @@ namespace PowerFlowCore.Samples
 
             var timer_global = Stopwatch.StartNew();
 
-            Logger.AddConsoleMode();
-            Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener
-            //Logger.AddDebugMode();            
-            //Logger.LogBroadcast += Logger_OnLogBroadcast; // Logger event listener
+            Logger.AddConsoleMode();                          // Log to Console
+            Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener (to Debug)
+            //Logger.AddDebugMode();                          // Log to Debug
+            //Logger.LogBroadcast += Logger_OnLogBroadcast;   // Logger event listener
 
             Logger.LogInfo("Calculation started");
 
