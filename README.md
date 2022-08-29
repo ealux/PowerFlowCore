@@ -24,7 +24,7 @@ using PowerFlowCore;
 using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
 
-var nodes = new List<Node>()        // Create collection of Nodes
+var nodes = new List<INode>()        // Create collection of Nodes
 {
     new Node(){Num = 1, Type = NodeType.PQ,    Unom=115,  Vpre = 0,     S_load = new Complex(10, 15)},
     new Node(){Num = 2, Type = NodeType.PQ,    Unom=230,  Vpre = 0,     S_load = new Complex(10, 40)},
@@ -32,7 +32,7 @@ var nodes = new List<Node>()        // Create collection of Nodes
     new Node(){Num = 4, Type = NodeType.Slack, Unom=115,  Vpre = 115}
 };
 
-var branches = new List<Branch>()   // Create collection of Branches
+var branches = new List<IBranch>()   // Create collection of Branches
 {
     new Branch(){Start=2, End=1, Y=1/(new Complex(0.5, 10)), Ktr=Complex.FromPolarCoordinates(0.495,    15 * Math.PI/180), Ysh = new Complex(0, -55.06e-6)},
     new Branch(){Start=2, End=3, Y=1/(new Complex(10,  20)), Ktr=Complex.FromPolarCoordinates(0.045652, 0 * Math.PI/180), Ysh = new Complex(0, 0)},
@@ -80,19 +80,36 @@ using PowerFlowCore.Algebra;
 
 ##### INode, IBranch
 
+[`INode`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/INode.cs) and [`IBranch`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/IBranch.cs) interfaces encapsulate properties to work with internal solver. These interfaces should be inherited by custom **class** or **struct** to use in solver. Being passed to the solver are converted to the original interface.
+
 ##### Grid
 
-Central term is `Grid` object from `PowerFlowCore.Data` namespace. To create `Grid` object collections of `INode` and `IBranch` should be explicitly given to the constructor:
+Central term is [`Grid`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/Grid.cs) object from `PowerFlowCore.Data` namespace. 
+To create [`Grid`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/Grid.cs) object collections of `INode` and `IBranch` should be explicitly given to the constructor:
 
 ```csharp
 public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches) { ... }
 ```
 
-Another way to create `Grid` is to use `IConverter` object that encapsulated collection of `INode` and `Branch`:
+Another way to create `Grid` is to use `IConverter` object that encapsulated collection of `INode` and `IBranch`:
 
 ```csharp
 public Grid(IConverter converter) { ... }
 ```
+
+Besides collections of nodes and branches [`Grid`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/Grid.cs) contains:
+* Admittance matrix - **Y**
+* Vector of nodes nominal voltages - **Unominal**
+* Vector of nodes initial voltages (for calculations) - **Uinit**
+* Vector of nodes calculated voltages - **Ucalc**
+* Vector of nodes power injections (generation - load) - **S**
+* Collection of load models - **LoadModels**
+* Description:
+  * Load nodes count - **PQ_Count** 
+  * Generator nodes count - **PV_Count** 
+  * Slack bus nodes count - **Slack_Count** 
+
+
 
 ### License
 
