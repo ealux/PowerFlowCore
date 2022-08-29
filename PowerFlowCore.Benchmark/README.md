@@ -70,7 +70,16 @@ Performance tests on grid creation:
 
 ## Calculate grid :triangular_ruler:
 
-Grid calculations:
+Grid calculations. Config:
+
+```ini
+BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1889 (21H2)
+AMD Ryzen 5 2600, 1 CPU, 12 logical and 6 physical cores
+.NET SDK=6.0.400
+  [Host]     : .NET 6.0.8 (6.0.822.36306), X64 RyuJIT
+  DefaultJob : .NET 6.0.8 (6.0.822.36306), X64 RyuJIT
+```
+
 
 |            Method | N |           Mean |        Error |       StdDev |      Gen 0 |     Gen 1 |     Gen 2 |  Allocated |
 |-----------------: |-- |---------------:|-------------:|-------------:|-----------:|----------:|----------:|-----------:|
@@ -86,6 +95,32 @@ Grid calculations:
 |     Nodes300_27PV | 1 |   395,303.1 us |  4,090.63 us |  3,826.38 us | 21000.0000 | 3000.0000 | 3000.0000 | 116,157 KB |
 |     Nodes398_35PV | 1 |   832,854.6 us | 13,297.94 us | 11,788.28 us | 27000.0000 | 4000.0000 | 3000.0000 | 193,144 KB |
 | Nodes398_35PV_ZIP | 1 | 1,162,863.7 us |  6,443.30 us |  6,027.07 us | 36000.0000 | 5000.0000 | 4000.0000 | 267,824 KB |
+
+
+Another (average) config:
+```ini
+BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1766 (21H2)
+Intel Core i5-4460 CPU 3.20GHz (Haswell), 1 CPU, 4 logical and 4 physical cores
+.NET SDK=6.0.400
+  [Host]     : .NET 6.0.8 (6.0.822.36306), X64 RyuJIT
+  DefaultJob : .NET 6.0.8 (6.0.822.36306), X64 RyuJIT
+```
+
+|            Method | N |           Mean |        Error |       StdDev |      Gen 0 |     Gen 1 |     Gen 2 |  Allocated |
+|------------------ |-- |---------------:|-------------:|-------------:|-----------:|----------:|----------:|-----------:|
+|          Test_Ktr | 1 |       367.7 us |      4.31 us |      3.82 us |    98.6328 |         - |         - |     299 KB |
+|        Nodes4_1PV | 1 |       273.7 us |      3.57 us |      3.34 us |    73.2422 |         - |         - |     222 KB |
+|    Nodes4_1PV_ZIP | 1 |       474.7 us |      6.59 us |      7.05 us |   124.0234 |         - |         - |     379 KB |
+|     Nodes5_2Slack | 1 |       222.2 us |      2.14 us |      2.00 us |    59.5703 |         - |         - |     181 KB |
+|           IEEE_14 | 1 |       769.9 us |     10.99 us |     10.28 us |   181.6406 |         - |         - |     551 KB |
+|       Nodes15_3PV | 1 |     1,746.1 us |      7.47 us |      6.99 us |   382.8125 |         - |         - |   1,162 KB |
+|           IEEE_57 | 1 |     9,759.4 us |    153.27 us |    127.99 us |  1296.8750 |  281.2500 |   62.5000 |   4,725 KB |
+|          IEEE_118 | 1 |    35,634.7 us |    711.82 us |    847.37 us |  3333.3333 |  666.6667 |  400.0000 |  13,970 KB |
+|     Nodes197_36PV | 1 |   175,721.7 us |  2,840.04 us |  2,789.30 us | 10000.0000 | 2333.3333 | 1666.6667 |  46,094 KB |
+|     Nodes300_27PV | 1 |   589,954.4 us | 11,088.20 us | 10,371.91 us | 26000.0000 | 4000.0000 | 4000.0000 | 110,229 KB |
+|     Nodes398_35PV | 1 | 1,256,082.4 us | 12,176.19 us | 10,793.87 us | 33000.0000 | 3000.0000 | 3000.0000 | 185,338 KB |
+| Nodes398_35PV_ZIP | 1 | 1,839,526.3 us | 23,782.60 us | 22,246.26 us | 43000.0000 | 4000.0000 | 4000.0000 | 256,140 KB |
+
 
 ## Parallel calculations :fire:
 
