@@ -303,13 +303,23 @@ namespace PowerFlowCore
                 if (success)
                     continue;
 
+                // Turn off constraints on all solvers except the last
+                var constrTemp = solver.Item2.UseVoltageConstraint;
+                solver.Item2.UseVoltageConstraint = false;
+                if (solver == grid.Solvers.Last())
+                    solver.Item2.UseVoltageConstraint = constrTemp;
+
                 // Calculate
-                if(solver.Item1 == SolverType.GaussSeidel)
+                if (solver.Item1 == SolverType.GaussSeidel)
                     calc.SolverGS(Uinitial, solver.Item2, out success);
-                else if(solver.Item1 == SolverType.NewtonRaphson)
+                else if (solver.Item1 == SolverType.NewtonRaphson)
                     calc.SolverNR(Uinitial, solver.Item2, out success);
+
                 // Set next initialization
                 Uinitial = calc.Ucalc;
+
+                // Set constraints back
+                solver.Item2.UseVoltageConstraint = constrTemp;   
             }
 
             if (success)
@@ -380,13 +390,23 @@ namespace PowerFlowCore
                     if (success)
                         continue;
 
+                    // Turn off constraints on all solvers except the last
+                    var constrTemp = solver.Item2.UseVoltageConstraint;
+                    solver.Item2.UseVoltageConstraint = false;
+                    if (solver == item.Item1.Solvers.Last())
+                        solver.Item2.UseVoltageConstraint = constrTemp;
+
                     // Calculate
                     if (solver.Item1 == SolverType.GaussSeidel)
                         calc.SolverGS(Uinitial, solver.Item2, out success);
                     else if (solver.Item1 == SolverType.NewtonRaphson)
                         calc.SolverNR(Uinitial, solver.Item2, out success);
+
                     // Set next initialization
                     Uinitial = calc.Ucalc;
+
+                    // Set constraints back
+                    solver.Item2.UseVoltageConstraint = constrTemp;
                 }
 
                 if (success)
