@@ -14,7 +14,7 @@ namespace PowerFlowCore
     public static class Engine
     {
         /// <summary>
-        /// Engine calculations static options. May be use in calculations
+        /// Engine calculations static options. May be used in calculations
         /// </summary>
         public static CalculationOptions Options { get; set; } = new CalculationOptions();
 
@@ -425,7 +425,7 @@ namespace PowerFlowCore
 
         #region Solver appliers
 
-        // Grid
+        #region Grid
 
         /// <summary>
         /// Creates new <see cref="SolvableGrid"/> object with selected solver
@@ -503,8 +503,9 @@ namespace PowerFlowCore
             return output.AsEnumerable();
         }
 
+        #endregion
 
-        // SolvableGrid
+        #region SolvableGrid
 
         /// <summary>
         /// Creates new <see cref="SolvableGrid"/> object with selected solver
@@ -581,6 +582,8 @@ namespace PowerFlowCore
 
             return grids;
         }
+
+        #endregion
 
         #endregion
     }

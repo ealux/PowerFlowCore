@@ -1,11 +1,12 @@
-﻿namespace PowerFlowCore
+﻿using PowerFlowCore.Data;
+
+namespace PowerFlowCore
 {
     /// <summary>
     /// Calculation settings
     /// </summary>
     public sealed class CalculationOptions
     {
-
         #region Iterations
 
         /// <summary>
@@ -43,7 +44,7 @@
         #region Logging
 
         /// <summary>
-        /// Logging internal solver's info (on iterations)
+        /// Logging solver's internal info (on iterations)
         /// </summary>
         public bool SolverInternalLogging { get; set; } = true;
 
@@ -52,7 +53,7 @@
         #region Scheme builder
 
         /// <summary>
-        /// Replaces branches with low or zero impedance with specific breakers 
+        /// Replaces branches with low or zero impedance with specific <see cref="BreakersTemplate"/> 
         /// </summary>
         public bool UseBreakerImpedance { get; set; } = true;
 

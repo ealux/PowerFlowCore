@@ -2,20 +2,20 @@
 <p align="center"><img src="content/main.png" alt="alt text" width="400" height="188"/></p>
 <h2 align="center"><b>Solver for Power Flow Problem</b></h2>
 
-### Features:
+## Features:
 * Three-phase AC mode grids calculations
 * Flexible system to set up configuration of calculations
-* `Newton-Raphson` and `Gauss-Seidel` solvers
-* `Load models` with variant structure
+* [`Newton-Raphson`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Solvers/SolverNR.cs) and [`Gauss-Seidel`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Solvers/SolverGS.cs) solvers
+* [`Load models`](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore/Data/LoadModels/Models) with variant structure
 * Algorithms on graphs (connectivity etc.)
 * Network operational limits control
 * Parallel calculations from box 
 
 Samples are presented in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project. Library benchmarking is presented in [PowerFlowCore.Benchmark](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark) project.
 
-### Quick example
+## Quick example
 
-Next example assumes that `Node` and `Branch` classes inherits `INode` and `IBranch` interfaces respectively. 
+Next example assumes that `Node` and `Branch` classes inherits [`INode`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/INode.cs) and [`IBranch`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/IBranch.cs) interfaces respectively. 
 More examples can be found in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project.
 
 Create grid:
@@ -65,9 +65,9 @@ grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCo
     .Calculate(out success);
 ```
 
-### Basic concepts
+## Basic concepts
 
-#### Namespaces
+### Namespaces
 Provided tools are located in several namespaces:
 
 ```csharp
@@ -76,13 +76,13 @@ using PowerFlowCore.Data;
 using PowerFlowCore.Solvers;
 using PowerFlowCore.Algebra;
 ```
-#### Components
+### Components
 
-##### INode, IBranch
+#### INode, IBranch
 
 [`INode`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/INode.cs) and [`IBranch`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/GridElements/IBranch.cs) interfaces encapsulate properties to work with internal solver. These interfaces should be inherited by custom **class** or **struct** to use in solver. Being passed to the solver are converted to the original interface.
 
-##### Grid
+#### Grid
 
 Central term is [`Grid`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/Grid.cs) object from `PowerFlowCore.Data` namespace. 
 To create [`Grid`](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Data/Grid.cs) object collections of `INode` and `IBranch` should be explicitly given to the constructor:
@@ -102,7 +102,7 @@ Besides collections of nodes and branches [`Grid`](https://github.com/ealux/Powe
 * Vector of nodes nominal voltages - **Unominal**
 * Vector of nodes initial voltages (for calculations) - **Uinit**
 * Vector of nodes calculated voltages - **Ucalc**
-* Vector of nodes power injections (generation - load) - **S**
+* Vector of nodes power injections (=generation-load) - **S**
 * Collection of load models - **LoadModels**
 * Description:
   * Load nodes count - **PQ_Count** 
@@ -110,7 +110,6 @@ Besides collections of nodes and branches [`Grid`](https://github.com/ealux/Powe
   * Slack bus nodes count - **Slack_Count** 
 
 
-
-### License
+## License
 
 Published under [MIT license](https://github.com/ealux/PowerFlowCore/blob/master/LICENSE.md)
