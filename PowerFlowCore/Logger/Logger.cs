@@ -184,14 +184,13 @@ namespace PowerFlowCore
 
                         #region [Custom output]
                         if (Modes.Contains(LogMode.Custom) && listeners.Count > 0)
-                            Task.Run(() =>
+                        {
+                            try
                             {
-                                try
-                                {
-                                    listeners.ForEach(l => l.ReceiveMessage(sourceGridId, output));
-                                }
-                                catch (Exception) { }
-                            });
+                                listeners.ForEach(l => l.ReceiveMessage(sourceGridId, output));
+                            }
+                            catch (Exception) { }
+                        }                            
                         #endregion
                     }
                 }

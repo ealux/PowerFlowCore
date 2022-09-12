@@ -20,10 +20,10 @@ namespace PowerFlowCore.Algebra
         {
             int n = A.GetLength(0);
             int[] perm;
-            double[,] luMatrix;
-            (luMatrix, perm, _) = A.MatrixDecompose();
+            double[,] lum;
+            (lum, perm, _) = A.MatrixDecompose();
             double[] bp = perm.Map(i => B[i]);
-            double[] x = HelperSolve(luMatrix, bp);
+            double[] x = HelperSolve(lum, bp);
             return x;
         }
 
@@ -77,24 +77,24 @@ namespace PowerFlowCore.Algebra
         /// <summary>
         /// Hepler method for matrix operations
         /// </summary>
-        /// <param name="luMatrix">LU decomposed matrix</param>
+        /// <param name="lum">LU decomposed matrix</param>
         /// <param name="b">Vector to solve with</param>
-        static double[] HelperSolve(double[,] luMatrix, double[] b)
+        static double[] HelperSolve(double[,] lum, double[] b)
         {
-            int n = luMatrix.GetLength(0);
+            int n = lum.GetLength(0);
             double[] x = b.Copy();
             for (int i = 1; i < n; ++i)
             {
                 for (int j = 0; j < i; ++j)
-                    x[i] -= luMatrix[i, j] * x[j];
+                    x[i] -= lum[i, j] * x[j];
             }
-            x[n - 1] /= luMatrix[n - 1, n - 1];
+            x[n - 1] /= lum[n - 1, n - 1];
             for (int i = n - 2; i >= 0; --i)
             {
                 double sum = x[i];
                 for (int j = i + 1; j < n; ++j)
-                    sum -= luMatrix[i, j] * x[j];
-                x[i] = sum / luMatrix[i, i];
+                    sum -= lum[i, j] * x[j];
+                x[i] = sum / lum[i, i];
             }
             return x;
         }
@@ -107,15 +107,22 @@ namespace PowerFlowCore.Algebra
         public static double[,] Inverse(this double[,] matrix)
         {
             int n = matrix.GetLength(0);
-            int m = matrix.GetLength(0);
+            int m = matrix.GetLength(1);
 
             if (n != m) throw new Exception("Matrix is not square. Unable to inverse.");
-            if (matrix.Det() == 0d) throw new Exception("Matrix determinant is equals zero. Unable to inverse.");
 
             double[,] result = matrix.Copy();
             int[] perm;
             double[,] lum;
-            (lum, perm, _) = matrix.MatrixDecompose(); 
+            int toggle;
+            (lum, perm, toggle) = matrix.MatrixDecompose();
+
+            // Determinant ckecks
+            double det = toggle;
+            for (int i = 0; i < lum.RowsCount(); ++i)
+                det *= lum[i, i];
+            if (det == 0d) throw new Exception("Matrix determinant is equals zero. Unable to inverse.");
+
             double[] b = new double[n];
             for (int i = 0; i < n; ++i)
             {
@@ -144,7 +151,7 @@ namespace PowerFlowCore.Algebra
             if (lum == null)
                 throw new Exception("Unable to compute Determinant");
             double result = toggle;
-            for (int i = 0; i < lum.Length; ++i)
+            for (int i = 0; i < lum.RowsCount(); ++i)
                 result *= lum[i, i];
             return result;
         }

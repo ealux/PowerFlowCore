@@ -32,6 +32,16 @@ namespace PowerFlowCore.Samples
 
             #region Individual calcs
 
+            //var gr = SampleGrids.Nodes398_35PV().Y.Real();
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    var res = gr.Inverse();
+            //}
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+
+
+
+
             timer.Restart();
             CalculateAndShow(SampleGrids.Test_Ktr());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
