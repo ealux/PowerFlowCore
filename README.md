@@ -1,6 +1,12 @@
 
-<p align="center"><img src="content/main.png" alt="alt text" width="400" height="188"/></p>
-<h2 align="center"><b>Solver for Power Flow Problem</b></h2>
+<p align="center"><img src="content/main.png" alt="alt text" width="300" height="141"/></p>
+<h3 align="center"><i><b>Solver for Power Flow Problem</b></i></h3>
+<div align="center">
+    
+  <a href=""> [![NuGet](https://img.shields.io/nuget/v/PowerFlowCore)](https://www.nuget.org/packages/PowerFlowCore) </a>
+  <a href=""> [![license](https://img.shields.io/github/license/ealux/PowerFlowCore)](https://github.com/ealux/PowerFlowCore/blob/dev/LICENSE.md) </a>
+
+</div>
 
 ## Features:
 * Three-phase AC mode grids calculations
