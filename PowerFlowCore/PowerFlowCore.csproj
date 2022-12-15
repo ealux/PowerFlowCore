@@ -1,12 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	 <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
      <OutputType>Library</OutputType>
 	 <Nullable>enable</Nullable>
 	  <LangVersion>8</LangVersion>
-	  <PackageLicenseFile>C:\Users\User\source\repos\ealux\PowerFlowCore\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+
+	<PropertyGroup>
+		<Version>0.12.1</Version>
+		<PackageReleaseNotes>
+			
+		</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>PowerFlowCore</Title>
+		<IsPackable>true</IsPackable>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Copyright>ealuhanov@yandex.ru</Copyright>
+		<Authors>Lyukhanov E.A.</Authors>
+		<PackageProjectUrl>https://github.com/ealux/PowerFlowCore</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/ealux/PowerFlowCore.git</RepositoryUrl>
+		<Description>
+			Solver for Power Flow Problem.
+			Power grid steady-state analysis.</Description>
+		<PackageTags>Power Systems;Electrical Grids;PowerFlow;Newton-Raphson;Gauss-Seidel</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>PowerFlowCoreSign.snk</AssemblyOriginatorKeyFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <Optimize>False</Optimize>
@@ -25,5 +53,4 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-
 </Project>
