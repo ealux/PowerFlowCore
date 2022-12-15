@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet: [ '2.1.x', '3.1.x', '5.0.x', '6.0.x'  ]
+        dotnet: [ '2.0.x', '6.0.x'  ]
         
     steps:
     - name: Checks
@@ -24,10 +24,15 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-version }}
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        dotnet build PowerFlowCore/PowerFlowCore.csproj --verbosity normal
+        dotnet build PowerFlowCore.Samples/PowerFlowCore.Samples.csproj --verbosity normal
+        
       
     - name: Build
-      run: dotnet build PowerFlowCore/PowerFlowCore.csproj --configuration Release --no-restore
+      run: |
+        dotnet build PowerFlowCore/PowerFlowCore.csproj --configuration Release --no-restore --verbosity normal
+        dotnet build PowerFlowCore.Samples/PowerFlowCore.Samples.csproj --configuration Release --no-restore --verbosity normal
       
     #- name: Test
     #  run: dotnet test --no-build --verbosity normal
