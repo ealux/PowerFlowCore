@@ -2,9 +2,9 @@ name: Build PFC
 
 on:
   push:
-    branches: [ "dev", "release" ]
+    branches: [ "dev", "master" ]
   pull_request:
-    branches: [ "release" ]
+    branches: [ "master" ]
 
 jobs:
   build:
