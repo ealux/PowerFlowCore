@@ -123,9 +123,6 @@ namespace PowerFlowCore.Solvers
             // Convergence
             bool success = false;
 
-            // Use of parallel
-            bool p_degree = Environment.ProcessorCount >= 4 ? true: false;
-
             // Voltage estimation
             while (iter < options.IterationsCount)
             {
@@ -134,7 +131,7 @@ namespace PowerFlowCore.Solvers
                 var ph = U.Map(x => x.Phase);
 
                 dPQ = Resuduals_Polar(grid, U);         // Residuals vector 
-                J   = p_degree ? Jacobian_Polar_Parallel(grid, U) : Jacobian_Polar(grid, U); // Jacoby matrix
+                J = Jacobian_Polar(grid, U);   // Jacoby matrix
 
                 // Calculation of increments
                 double[] dx = J.Solve(dPQ.Negative());
@@ -158,7 +155,7 @@ namespace PowerFlowCore.Solvers
                 // Evaluate static load model
                 EvaluateLoadModel(grid);
 
-                #region [Logging on iteration]
+#region [Logging on iteration]
 
                 // Internal logging
                 if (options.SolverInternalLogging)
@@ -174,7 +171,7 @@ namespace PowerFlowCore.Solvers
                                   $"Delta:[{delta}({br.Start}-{br.End})]");
                 }
 
-                #endregion                
+#endregion
 
                 //Power residual stop criteria
                 if (dPQ.InfinityNorm() <= options.Accuracy)
@@ -230,7 +227,7 @@ namespace PowerFlowCore.Solvers
                     // Current node
                     var Node = grid.Nodes[nodeNum];
 
-                    #region [Calc new Q value]
+#region [Calc new Q value]
 
                     // New Q element
                     var Q_new = Node.S_calc.Imaginary;
@@ -244,7 +241,7 @@ namespace PowerFlowCore.Solvers
                     var qmin = Node.Q_min;
                     var qmax = Node.Q_max;
 
-                    #endregion                    
+#endregion
 
                     // On PQ state
                     if (Node.Type == NodeType.PQ)
@@ -341,9 +338,8 @@ namespace PowerFlowCore.Solvers
             return crossLimits;
         }
 
-
         /// <summary>
-        /// Jacobian matrix calculation on each iteration
+        /// Jacobian matrix calculation (Parallel) on each iteration
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
         /// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
@@ -352,121 +348,7 @@ namespace PowerFlowCore.Solvers
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
-            var Um = U.Map(u => u.Magnitude);
-            var Uph = U.Map(u => u.Phase);
-
-            var P_Delta = MatrixDouble.Create(dim, dim);
-            var P_V     = MatrixDouble.Create(dim, grid.PQ_Count);
-            var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-            var Q_V     = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
-
-            //P_Delta
-            for (int i = 0; i < dim; i++)
-            {
-                for (int j = 0; j < dim; j++)
-                {
-                    if (i != j)
-                        P_Delta[i, j] = -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-                                        Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        // Component to DELETE from sum (i==j)
-                        P_Delta[i, j] = -grid.Y[i, j].Magnitude *
-                                        Math.Pow(Um[i], 2) *
-                                        Math.Sin(grid.Y[i, j].Phase);
-
-                        // Basic sum (i==j)
-                        for (int k = 0; k < dim + grid.Slack_Count; k++)
-                            P_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude *
-                                             Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-            }
-
-            //P_V
-            for (int i = 0; i < dim; i++)
-            {
-                for (int j = 0; j < grid.PQ_Count; j++)
-                {
-                    if (i != j)
-                        P_V[i, j] = Um[i] * grid.Y[i, j].Magnitude *
-                                    Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        // Component with deleted part (one of two) (i==j)
-                        P_V[i, j] = Um[i] * grid.Y[i, j].Magnitude *
-                                    Math.Cos(grid.Y[i, j].Phase);
-
-                        // Basic sum (i==j)
-                        for (int k = 0; k < dim + grid.Slack_Count; k++)
-                            P_V[i, j] += Um[k] * grid.Y[i, k].Magnitude *
-                                         Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-            }
-
-            //Q_Delta
-            for (int i = 0; i < grid.PQ_Count; i++)
-            {
-                for (int j = 0; j < dim; j++)
-                {
-                    if (i != j)
-                        Q_Delta[i, j] = -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-                                        Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        // Component to DELETE from sum (i==j)
-                        Q_Delta[i, j] = -grid.Y[i, j].Magnitude *
-                                        Math.Pow(Um[i], 2) *
-                                        Math.Cos(grid.Y[i, j].Phase);
-
-                        // Basic sum (i==j)
-                        for (int k = 0; k < dim + grid.Slack_Count; k++)
-                            Q_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude *
-                                             Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-            }
-
-            //Q_V
-            for (int i = 0; i < grid.PQ_Count; i++)
-            {
-                for (int j = 0; j < grid.PQ_Count; j++)
-                {
-                    if (i != j)
-                        Q_V[i, j] = -Um[i] * grid.Y[i, j].Magnitude *
-                                    Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-                    else
-                    {
-                        // Component with deleted part (one of two) (i==j)
-                        Q_V[i, j] = -Um[i] * grid.Y[i, j].Magnitude *
-                                    Math.Sin(grid.Y[i, j].Phase);
-
-                        // Basic sum (i==j)
-                        for (int k = 0; k < dim + grid.Slack_Count; k++)
-                            Q_V[i, j] -= Um[k] * grid.Y[i, k].Magnitude *
-                                         Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-                    }
-                }
-            }
-
-            // Form result matrix
-            var res = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
-
-            return res;
-        }
-
-        /// <summary>
-        /// Jacobian matrix calculation (Parallel) on each iteration
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
-        /// <returns>Jacobian matrix</returns>
-        private static double[,] Jacobian_Polar_Parallel(Grid grid, Complex[] U)
-        {
-            var dim = grid.PQ_Count + grid.PV_Count;
-
-            var Um = U.Map(u => u.Magnitude);
+            var Um  = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
 
             var P_Delta = MatrixDouble.Create(dim, dim);

@@ -21,7 +21,7 @@ namespace PowerFlowCore.Algebra
             int n = A.GetLength(0);
             int[] perm;
             double[,] lum;
-            (lum, perm, _) = A.MatrixDecompose();
+            (lum, perm, _) = A.Decompose();
             double[] bp = perm.Map(i => B[i]);
             double[] x = HelperSolve(lum, bp);
             return x;
@@ -36,7 +36,7 @@ namespace PowerFlowCore.Algebra
         /// <para>perm - vector of rows permutaion indexes</para>
         /// <para>toggle - sign chanhe on decomposition</para>
         /// </returns>
-        static (double[,] C, int[] perm, int toggle) MatrixDecompose(this double[,] matrix)
+        static (double[,] C, int[] perm, int toggle) Decompose(this double[,] matrix)
         {
             int n = matrix.GetLength(0);
             double[,] result = matrix.Copy();
@@ -83,6 +83,7 @@ namespace PowerFlowCore.Algebra
         {
             int n = lum.GetLength(0);
             double[] x = b.Copy();
+
             for (int i = 1; i < n; ++i)
             {
                 for (int j = 0; j < i; ++j)
@@ -115,7 +116,7 @@ namespace PowerFlowCore.Algebra
             int[] perm;
             double[,] lum;
             int toggle;
-            (lum, perm, toggle) = matrix.MatrixDecompose();
+            (lum, perm, toggle) = matrix.Decompose();
 
             // Determinant ckecks
             double det = toggle;
@@ -142,12 +143,12 @@ namespace PowerFlowCore.Algebra
         /// <summary>
         /// Find source <paramref name="matrix"/> determinant value
         /// </summary>
-        /// <param name="matrix">SOurce matrix</param>
+        /// <param name="matrix">Source matrix</param>
         public static double Det(this double[,] matrix)
         {
             int toggle;
             double[,] lum;
-            (lum, _, toggle) = matrix.MatrixDecompose();
+            (lum, _, toggle) = matrix.Decompose();
             if (lum == null)
                 throw new Exception("Unable to compute Determinant");
             double result = toggle;

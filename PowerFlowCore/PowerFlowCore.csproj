@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	 <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
      <OutputType>Library</OutputType>
 	 <Nullable>enable</Nullable>
 	  <LangVersion>8</LangVersion>
-	  <PackageLicenseFile>C:\Users\User\source\repos\ealux\PowerFlowCore\LICENSE.md</PackageLicenseFile>
+	  <PackageLicenseFile>\PowerFlowCore\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">

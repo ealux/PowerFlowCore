@@ -1,14 +1,15 @@
 ﻿using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 
 namespace PowerFlowCore.Benchmark
 {
     /// <summary>
     /// Calculate sample grids several times for performance tests
     /// </summary>
-    [MemoryDiagnoser]
-    [MarkdownExporterAttribute.Default]
+    [SimpleJob(RuntimeMoniker.Net60)]
+    [MemoryDiagnoser(false)]
     public class CalculateGrid
     {
         [Params(1)]//, 10, 100)]
