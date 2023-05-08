@@ -12,7 +12,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Solver residual accuracy
         /// </summary>
-        public double Accuracy { get; set; } = 1e-5;
+        public double Accuracy { get; set; } = 1e-3;
 
 
         /// <summary>
@@ -30,9 +30,9 @@ namespace PowerFlowCore
         #region Constraints
 
         /// <summary>
-        /// Break the iteration if voltage is less/more then setted constraint (in percentage: 30 -> 130%) toward nominal
+        /// Break the iteration if voltage is less/more then setted constraint (in percentage: 50 -> 150%) toward nominal
         /// </summary>
-        public double VoltageConstraintPercentage { get; set; } = 30;
+        public double VoltageConstraintPercentage { get; set; } = 50;
 
         /// <summary>
         /// Check for <see cref="VoltageConstraint"/> on iteration

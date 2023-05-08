@@ -17,7 +17,7 @@ namespace PowerFlowCore.Samples
     {
         static void Main()
         {
-            // Uncomment required group
+            /* Uncomment required group */
 
             var timer_global = Stopwatch.StartNew();
 
@@ -32,36 +32,36 @@ namespace PowerFlowCore.Samples
 
             #region Individual calcs
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Test_Ktr());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Test_Ktr());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.BreakersScheme());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
+            timer.Restart();
+            CalculateAndShow(SampleGrids.BreakersScheme());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
-            //CalculateAndShow(SampleGrids.Nodes4_1PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+            CalculateAndShow(SampleGrids.Nodes4_1PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes4_1PV_ZIP());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes5_2Slack());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes5_2Slack());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_14());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_14());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes15_3PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes15_3PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.IEEE_57());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+            timer.Restart();
+            CalculateAndShow(SampleGrids.IEEE_57());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
 
             timer.Restart();
             CalculateAndShow(SampleGrids.IEEE_118());
@@ -82,6 +82,14 @@ namespace PowerFlowCore.Samples
             timer.Restart();
             CalculateAndShow(SampleGrids.Nodes398_35PV_ZIP());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes874_1431PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_1431PV
+
+            //timer.Restart();
+            //CalculateAndShow(SampleGrids.Nodes1350_250PV());
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
 
             #endregion
 
@@ -135,6 +143,18 @@ namespace PowerFlowCore.Samples
             //                               .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
 
+            //timer.Restart();
+            //SampleGrids.Nodes874_1431PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
+            //                              .ApplySolver(SolverType.NewtonRaphson)
+            //                              .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_1431PV
+
+            //timer.Restart();
+            //SampleGrids.Nodes1350_250PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
+            //                              .ApplySolver(SolverType.NewtonRaphson)
+            //                              .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+
             #endregion
 
 
@@ -143,14 +163,14 @@ namespace PowerFlowCore.Samples
             //// ---- IsConnected checks ----
             //var list = CreateSamplesList();    // Sample Grid collection
             //foreach (var item in list)
-            //    item.IsConnected();    // Check connectivity
+            //    Console.WriteLine(item.Nodes.Count + " nodes - " + item.IsConnected());    // Check connectivity
 
             #endregion
 
 
             Logger.LogInfo("Calculation finished with: " + timer_global.ElapsedMilliseconds + " ms");
 
-            Console.ReadKey();
+            Console.Read();
         }
 
 
@@ -227,11 +247,11 @@ namespace PowerFlowCore.Samples
         /// <summary>
         /// Create IEnumerable grid collection (398nodes)
         /// </summary>
-        public static IEnumerable<Grid> Create398NodesGridList()
+        public static IEnumerable<Grid> Create398NodesGridList(int items = 25)
         {
             List<Grid> grids = new List<Grid>();
 
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < items; i++)
                 grids.Add(SampleGrids.Nodes398_35PV_ZIP());
 
             return grids;

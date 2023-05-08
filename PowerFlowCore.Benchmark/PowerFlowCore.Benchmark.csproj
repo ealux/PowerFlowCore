@@ -5,6 +5,7 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
 	<LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
+	<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace PowerFlowCore.Data
     /// <para><see cref="Q"/> - Reactive power load model</para>
     /// <para><see cref="Umax"/> and <see cref="Umin"/> - Voltage limits to apply model</para>
     /// <para>Also includes list of submodels of <see cref="CompositeLoadModel"/> with own voltage limits. To add submodel:</para>
-    /// <para><code>ParentModel.AddModel(ChildModel)</code></para>
+    /// <para><c>ParentModel.AddModel(ChildModel)</c></para>
     /// </summary>
     [Serializable]
     public sealed class CompositeLoadModel
@@ -30,6 +30,7 @@ namespace PowerFlowCore.Data
         /// Lower voltage bound for model usage
         /// </summary>
         public double? Umin { get; set; }
+
         /// <summary>
         /// Upper voltage bound for model usage
         /// </summary>
@@ -40,8 +41,7 @@ namespace PowerFlowCore.Data
         /// </summary>
         public bool IsValid { get; set; } = true;
 
-        #endregion
-
+        #endregion ILoadModel properties
 
         /// <summary>
         /// <see cref="ILoadModel"/> to apply to load Active power
@@ -58,21 +58,20 @@ namespace PowerFlowCore.Data
         /// </summary>
         internal List<CompositeLoadModel> SubModels { get; set; } = new List<CompositeLoadModel>();
 
-
         // Private ctor
         private CompositeLoadModel() => this.Id = new Guid();
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="P"></param>
         /// <param name="Q"></param>
         /// <param name="umin"></param>
         /// <param name="umax"></param>
         /// <returns></returns>
-        public static CompositeLoadModel Initialize(ILoadModel P = null,
-                                                    ILoadModel Q = null,
-                                                    double? umin = null, double? umax = null)
+        public static CompositeLoadModel Initialize(ILoadModel P = null!,
+                                                    ILoadModel Q = null!,
+                                                    double? umin = null!, double? umax = null!)
         {
             var model = new CompositeLoadModel();
 
@@ -116,8 +115,8 @@ namespace PowerFlowCore.Data
             double p = 0.0;
             double q = 0.0;
 
-            if (P != null && P.IsValid) modelsP.Add(P);
-            if (Q != null && Q.IsValid) modelsQ.Add(Q);
+            if (P?.IsValid == true) modelsP.Add(P);
+            if (Q?.IsValid == true) modelsQ.Add(Q);
 
             // Find all submodels
             if (SubModels.Count > 0)
@@ -130,18 +129,22 @@ namespace PowerFlowCore.Data
             // Apply model
             foreach (var item in modelsP)
             {
-                if ((item.Umin.HasValue && item.Umin.Value >= (node.U.Magnitude / node.Unom.Magnitude)) |
-                    (item.Umax.HasValue && item.Umax.Value <= (node.U.Magnitude / node.Unom.Magnitude)))
+                if (item?.Umin >= (node.U.Magnitude / node.Unom.Magnitude)
+                    || item?.Umax <= (node.U.Magnitude / node.Unom.Magnitude))
+                {
                     continue;
+                }
 
-                p = item.ApplyModel(node.S_load.Real, node.U.Magnitude, node.Unom.Magnitude) ?? 0.0;
+                p = item!.ApplyModel(node.S_load.Real, node.U.Magnitude, node.Unom.Magnitude) ?? 0.0;
                 break;
             }
             foreach (var item in modelsQ)
             {
-                if ((item.Umin.HasValue && item.Umin.Value >= (node.U.Magnitude / node.Unom.Magnitude)) |
-                    (item.Umax.HasValue && item.Umax.Value <= (node.U.Magnitude / node.Unom.Magnitude)))
+                if (item?.Umin >= (node.U.Magnitude / node.Unom.Magnitude)
+                    || item?.Umax <= (node.U.Magnitude / node.Unom.Magnitude))
+                {
                     continue;
+                }
 
                 q = item.ApplyModel(node.S_load.Imaginary, node.U.Magnitude, node.Unom.Magnitude) ?? 0.0;
                 break;
@@ -158,22 +161,21 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
-        /// Validate <see cref="CompositeLoadModel"/> by 
+        /// Validate <see cref="CompositeLoadModel"/> by
         /// <see cref="CompositeLoadModel.P"/> and <see cref="CompositeLoadModel.Q"/> submodels existance
         /// </summary>
         public void Validate()
         {
             if (P == null & Q == null)
                 IsValid = false;
-            else if (P != null | Q != null)
+            else if (P != null || Q != null)
             {
-                if ((Q == null & P != null) && P!.IsValid == false)
+                if ((Q == null & P != null) && !P!.IsValid)
                     IsValid = false;
-                else if ((P == null & Q != null) && Q!.IsValid == false)
+                else if ((P == null & Q != null) && !Q!.IsValid)
                     IsValid = false;
-                else if (P != null & Q != null)
-                    if (P!.IsValid == false & Q!.IsValid == false)
-                        IsValid = false;
+                else if ((P != null & Q != null) && (!P!.IsValid & !Q!.IsValid))
+                    IsValid = false;
             }
             else
                 IsValid = true;
@@ -188,17 +190,15 @@ namespace PowerFlowCore.Data
             var model = Initialize(P?.DeepCopy(), Q?.DeepCopy(), Umin, Umax);
 
             foreach (var mod in SubModels)
-                model.SubModels.Add(Initialize(mod.P?.DeepCopy(), mod.Q?.DeepCopy(), mod.Umin, mod.Umax));
+                model.SubModels.Add(Initialize(mod?.P?.DeepCopy(), mod?.Q?.DeepCopy(), mod?.Umin, mod?.Umax));
 
             return model;
         }
 
-
-
         #region Template Models
 
         /// <summary>
-        /// Presents template <see cref="CompositeLoadModel"/> for 110 kV 
+        /// Presents template <see cref="CompositeLoadModel"/> for 110 kV
         /// complex (industrial, residental etc.) load node.
         /// </summary>
         public static CompositeLoadModel ComplexLoadNode_110kV()
@@ -219,7 +219,7 @@ namespace PowerFlowCore.Data
         }
 
         /// <summary>
-        /// Presents template <see cref="CompositeLoadModel"/> for 35 kV 
+        /// Presents template <see cref="CompositeLoadModel"/> for 35 kV
         /// complex (industrial, residental etc.) load node.
         /// </summary>
         public static CompositeLoadModel ComplexLoadNode_35kV()
@@ -239,7 +239,6 @@ namespace PowerFlowCore.Data
             return model;
         }
 
-        #endregion
-
+        #endregion Template Models
     }
 }
