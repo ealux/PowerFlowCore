@@ -1,9 +1,5 @@
-﻿using PowerFlowCore.Data;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security;
 using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
@@ -23,8 +19,7 @@ namespace PowerFlowCore.Algebra
             double[,] lum;
             (lum, perm, _) = A.Decompose();
             double[] bp = perm.Map(i => B[i]);
-            double[] x = HelperSolve(lum, bp);
-            return x;
+            return HelperSolve(lum, bp);
         }
 
         /// <summary>
@@ -45,7 +40,7 @@ namespace PowerFlowCore.Algebra
 
             for (int j = 0; j < n - 1; ++j)
             {
-                double colMax = Math.Abs(result[j,j]);
+                double colMax = Math.Abs(result[j, j]);
                 int pRow = j;
                 for (int i = j + 1; i < n; ++i)
                 {
@@ -83,7 +78,7 @@ namespace PowerFlowCore.Algebra
         {
             int n = lum.GetLength(0);
             double[] x = b.Copy();
-
+                        
             for (int i = 1; i < n; ++i)
             {
                 for (int j = 0; j < i; ++j)

@@ -27,8 +27,7 @@ namespace PowerFlowCore.Data
 
             // Find non-transformers branches
             var brs = grid.Branches
-                          .Where(b => b.Ktr.Magnitude <= 0 | b.Ktr.Magnitude == Complex.One)
-                          .Where(b => 1 / b.Y.Magnitude <= 0.001);
+                          .Where(b => b.Ktr.Magnitude <= 0 | b.Ktr.Magnitude == Complex.One && 1 / b.Y.Magnitude <= 0.001);
 
             // No low impedance branches
             if (!brs.Any()) 

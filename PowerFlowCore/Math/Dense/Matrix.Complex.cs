@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using Complex = System.Numerics.Complex;
 
 
@@ -88,7 +86,7 @@ namespace PowerFlowCore.Algebra
             _ = row ?? throw new ArgumentNullException(nameof(row));
             _ = target ?? throw new ArgumentNullException(nameof(target));
 
-            var colDim =  target.GetLength(1);
+            var colDim = target.GetLength(1);
             if (colDim != row.Length) throw new ArgumentException("Matrix column dimention and vector length are not equal", nameof(row));
 
             var res = Create(target.GetLength(0) + 1, colDim);
@@ -216,7 +214,7 @@ namespace PowerFlowCore.Algebra
         public static Complex[] GetRow(this Complex[,] mat, int index)
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
-            if(index < 0 || index >= mat.GetLength(0))
+            if (index < 0 || index >= mat.GetLength(0))
                 throw new ArgumentOutOfRangeException(nameof(index));
 
             var row = new Complex[mat.ColumnsCount()];
@@ -268,7 +266,7 @@ namespace PowerFlowCore.Algebra
             var rows = endRow - startRow;
             var cols = endCol - startCol;
 
-            var res = Create(rows + 1 , cols + 1);
+            var res = Create(rows + 1, cols + 1);
             Parallel.For(0, rows, i =>
             {
                 for (int j = 0; j <= cols; j++)
@@ -361,7 +359,7 @@ namespace PowerFlowCore.Algebra
             _ = target ?? throw new ArgumentNullException(nameof(target));
             if (rowIndex < 0 || rowIndex >= target.GetLength(0))
                 throw new ArgumentOutOfRangeException(nameof(rowIndex));
-            if (target.GetLength(1) != row.Length) 
+            if (target.GetLength(1) != row.Length)
                 throw new ArgumentException("Matrix column dimention and vector length are not equal", nameof(row));
 
             for (int j = 0; j < row.Length; j++)
@@ -903,9 +901,17 @@ namespace PowerFlowCore.Algebra
         {
             _ = target ?? throw new ArgumentNullException(nameof(target));
 
+            //Parallel.For(0, target.GetLength(0), i =>
+            //{
+            //    target.SetRow(i, target.GetRow(i).Multiply(value));
+            //});
+
             Parallel.For(0, target.GetLength(0), i =>
             {
-                target.SetRow(i, target.GetRow(i).Multiply(value));
+                for (int j = 0; j < target.GetLength(1); j++)
+                {
+                    target[i, j] *= value;
+                }                
             });
 
             return target;
@@ -1157,7 +1163,7 @@ namespace PowerFlowCore.Algebra
         {
             _ = mat ?? throw new ArgumentNullException(nameof(mat));
 
-            Complex[,] res = MatrixComplex.Create(mat.RowsCount(), mat.ColumnsCount());
+            Complex[,] res = Create(mat.RowsCount(), mat.ColumnsCount());
 
             for (int i = 0; i < res.RowsCount(); i++)
                 for (int j = 0; j < res.ColumnsCount(); j++)
@@ -1185,7 +1191,7 @@ namespace PowerFlowCore.Algebra
             {
                 for (int j = 0; j < colsCount; j++)
                     mat[i, j] = Complex.One;
-            });                
+            });
             return mat;
         }
 
@@ -1205,7 +1211,7 @@ namespace PowerFlowCore.Algebra
             {
                 mat[i, i] = Complex.One;
             });
-                
+
             return mat;
         }
 

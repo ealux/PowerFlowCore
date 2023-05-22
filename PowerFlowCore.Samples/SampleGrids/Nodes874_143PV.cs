@@ -6,7 +6,7 @@ namespace PowerFlowCore.Samples
 {
     public static partial class SampleGrids
     {
-        public static Grid Nodes874_1431PV()
+        public static Grid Nodes874_143PV()
         {
             Logger.LogInfo(" =========================================== ");
             Logger.LogInfo("874 nodes: 143 - PV  730 - PQ  1 - Slack");

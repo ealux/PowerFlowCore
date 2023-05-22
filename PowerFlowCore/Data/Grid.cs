@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 using Complex = System.Numerics.Complex;
 
@@ -30,6 +29,11 @@ namespace PowerFlowCore.Data
         /// Admittance matrix
         /// </summary>
         public Complex[,] Y { get; private set; }
+
+        /// <summary>
+        /// Internal compressed Admittance matrix
+        /// </summary>
+        internal CSRMatrixComplex Ysp { get; private set; }
 
 
 
@@ -118,7 +122,8 @@ namespace PowerFlowCore.Data
         internal void InitParameters(IEnumerable<INode> nodes, 
                                      IEnumerable<IBranch> branches, 
                                      bool setInitialByNominal = true)
-        {
+        {           
+
             //Initial calc
             ReBuildNodesBranches(renodes: nodes, rebranches: branches);
 
@@ -126,7 +131,7 @@ namespace PowerFlowCore.Data
             //S and Uinit vectors filling; PQ, PV and Slack nodes count    
             this.Uinit    = VectorComplex.Create(this.Nodes.Count);
 
-            // Reset PV nodes to PQ modes
+            // Reset PV nodes to PQ modes if Vpre is not set
             foreach (var node in Nodes)
             {
                 if (node.Type == NodeType.PV)
@@ -136,11 +141,11 @@ namespace PowerFlowCore.Data
                     if (vpreN)
                     {
                         node.Type = NodeType.PQ;
-                        ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
-                        continue;
+                        //ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
                     }
                 }
             }
+
 
             //Count nodes and Set initial voltages
             for (int i = 0; i < this.Nodes.Count; i++)
@@ -180,7 +185,10 @@ namespace PowerFlowCore.Data
             int counter = 0;
 
             //Nodes sort and renumber
-            this.Nodes = renodes.OrderBy(_n => _n.Type).ThenBy(_n => _n.Unom.Magnitude).ToList();
+            this.Nodes = renodes.OrderBy(_n => _n.Type)
+                                .ThenByDescending(_n => rebranches.Where(b => b.Start == _n.Num || b.End == _n.Num).Count())
+                                .ThenBy(_n => _n.Unom.Magnitude)
+                                .ToList();
             this.Nodes.ForEach(_n => _n.Num_calc = counter++);
 
             // Branches to list
@@ -198,26 +206,29 @@ namespace PowerFlowCore.Data
                     var br = this.Branches[i];
                     var other = this.Branches[j];
 
-                    if (i != j) if ((br.Start == other.Start & br.End == other.End) | (br.Start == other.End & br.End == other.Start)) br.Count++;
+                    if (i != j) 
+                        if ((br.Start == other.Start & br.End == other.End) |
+                            (br.Start == other.End & br.End == other.Start))
+                            br.Count++;
                 }
             }
 
             // Create internal numbers for calculation
             this.Nodes.ForEach(_n =>
+            {
+                this.Branches.ForEach(b =>
                 {
-                    this.Branches.ForEach(b =>
-                      {
-                          b.Count = 1;
-                          if (b.Start == _n.Num)
-                          {
-                              b.Start_calc = _n.Num_calc;
-                          }
-                          else if (b.End == _n.Num)
-                          {
-                              b.End_calc = _n.Num_calc;
-                          }
-                      });
-                });            
+                    b.Count = 1;
+                    if (b.Start == _n.Num)
+                    {
+                        b.Start_calc = _n.Num_calc;
+                    }
+                    else if (b.End == _n.Num)
+                    {
+                        b.End_calc = _n.Num_calc;
+                    }
+                });
+            });
 
             #endregion [Nodes and Branhces transformation]
 
@@ -226,9 +237,9 @@ namespace PowerFlowCore.Data
 
             //Calculation of admittance matrix
             this.Y = Calc_Y(this.Nodes, this.Branches);
+            this.Ysp = new CSRMatrixComplex(this.Y);
 
             #endregion [Y calculation]
-
 
             PQ_Count = PV_Count = Slack_Count = 0;
         }
