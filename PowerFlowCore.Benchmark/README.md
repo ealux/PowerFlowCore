@@ -112,11 +112,11 @@ Set of all presented sample grids can be calculated in parallel:
 
 Different ways to calculate **1000** large models items ([Nodes300_27PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes300_27PV.cs)) is presented here. Make choices according to your hardware or this benchmark. 
 
-|                       Method |    Mean |   Error |  StdDev |          Gen0 |        Gen1 |       Gen2 | Allocated |
-|----------------------------- |--------:|--------:|--------:|--------------:|------------:|-----------:|----------:|
-|          CalculateSequential | 67.07 s | 0.201 s | 0.188 s | 11809000		 | 404000	   | 10000		|  61.17 GB |
-|  CalculateParallel_100_items | 33.89 s | 0.252 s | 0.235 s | 10976000		 | 656000	   | 10000		|  61.12 GB |
-| CalculateParallel_1000_items | 33.90 s | 0.261 s | 0.244 s | 10890000		 | 687000	   |  9000		|  61.12 GB |
+|                       Method |    N |    Mean |   Error |  StdDev |          Gen0 |        Gen1 |       Gen2 | Allocated |
+|----------------------------- |:----:|--------:|--------:|--------:|--------------:|------------:|-----------:|----------:|
+|          CalculateSequential | 1000 | 67.07 s | 0.201 s | 0.188 s | 11809000	    | 404000	  | 10000	   |  61.17 GB |
+|  CalculateParallel_100_items |   10 | 33.89 s | 0.252 s | 0.235 s | 10976000	    | 656000	  | 10000	   |  61.12 GB |
+| CalculateParallel_1000_items |    1 | 33.90 s | 0.261 s | 0.244 s | 10890000      | 687000	  |  9000	   |  61.12 GB |
 
 ## Multiple solvers :dizzy:
 
