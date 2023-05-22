@@ -97,5 +97,12 @@ namespace PowerFlowCore.Benchmark
             for (int i = 0; i < N; i++)
                 SampleGrids.Nodes398_35PV_ZIP();
         }
+
+        [Benchmark]
+        public void Nodes874_143PV()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes874_143PV();
+        }
     }
 }
