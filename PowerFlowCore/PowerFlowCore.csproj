@@ -8,9 +8,9 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.12.1</Version>
+		<Version>0.13.0</Version>
 		<PackageReleaseNotes>
-			
+			Sparse algebra. Performance improvement.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
