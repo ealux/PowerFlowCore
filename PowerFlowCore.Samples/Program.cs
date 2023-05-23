@@ -30,7 +30,35 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
-            #region Individual calcs
+            #region Individual calcs     
+
+
+
+
+            //var lst = new List<SparceVector>();
+
+            //lst.Add(new SparceVector(new double[6] { 1, 0, 0, 0, 1, 0 }));
+            //lst.Add(new SparceVector(new double[6] { 0, 1, 1, 0, 0, 0 }));
+            //lst.Add(new SparceVector(new double[6] { 0, 0, 1, 0, 0, 0 }));
+            //lst.Add(new SparceVector(new double[6] { 0, 2, 0, 1, 0, 0 }));
+            //lst.Add(new SparceVector(new double[6] { 0, 0, 0, 0, 0, 0 }));
+            //lst.Add(new SparceVector(new double[6] { 0, 3, 0, 4, 0, 1 }));
+
+            //var csr = CSRMatrix.CreateFromRows(lst);
+
+            //for (int i = 0; i < csr.Rows; i++)
+            //{
+            //    var row = csr.GetRow(i);
+            //    Console.WriteLine(String.Join(" ", row));
+            //}
+
+            //var vc = lst[0].Concat(lst[0]);
+
+            //Console.WriteLine();
+            //Console.WriteLine("Length: " + vc.Length);
+            //Console.WriteLine("Indexes: " + String.Join(" ", vc.Indexes));
+            //Console.WriteLine("Values: " + String.Join(" ", vc.Values));
+
 
             timer.Restart();
             CalculateAndShow(SampleGrids.Test_Ktr());
@@ -87,9 +115,12 @@ namespace PowerFlowCore.Samples
             CalculateAndShow(SampleGrids.Nodes874_143PV());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV
 
-            //timer.Restart();
-            //CalculateAndShow(SampleGrids.Nodes1350_250PV());
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    timer.Restart();
+            //    CalculateAndShow(SampleGrids.Nodes1350_250PV());
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            //}
 
             #endregion
 

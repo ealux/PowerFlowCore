@@ -10,7 +10,7 @@
 
 ## What's new:
 
-* **0.13.0** - Sparse algebra. Performance improvement.
+* **0.13.1** - Sparse algebra. Performance improvement.
 * 0.12.1 - Samples. Stabilizing. Cleanup.
 
 ## Features:

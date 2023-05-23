@@ -94,6 +94,58 @@ namespace PowerFlowCore.Algebra
             return res;
         }
 
+        public static CSRMatrix CreateFromRows(SparseVector[] rows)
+        {
+            if (rows.Any(r => r.Length != rows[0].Length))
+                throw new ArgumentException("Rows have different length vectors!");
+
+            var res = new CSRMatrix(rows.Length, rows[0].Length, 0);
+
+            var tmpColInds = new List<int>();
+            var tmpVals = new List<double>();
+            var tmpRowPtr = new int[res.Rows + 1];
+
+            for (int i = 0; i < res.Rows; i++)
+            {
+                tmpColInds.AddRange(rows[i].Indexes);
+                tmpVals.AddRange(rows[i].Values);
+                res.NNZ += rows[i].Indexes.Length;
+                tmpRowPtr[i + 1] = res.NNZ;
+            }
+
+            res.ColIndex = tmpColInds.ToArray();
+            res.Values = tmpVals.ToArray();
+            res.RowPtr = tmpRowPtr;
+
+            return res;
+        }
+
+        public static CSRMatrix CreateFromRows(IList<SparseVector> rows)
+        {
+            if (rows.Any(r => r.Length != rows[0].Length))
+                throw new ArgumentException("Rows have different length vectors!");
+
+            var res = new CSRMatrix(rows.Count, rows[0].Length, 0);
+
+            var tmpColInds = new List<int>();
+            var tmpVals = new List<double>();
+            var tmpRowPtr = new int[res.Rows + 1];
+
+            for (int i = 0; i < res.Rows; i++)
+            {
+                tmpColInds.AddRange(rows[i].Indexes);
+                tmpVals.AddRange(rows[i].Values);
+                res.NNZ += rows[i].Indexes.Length;
+                tmpRowPtr[i + 1] = res.NNZ;
+            }
+
+            res.ColIndex = tmpColInds.ToArray();
+            res.Values = tmpVals.ToArray();
+            res.RowPtr = tmpRowPtr;
+
+            return res;
+        }
+
         #endregion Create
 
         #region Transform
@@ -116,7 +168,6 @@ namespace PowerFlowCore.Algebra
 
             return res;
         }
-
 
         public double[,] ToDiagonal()
         {
@@ -182,6 +233,18 @@ namespace PowerFlowCore.Algebra
                 res.RowPtr[col] = last;
                 last = temp;
             }
+
+            return res;
+        }
+
+        public CSCMatrix ToCSC()
+        {
+            var res = new CSCMatrix(Cols, Rows, NNZ);
+
+            var T = this.Transpose();
+            res.ColPtr = T.RowPtr; 
+            res.Values = T.Values;
+            res.RowIndex = T.ColIndex;
 
             return res;
         }

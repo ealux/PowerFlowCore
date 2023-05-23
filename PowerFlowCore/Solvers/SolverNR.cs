@@ -115,7 +115,7 @@ namespace PowerFlowCore.Solvers
             var Uold = VectorComplex.Create(U_initial);
 
             double[] dPQ; // Residuals
-            double[,] J;   // Jacobian matrix
+            CSCMatrix J;   // Jacobian matrix
 
             // Iter number
             int iter = current_iter;
@@ -132,12 +132,8 @@ namespace PowerFlowCore.Solvers
 
                 (J, dPQ) = Sparse_J_and_dPQ_Polar(grid, U);
 
-                // Make csc J variant
-                var J_csc = new CSCMatrix(J);
-
                 // Calculation of increments
-                //double[] dx = J.Solve(dPQ.Negative());
-                double[] dx = CSCMatrixSolver.Solve(J_csc, dPQ.Negative());
+                double[] dx = CSCMatrixSolver.Solve(J, dPQ.Negative());
 
                 // Update angles
                 for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
@@ -342,6 +338,7 @@ namespace PowerFlowCore.Solvers
         }
 
 
+        #region Dense
 
         /// <summary>
         /// Jacobian matrix calculation (Parallel) on each iteration
@@ -455,120 +452,6 @@ namespace PowerFlowCore.Solvers
         }
 
         /// <summary>
-        /// Jacobian (sparse) matrix calculation (Parallel) on each iteration
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
-        /// <returns>Jacobian matrix</returns>
-        private static double[,] Sparse_Jacobian_Polar(Grid grid, Complex[] U)
-        {
-            var dim = grid.PQ_Count + grid.PV_Count;
-
-            var Um = U.Map(u => u.Magnitude);
-            var Uph = U.Map(u => u.Phase);
-
-            var P_Delta = MatrixDouble.Create(dim, dim);
-            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
-            var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
-
-            Parallel.For(0, dim, (i) =>
-            {
-                //P_Delta
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    var col = grid.Ysp.ColIndex[j];
-                    if (col != i && col < dim)
-                    {
-                        var c = grid.Ysp.ColIndex[j];
-                        P_Delta[i, col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
-                                            Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                    }
-                }
-                P_Delta[i, i] = -grid.Y[i, i].Magnitude *
-                                        Math.Pow(Um[i], 2) *
-                                        Math.Sin(grid.Y[i, i].Phase);
-
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    P_Delta[i, i] += Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                                     Math.Sin(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
-                }
-                //P_V
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    var col = grid.Ysp.ColIndex[j];
-                    if (col != i && col < grid.PQ_Count)
-                    {
-                        P_V[i, col] = Um[i] * grid.Ysp.Values[j].Magnitude *
-                                    Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                    }
-                }
-
-                if(i < P_V.GetLength(1))
-                {
-                    P_V[i, i] = Um[i] * grid.Y[i, i].Magnitude *
-                                    Math.Cos(grid.Y[i, i].Phase);
-
-                    for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                    {
-                        var col = grid.Ysp.ColIndex[j];
-                        P_V[i, i] += Um[col] * grid.Ysp.Values[j].Magnitude *
-                                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                    }
-                }
-            });
-
-            Parallel.For(0, grid.PQ_Count, (i) => 
-            {
-                //Q_Delta
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    var col = grid.Ysp.ColIndex[j];
-                    if (col != i && col < dim)
-                    {
-                        var c = grid.Ysp.ColIndex[j];
-                        Q_Delta[i, col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
-                                        Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                    }
-                }
-                Q_Delta[i, i] = -grid.Y[i, i].Magnitude *
-                                Math.Pow(Um[i], 2) *
-                                Math.Cos(grid.Y[i, i].Phase);
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    Q_Delta[i, i] += Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
-                }
-                //Q_V
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    var col = grid.Ysp.ColIndex[j];
-                    if (col != i && col < grid.PQ_Count)
-                    {
-                        var c = grid.Ysp.ColIndex[j];
-                        Q_V[i, col] = -Um[i] * grid.Ysp.Values[j].Magnitude *
-                                    Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                    }
-                }
-                Q_V[i, i] = -Um[i] * grid.Y[i, i].Magnitude *
-                            Math.Sin(grid.Y[i, i].Phase);
-
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    var col = grid.Ysp.ColIndex[j];
-                    Q_V[i, i] -= Um[col] * grid.Ysp.Values[j].Magnitude *
-                                 Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-                }
-            });
-
-            // Form result matrix
-            var res = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
-
-            return res;
-        }
-
-        /// <summary>
         /// Power residuals vector
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
@@ -611,71 +494,36 @@ namespace PowerFlowCore.Solvers
             return res;
         }
 
-        /// <summary>
-        /// Power residuals vector
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        /// <param name="U">Present voltage value</param>
-        /// <returns> Power residuals vector</returns>
-        private static double[] Sparse_Resuduals_Polar(Grid grid, Complex[] U)
+        #endregion
+
+        #region Sparse
+
+        private static (CSCMatrix, double[]) Sparse_J_and_dPQ_Polar(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
             var Um = U.Map(u => u.Magnitude);
             var Uph = U.Map(u => u.Phase);
 
-            var dP = VectorDouble.Create(dim);
-            var dQ = VectorDouble.Create(grid.PQ_Count);
-
-            //dP
-            Parallel.For(0, dim, i =>
-            {
-                dP[i] = grid.S[i].Real;
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    dP[i] -= Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
-                }
-            });
-
-            //dQ
-            Parallel.For(0, grid.PQ_Count, i =>
-            {
-                dQ[i] = grid.S[i].Imaginary;
-                for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
-                {
-                    dQ[i] -= -Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                              Math.Sin(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
-                }
-            });
-
-            return VectorDouble.Create(dP.Concat(dQ));
-        }
-
-        private static (double[,], double[]) Sparse_J_and_dPQ_Polar(Grid grid, Complex[] U)
-        {
-            var dim = grid.PQ_Count + grid.PV_Count;
-
-            var Um = U.Map(u => u.Magnitude);
-            var Uph = U.Map(u => u.Phase);
-
-            var P_Delta = MatrixDouble.Create(dim, dim);
-            var P_V = MatrixDouble.Create(dim, grid.PQ_Count);
-            var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-            var Q_V = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
+            var rows = new SparseVector[dim + grid.PQ_Count];
 
             var dP = VectorDouble.Create(dim);
             var dQ = VectorDouble.Create(grid.PQ_Count);
 
+            // 0 -> dim
             Parallel.For(0, dim, (i) =>
             {
                 //dP
-                dP[i] = grid.S[i].Real;
+                dP[i] = grid.Ssp[i].Real;
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
-                    dP[i] -= Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
+                    var col = grid.Ysp.ColIndex[j];
+                    dP[i] -= Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                 }
+
+                var P_Delta = new double[dim];
+                var P_V = new double[grid.PQ_Count];
 
                 //P_Delta
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
@@ -684,53 +532,65 @@ namespace PowerFlowCore.Solvers
                     if (col != i && col < dim)
                     {
                         var c = grid.Ysp.ColIndex[j];
-                        P_Delta[i, col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                        P_Delta[col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
                                             Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     }
                 }
-                P_Delta[i, i] = -grid.Y[i, i].Magnitude *
+                P_Delta[i] = -grid.Y[i, i].Magnitude *
                                         Math.Pow(Um[i], 2) *
                                         Math.Sin(grid.Y[i, i].Phase);
 
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
-                    P_Delta[i, i] += Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                                     Math.Sin(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
+                    var col = grid.Ysp.ColIndex[j];
+                    P_Delta[i] += Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                                     Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                 }
+
                 //P_V
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
                     var col = grid.Ysp.ColIndex[j];
                     if (col != i && col < grid.PQ_Count)
                     {
-                        P_V[i, col] = Um[i] * grid.Ysp.Values[j].Magnitude *
+                        P_V[col] = Um[i] * grid.Ysp.Values[j].Magnitude *
                                     Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     }
                 }
 
-                if (i < P_V.GetLength(1))
+                if (i < grid.PQ_Count)
                 {
-                    P_V[i, i] = Um[i] * grid.Y[i, i].Magnitude *
+                    P_V[i] = Um[i] * grid.Y[i, i].Magnitude *
                                     Math.Cos(grid.Y[i, i].Phase);
 
                     for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                     {
                         var col = grid.Ysp.ColIndex[j];
-                        P_V[i, i] += Um[col] * grid.Ysp.Values[j].Magnitude *
+                        P_V[i] += Um[col] * grid.Ysp.Values[j].Magnitude *
                                              Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     }
                 }
+
+                var v1 = new SparseVector(P_Delta);
+                var v2 = new SparseVector(P_V);
+
+                rows[i] = v1.Concat(v2);
             });
 
+            // 0 -> grid.PQ_Count
             Parallel.For(0, grid.PQ_Count, (i) =>
             {
                 //dQ
-                dQ[i] = grid.S[i].Imaginary;
+                dQ[i] = grid.Ssp[i].Imaginary;
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
-                    dQ[i] -= -Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                              Math.Sin(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
+                    var col = grid.Ysp.ColIndex[j];
+                    dQ[i] -= -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                              Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                 }
+
+                var Q_Delta = new double[dim];
+                var Q_V = new double[grid.PQ_Count];
 
                 //Q_Delta
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
@@ -739,17 +599,18 @@ namespace PowerFlowCore.Solvers
                     if (col != i && col < dim)
                     {
                         var c = grid.Ysp.ColIndex[j];
-                        Q_Delta[i, col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                        Q_Delta[col] = -Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
                                         Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     }
                 }
-                Q_Delta[i, i] = -grid.Y[i, i].Magnitude *
+                Q_Delta[i] = -grid.Y[i, i].Magnitude *
                                 Math.Pow(Um[i], 2) *
                                 Math.Cos(grid.Y[i, i].Phase);
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
-                    Q_Delta[i, i] += Um[i] * Um[grid.Ysp.ColIndex[j]] * grid.Ysp.Values[j].Magnitude *
-                                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[grid.Ysp.ColIndex[j]] - Uph[i]);
+                    var col = grid.Ysp.ColIndex[j];
+                    Q_Delta[i] += Um[i] * Um[col] * grid.Ysp.Values[j].Magnitude *
+                                             Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                 }
                 //Q_V
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
@@ -758,27 +619,34 @@ namespace PowerFlowCore.Solvers
                     if (col != i && col < grid.PQ_Count)
                     {
                         var c = grid.Ysp.ColIndex[j];
-                        Q_V[i, col] = -Um[i] * grid.Ysp.Values[j].Magnitude *
+                        Q_V[col] = -Um[i] * grid.Ysp.Values[j].Magnitude *
                                     Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     }
                 }
-                Q_V[i, i] = -Um[i] * grid.Y[i, i].Magnitude *
+                Q_V[i] = -Um[i] * grid.Y[i, i].Magnitude *
                             Math.Sin(grid.Y[i, i].Phase);
 
                 for (int j = grid.Ysp.RowPtr[i]; j < grid.Ysp.RowPtr[i + 1]; j++)
                 {
                     var col = grid.Ysp.ColIndex[j];
-                    Q_V[i, i] -= Um[col] * grid.Ysp.Values[j].Magnitude *
+                    Q_V[i] -= Um[col] * grid.Ysp.Values[j].Magnitude *
                                  Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                 }
+
+                var v1 = new SparseVector(Q_Delta);
+                var v2 = new SparseVector(Q_V);
+
+                rows[dim + i] = v1.Concat(v2);
             });
 
-            // Form result matrix
-            var resJ = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
+            var resJ = CSRMatrix.CreateFromRows(rows).ToCSC();
             var resdPQ = VectorDouble.Create(dP.Concat(dQ));
 
             return (resJ, resdPQ);
         }
+
+        #endregion
+
 
         /// <summary>
         /// Find maximum residuals of P and Q with corresponded nodes

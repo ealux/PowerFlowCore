@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace PowerFlowCore.Data
 {
@@ -18,17 +19,15 @@ namespace PowerFlowCore.Data
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double[] GetAngleAbsoluteDifference(this Grid grid, uint precision = 2)
         {
-            List<double> res = new List<double>();
+            double[] res = new double[grid.Branches.Count];
 
-            foreach (var branch in grid.Branches)
+            Parallel.ForEach(grid.Branches, (branch, _, i) =>
             {
                 var start_ph = grid.Nodes.Where(n => n.Num == branch.Start).First().U.Phase * 180 / Math.PI;
-                var end_ph   = grid.Nodes.Where(n => n.Num == branch.End).First().U.Phase * 180 / Math.PI;
+                var end_ph = grid.Nodes.Where(n => n.Num == branch.End).First().U.Phase * 180 / Math.PI;
 
-                var diff = Math.Abs(Math.Round(start_ph - end_ph, (int)precision));                
-
-                res.Add(diff);
-            }            
+                res[(int)i] = Math.Abs(Math.Round(start_ph - end_ph, (int)precision));
+            });        
 
             return VectorDouble.Create(res);
         }

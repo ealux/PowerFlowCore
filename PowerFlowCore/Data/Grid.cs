@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Data
@@ -58,6 +58,12 @@ namespace PowerFlowCore.Data
         /// Vector of Powers in Nodes (Generation - Load)
         /// </summary>
         public Complex[] S => VectorComplex.Create(this.Nodes.Count, (i) => this.Nodes[i].S_gen - this.Nodes[i].S_calc);
+
+        /// <summary>
+        /// Internal sparse Vector of Powers in Nodes (Generation - Load)
+        /// </summary>
+        internal SparseVectorComplex Ssp { get; private set; }
+
 
 
         /// <summary>
@@ -237,7 +243,8 @@ namespace PowerFlowCore.Data
 
             //Calculation of admittance matrix
             this.Y = Calc_Y(this.Nodes, this.Branches);
-            this.Ysp = new CSRMatrixComplex(this.Y);
+            this.Ysp = new CSRMatrixComplex(this.Y);    // Sparse Y
+            this.Ssp = new SparseVectorComplex(this.S); // Sparse S
 
             #endregion [Y calculation]
 
@@ -259,32 +266,32 @@ namespace PowerFlowCore.Data
             for (int i = 0; i < branches.Count; i++)
             {
                 var start = branches[i].Start_calc;
-                var end   = branches[i].End_calc;
-                var y     = branches[i].Y;
-                var ysh   = branches[i].Ysh;
-                var kt    = branches[i].Ktr.Magnitude <= 0 ? Complex.One : branches[i].Ktr;
+                var end = branches[i].End_calc;
+                var y = branches[i].Y;
+                var ysh = branches[i].Ysh;
+                var kt = branches[i].Ktr.Magnitude <= 0 ? Complex.One : branches[i].Ktr;
 
                 if (kt == 1) // Condition for non-Transformer branches
                 {
-                    Y[start, end]   +=  (y / kt);
-                    Y[end, start]   +=  (y / kt);
+                    Y[start, end] += (y / kt);
+                    Y[end, start] += (y / kt);
                     Y[start, start] += -(y + ysh / 2);
-                    Y[end, end]     += -(y + ysh / 2);
+                    Y[end, end] += -(y + ysh / 2);
                 }
                 else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude    // Condition for Transformer branches. At Start node Unom higher 
                         | nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) // Voltage-added Transformers
                 {
-                    Y[start, end]   +=  (y / kt);
-                    Y[end, start]   +=  (y / Complex.Conjugate(kt));
+                    Y[start, end] += (y / kt);
+                    Y[end, start] += (y / Complex.Conjugate(kt));
                     Y[start, start] += -(y + ysh);
-                    Y[end, end]     += -(y / (kt * Complex.Conjugate(kt)));
+                    Y[end, end] += -(y / (kt * Complex.Conjugate(kt)));
                 }
                 else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude)   // Condition for Transformer branches. At End node Unom higher
                 {
-                    Y[start, end]   +=  (y / Complex.Conjugate(kt));
-                    Y[end, start]   +=  (y / kt);
+                    Y[start, end] += (y / Complex.Conjugate(kt));
+                    Y[end, start] += (y / kt);
                     Y[start, start] += -(y / (kt * Complex.Conjugate(kt)));
-                    Y[end, end]     += -(y + ysh);
+                    Y[end, end] += -(y + ysh);
                 }
             }
 
