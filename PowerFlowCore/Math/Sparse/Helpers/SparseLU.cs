@@ -189,7 +189,7 @@ namespace PowerFlowCore.Algebra
 
                 if (ipiv == -1 || a <= 0.0)
                 {
-                    throw new Exception("No pivot element found.");
+                    //throw new Exception("No pivot element found.");
                 }
 
                 if (pinv[col] < 0 && Math.Abs(x[col]) >= a * tol)

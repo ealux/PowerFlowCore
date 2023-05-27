@@ -104,5 +104,19 @@ namespace PowerFlowCore.Benchmark
             for (int i = 0; i < N; i++)
                 SampleGrids.Nodes874_143PV();
         }
+
+        [Benchmark]
+        public void Nodes1350_250PV()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes1350_250PV();
+        }
+
+        [Benchmark]
+        public void Nodes2628_50PV()
+        {
+            for (int i = 0; i < N; i++)
+                SampleGrids.Nodes2628_50PV();
+        }
     }
 }

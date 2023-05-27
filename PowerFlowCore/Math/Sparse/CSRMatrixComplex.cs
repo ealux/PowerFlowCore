@@ -18,7 +18,22 @@ namespace PowerFlowCore.Algebra
         public int[] ColIndex;
         public int[] RowPtr;
 
-      
+        /// <summary>
+        /// Return i-th diagonal element
+        /// </summary>
+        public Complex this[int i]
+        {
+            get
+            {
+                int ind = Array.IndexOf(ColIndex, i, RowPtr[i], RowPtr[i + 1] - RowPtr[i]);
+                if (ind == -1)
+                    return 0.0;
+                else
+                    return Values[ind];
+            }
+        }
+
+
         #region Constructor
 
         private CSRMatrixComplex()
@@ -100,10 +115,10 @@ namespace PowerFlowCore.Algebra
         #region Transform
 
         /// <summary>
-        /// Create dence matrix from CSR structure
+        /// Create dense matrix from CSR structure
         /// </summary>
-        /// <returns>Dence variant of CSR matrix</returns>
-        public Complex[,] ToDence()
+        /// <returns>Dense variant of CSR matrix</returns>
+        public Complex[,] ToDense()
         {
             var res = new Complex[Rows, Cols];
 

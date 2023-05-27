@@ -38,11 +38,6 @@ namespace PowerFlowCore.Data
         Complex Ysh { get; set; }
 
         /// <summary>
-        /// Count of parralel branches
-        /// </summary>
-        int Count { get; set; }
-
-        /// <summary>
         /// Transformation ratio
         /// </summary>
         Complex Ktr { get; set; }

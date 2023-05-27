@@ -2,6 +2,7 @@
 using PowerFlowCore.Samples;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using PowerFlowCore.Solvers;
 
 namespace PowerFlowCore.Benchmark
 {
@@ -28,6 +29,8 @@ namespace PowerFlowCore.Benchmark
         private readonly Grid _Nodes398_35PV;
         private readonly Grid _Nodes398_35PV_ZIP;
         private readonly Grid _Nodes874_143PV;
+        private readonly Grid _Nodes1350_250PV;
+        private readonly Grid _Nodes2628_50PV;
 
         public CalculateGrid()
         {
@@ -44,6 +47,8 @@ namespace PowerFlowCore.Benchmark
             _Nodes398_35PV     = SampleGrids.Nodes398_35PV();
             _Nodes398_35PV_ZIP = SampleGrids.Nodes398_35PV_ZIP();
             _Nodes874_143PV    = SampleGrids.Nodes874_143PV();
+            _Nodes1350_250PV = SampleGrids.Nodes1350_250PV();
+            _Nodes2628_50PV = SampleGrids.Nodes2628_50PV();
         }
 
         [Benchmark]
@@ -135,6 +140,21 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 Engine.Calculate(_Nodes874_143PV);
+        }
+
+        [Benchmark]
+        public void Nodes1350_250PV()
+        {
+            for (int i = 0; i < N; i++)
+                Engine.Calculate(_Nodes1350_250PV);
+        }
+
+        [Benchmark]
+        public void Nodes2628_50PV__GS_and_NR()
+        {
+            for (int i = 0; i < N; i++)
+                Engine.Calculate(_Nodes2628_50PV.ApplySolver(SolverType.GaussSeidel, new CalculationOptions { IterationsCount = 4 })
+                                                .ApplySolver(SolverType.NewtonRaphson));
         }
     }
 }

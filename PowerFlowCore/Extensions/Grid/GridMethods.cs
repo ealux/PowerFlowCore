@@ -1,4 +1,5 @@
 ﻿using PowerFlowCore.Algebra;
+using System;
 using System.Collections.Generic;
 using Complex = System.Numerics.Complex;
 
@@ -87,7 +88,6 @@ namespace PowerFlowCore.Data
             {
                 branches.Add((IBranch)(new Branch()
                 {
-                    Count = branch.Count,
                     Start = branch.Start,
                     End = branch.End,
                     Start_calc = branch.Start_calc,
@@ -163,7 +163,6 @@ namespace PowerFlowCore.Data
             {
                 branches.Add((IBranch)(new Branch()
                 {
-                    Count = branch.Count,
                     Start = branch.Start,
                     End = branch.End,
                     Start_calc = branch.Start_calc,

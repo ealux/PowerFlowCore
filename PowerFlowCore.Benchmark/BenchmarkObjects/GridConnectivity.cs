@@ -27,22 +27,26 @@ namespace PowerFlowCore.Benchmark
         private readonly Grid _Nodes398_35PV;
         private readonly Grid _Nodes398_35PV_ZIP;
         private readonly Grid _Nodes874_143PV;
+        private readonly Grid _Nodes1350_250PV;
+        private readonly Grid _Nodes2628_50PV;
 
         public GridConnectivity()
         {
-            _Test_Ktr        = SampleGrids.Test_Ktr();
-            _Nodes4_1PV      = SampleGrids.Nodes4_1PV();
-            _Nodes4_1PV_ZIP  = SampleGrids.Nodes4_1PV_ZIP();
-            _Nodes5_2Slack   = SampleGrids.Nodes5_2Slack();
-            _IEEE_14         = SampleGrids.IEEE_14();
-            _Nodes15_3PV     = SampleGrids.Nodes15_3PV();
-            _IEEE_57         = SampleGrids.IEEE_57();
-            _IEEE_118        = SampleGrids.IEEE_118();
-            _Nodes197_36PV   = SampleGrids.Nodes197_36PV();
-            _Nodes300_27PV   = SampleGrids.Nodes300_27PV();
-            _Nodes398_35PV   = SampleGrids.Nodes398_35PV();
+            _Test_Ktr          = SampleGrids.Test_Ktr();
+            _Nodes4_1PV        = SampleGrids.Nodes4_1PV();
+            _Nodes4_1PV_ZIP    = SampleGrids.Nodes4_1PV_ZIP();
+            _Nodes5_2Slack     = SampleGrids.Nodes5_2Slack();
+            _IEEE_14           = SampleGrids.IEEE_14();
+            _Nodes15_3PV       = SampleGrids.Nodes15_3PV();
+            _IEEE_57           = SampleGrids.IEEE_57();
+            _IEEE_118          = SampleGrids.IEEE_118();
+            _Nodes197_36PV     = SampleGrids.Nodes197_36PV();
+            _Nodes300_27PV     = SampleGrids.Nodes300_27PV();
+            _Nodes398_35PV     = SampleGrids.Nodes398_35PV();
             _Nodes398_35PV_ZIP = SampleGrids.Nodes398_35PV_ZIP();
-            _Nodes874_143PV  = SampleGrids.Nodes874_143PV();
+            _Nodes874_143PV    = SampleGrids.Nodes874_143PV();
+            _Nodes1350_250PV   = SampleGrids.Nodes1350_250PV();
+            _Nodes2628_50PV    = SampleGrids.Nodes2628_50PV();
         }
 
         [Benchmark]
@@ -134,6 +138,20 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 _Nodes874_143PV.IsConnected();
+        }
+
+        [Benchmark]
+        public void Nodes1350_250PV()
+        {
+            for (int i = 0; i < N; i++)
+                _Nodes1350_250PV.IsConnected();
+        }
+
+        [Benchmark]
+        public void Nodes2628_50PV()
+        {
+            for (int i = 0; i < N; i++)
+                _Nodes2628_50PV.IsConnected();
         }
     }
 }

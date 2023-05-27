@@ -19,6 +19,22 @@ namespace PowerFlowCore.Algebra
         public int[] RowIndex;
         public int[] ColPtr;
 
+        /// <summary>
+        /// Return i-th diagonal element
+        /// </summary>
+        public double this[int i]
+        {
+            get
+            {
+                int ind = Array.IndexOf(RowIndex, i, ColPtr[i], ColPtr[i + 1] - ColPtr[i]);
+                if (ind == -1)
+                    return 0.0;
+                else
+                    return Values[ind];
+            }
+        }
+
+
 
         #region Constructor
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 
 namespace PowerFlowCore.Algebra
 {
@@ -41,6 +42,16 @@ namespace PowerFlowCore.Algebra
         {
             Indexes = new int[count];
             Values = new double[count];
+            Length = length;
+        }
+
+        public SparseVector(Dictionary<int, double> dict, int length)
+        {
+            if (length < 0)
+                throw new ArgumentException("Input length < 0", nameof(length));
+
+            Indexes = dict.Keys.ToArray();
+            Values = dict.Values.ToArray();
             Length = length;
         }
 

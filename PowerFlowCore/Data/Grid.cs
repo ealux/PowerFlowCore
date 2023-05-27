@@ -28,7 +28,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Admittance matrix
         /// </summary>
-        public Complex[,] Y { get; private set; }
+        public Complex[,] Y { get => Ysp.ToDense(); }
 
         /// <summary>
         /// Internal compressed Admittance matrix
@@ -107,6 +107,8 @@ namespace PowerFlowCore.Data
         public Grid(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {
             this.Id = Guid.NewGuid().ToString();    // Set id
+            if (!ExtensionMethods.ValidateInput(nodes, branches))
+                return;
             InitParameters(nodes, branches);        // Create grid
         }
 
@@ -142,13 +144,10 @@ namespace PowerFlowCore.Data
             {
                 if (node.Type == NodeType.PV)
                 {
-                    var vpreN = node.Vpre == 0.0;
+                    var vpreN = node.Vpre <= 0.0;
 
                     if (vpreN)
-                    {
                         node.Type = NodeType.PQ;
-                        //ReBuildNodesBranches(renodes: nodes, rebranches: branches); //Rebuilding Nodes
-                    }
                 }
             }
 
@@ -192,7 +191,6 @@ namespace PowerFlowCore.Data
 
             //Nodes sort and renumber
             this.Nodes = renodes.OrderBy(_n => _n.Type)
-                                .ThenByDescending(_n => rebranches.Where(b => b.Start == _n.Num || b.End == _n.Num).Count())
                                 .ThenBy(_n => _n.Unom.Magnitude)
                                 .ToList();
             this.Nodes.ForEach(_n => _n.Num_calc = counter++);
@@ -204,36 +202,13 @@ namespace PowerFlowCore.Data
             foreach (var item in this.Branches.Where(b => b.Y == 0.0))
                 item.Y = 1 / new Complex(0, 0.001);
 
-            // Parallel branches amount
-            for (int i = 0; i < this.Branches.Count; i++)
-            {
-                for (int j = 0; j < this.Branches.Count; j++)
-                {
-                    var br = this.Branches[i];
-                    var other = this.Branches[j];
+            var numNodes = this.Nodes.Select(n=>n.Num).ToArray();
 
-                    if (i != j) 
-                        if ((br.Start == other.Start & br.End == other.End) |
-                            (br.Start == other.End & br.End == other.Start))
-                            br.Count++;
-                }
-            }
-
-            // Create internal numbers for calculation
-            this.Nodes.ForEach(_n =>
+            Parallel.For(0, this.Branches.Count, i =>
             {
-                this.Branches.ForEach(b =>
-                {
-                    b.Count = 1;
-                    if (b.Start == _n.Num)
-                    {
-                        b.Start_calc = _n.Num_calc;
-                    }
-                    else if (b.End == _n.Num)
-                    {
-                        b.End_calc = _n.Num_calc;
-                    }
-                });
+                var br = this.Branches[i];
+                br.Start_calc = this.Nodes[Array.IndexOf(numNodes, br.Start)].Num_calc;
+                br.End_calc = this.Nodes[Array.IndexOf(numNodes, br.End)].Num_calc;
             });
 
             #endregion [Nodes and Branhces transformation]
@@ -242,9 +217,8 @@ namespace PowerFlowCore.Data
             #region [Y calculation]
 
             //Calculation of admittance matrix
-            this.Y = Calc_Y(this.Nodes, this.Branches);
-            this.Ysp = new CSRMatrixComplex(this.Y);    // Sparse Y
-            this.Ssp = new SparseVectorComplex(this.S); // Sparse S
+            this.Ysp = new CSRMatrixComplex(Calc_Y(this.Nodes, this.Branches)); // Sparse Y
+            this.Ssp = new SparseVectorComplex(this.S);                         // Sparse S
 
             #endregion [Y calculation]
 
@@ -273,33 +247,33 @@ namespace PowerFlowCore.Data
 
                 if (kt == 1) // Condition for non-Transformer branches
                 {
-                    Y[start, end] += (y / kt);
-                    Y[end, start] += (y / kt);
-                    Y[start, start] += -(y + ysh / 2);
-                    Y[end, end] += -(y + ysh / 2);
+                    Y[start, end] -= (y / kt);
+                    Y[end, start] -= (y / kt);
+                    Y[start, start] -= -(y + ysh / 2);
+                    Y[end, end] -= -(y + ysh / 2);
                 }
                 else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude    // Condition for Transformer branches. At Start node Unom higher 
                         | nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) // Voltage-added Transformers
                 {
-                    Y[start, end] += (y / kt);
-                    Y[end, start] += (y / Complex.Conjugate(kt));
-                    Y[start, start] += -(y + ysh);
-                    Y[end, end] += -(y / (kt * Complex.Conjugate(kt)));
+                    Y[start, end] -= (y / kt);
+                    Y[end, start] -= (y / Complex.Conjugate(kt));
+                    Y[start, start] -= -(y + ysh);
+                    Y[end, end] -= -(y / (kt * Complex.Conjugate(kt)));
                 }
                 else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude)   // Condition for Transformer branches. At End node Unom higher
                 {
-                    Y[start, end] += (y / Complex.Conjugate(kt));
-                    Y[end, start] += (y / kt);
-                    Y[start, start] += -(y / (kt * Complex.Conjugate(kt)));
-                    Y[end, end] += -(y + ysh);
+                    Y[start, end] -= (y / Complex.Conjugate(kt));
+                    Y[end, start] -= (y / kt);
+                    Y[start, start] -= -(y / (kt * Complex.Conjugate(kt)));
+                    Y[end, end] -= -(y + ysh);
                 }
             }
 
             // Add shunt conductivities
             for (int i = 0; i < nodes.Count; i++) 
-                Y[i, i] += -nodes[i].Ysh;
+                Y[i, i] -= -nodes[i].Ysh;
 
-            return Y.PointwiseMultiply(-1);
+            return Y;
         }
 
 

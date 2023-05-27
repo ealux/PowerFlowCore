@@ -3,7 +3,7 @@
 Benchmark of [PowerFlowCore](https://github.com/ealux/PowerFlowCore) library performance is presented.
 Performance tests include grids creation and calculations with default solver ([Newton-Raphson](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Solvers/SolverNR.cs)).
 
-<u>Last update: **24.05.2023 - v.0.13.1** (previous results in [***_archive***](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark/_archive) folder)</u>
+<u>Last update: **28.05.2023 - v.0.13.2** (previous results in [***_archive***](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark/_archive) folder)</u>
 
 Grid samples list to be tested include (from [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project):
 
@@ -20,6 +20,8 @@ Grid samples list to be tested include (from [PowerFlowCore.Samples](https://git
 * [Nodes398_35PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes398_35PV.cs)
 * [Nodes398_35PV_ZIP](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes398_35PV_ZIP.cs)
 * [Nodes874_143PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes874_143PV.cs)
+* [Nodes1350_250PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes1350_250PV.cs)
+* [Nodes2628_50PV](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore.Samples/SampleGrids/Nodes2628_50PV.cs)
 
 In addition to the well-known **IEEE** grids, configuration is displayed in grid name. So, **Node300_27PV** means 300 nodes where 27 is PV typed (generators). **Test_Ktr** include 4 nodes.
 
@@ -40,30 +42,32 @@ Tables legend:
 ```ini
 BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2965/22H2/2022Update)
 AMD Ryzen 5 2600, 1 CPU, 12 logical and 6 physical cores
-.NET SDK=7.0.203
-  [Host]     : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  DefaultJob : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+.NET SDK=7.0.302
+  [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
 ```
 
 ## Create grid :hammer:
 
 Performance tests on grid creation:
 
-|            Method | N |         Mean |      Error |     StdDev |     Gen0 |     Gen1 |     Gen2 |  Allocated |
-|------------------ |-- |-------------:|-----------:|-----------:|---------:|---------:|---------:|-----------:|
-|          Test_Ktr | 1 |     11.20 us |   0.13  us |   0.15 us  |   2.2    |        - |        - |    9.05 KB |
-|        Nodes4_1PV | 1 |     10.85 us |   0.16  us |   0.16 us  |   2.1    |        - |        - |    8.92 KB |
-|    Nodes4_1PV_ZIP | 1 |     47.97 us |   0.82  us |   0.73 us  |   5.0    |        - |        - |   20.61 KB |
-|     Nodes5_2Slack | 1 |     12.26 us |   0.14  us |   0.17 us  |   2.4    |        - |        - |   10.01 KB |
-|           IEEE_14 | 1 |     43.23 us |   0.46  us |   0.32 us  |   5.6    |        - |        - |   22.97 KB |
-|       Nodes15_3PV | 1 |     52.80 us |   0.57  us |   0.55 us  |   5.9    |        - |        - |   24.44 KB |
-|           IEEE_57 | 1 |    431.55 us |   1.59  us |   1.42 us  |  27.3    |        - |        - |   113.5 KB |
-|          IEEE_118 | 1 |  2,057.94 us |   5.33  us |   4.75 us  |  66.4    |  66.4    |  66.4    |  343.89 KB |
-|     Nodes197_36PV | 1 |  4,483.22 us |  17.41  us |  14.53 us  | 164.0    | 164.0    | 164.0    |  813.90 KB |
-|     Nodes300_27PV | 1 |  9,704.85 us |  43.92  us |  38.99 us  | 328.1    | 281.2    | 250.0    | 1733.94 KB |
-|     Nodes398_35PV | 1 | 13,020.75 us |  39.08  us |  34.69 us  | 421.8    | 390.6    | 328.1    | 2858.77 KB |
-| Nodes398_35PV_ZIP | 1 | 14,525.26 us |  89.05  us |  83.31 us  | 421.8    | 375.0    | 328.1    | 2866.56 KB |
-|    Nodes874_143PV | 1 | 95,758.64 us | 482.20  us | 451.01 us  | 666.6    | 500.0    | 500.0    |12843.40 KB |
+|            Method |         Mean |        Error |       StdDev |      Gen0 |      Gen1 |     Gen2 |     Allocated |
+|------------------ |-------------:|-------------:|-------------:|----------:|----------:|---------:|--------------:|
+|          Test_Ktr |     13.30 us |      0.26 us |      0.33 us |       2.5 |         - |        - |      10.48 KB |
+|        Nodes4_1PV |     12.95 us |      0.15 us |      0.14 us |       2.5 |         - |        - |       10.4 KB |
+|    Nodes4_1PV_ZIP |     55.02 us |      1.08 us |      1.01 us |       5.3 |         - |        - |      21.97 KB |
+|     Nodes5_2Slack |     14.37 us |      0.20 us |      0.19 us |       2.7 |         - |        - |      11.38 KB |
+|           IEEE_14 |     27.02 us |      0.51 us |      0.51 us |       5.7 |         - |        - |      23.45 KB |
+|       Nodes15_3PV |     27.12 us |      0.22 us |      0.19 us |       5.7 |         - |        - |      23.76 KB |
+|           IEEE_57 |     94.01 us |      1.28 us |      1.20 us |      25.5 |       0.1 |        - |     103.66 KB |
+|          IEEE_118 |    312.44 us |      2.72 us |      2.41 us |      66.4 |      66.4 |     66.4 |     321.69 KB |
+|     Nodes197_36PV |    653.75 us |      6.48 us |      6.06 us |     166.0 |     166.0 |    166.0 |     775.97 KB |
+|     Nodes300_27PV |    981.07 us |     17.45 us |     16.33 us |     324.2 |     288.0 |    254.8 |     1671.2 KB |
+|     Nodes398_35PV |  1,487.82 us |     13.83 us |     12.94 us |     417.9 |     386.7 |    337.8 |   2,776.36 KB |
+| Nodes398_35PV_ZIP |  1,497.19 us |     10.91 us |     10.20 us |     416.0 |     386.7 |    333.9 |   2,784.22 KB |
+|    Nodes874_143PV |  7,011.74 us |    139.02 us |    185.59 us |     703.1 |     617.1 |    546.8 |  12,678.17 KB |
+|   Nodes1350_250PV | 13,488.99 us |    275.53 us |    812.42 us |    1156.2 |    1062.5 |    953.1 |  29,719.66 KB |
+|    Nodes2628_50PV | 59,396.67 us |  1,116.85 us |  1,044.70 us |     888.8 |     666.6 |    666.6 | 109,942.15 KB |
 
 
 
@@ -74,54 +78,29 @@ Grid calculations. Config:
 ```ini
 BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2965/22H2/2022Update)
 AMD Ryzen 5 2600, 1 CPU, 12 logical and 6 physical cores
-.NET SDK=7.0.203
-  [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-```
-
-
-|            Method | N |         Mean |       Error |      StdDev |    Allocated |
-|------------------ |-- |-------------:|------------:|------------:|-------------:|
-|          Test_Ktr | 1 |     422.4 us |     4.24 us |     3.76 us |    323.78 KB |
-|        Nodes4_1PV | 1 |     294.8 us |     2.22 us |     2.08 us |    226.49 KB |
-|    Nodes4_1PV_ZIP | 1 |     255.8 us |     5.05 us |     6.91 us |    183.07 KB |
-|     Nodes5_2Slack | 1 |     260.7 us |     2.51 us |     2.35 us |    203.02 KB |
-|           IEEE_14 | 1 |     776.9 us |     4.34 us |     3.84 us |    580.96 KB |
-|       Nodes15_3PV | 1 |   1,373.0 us |    20.74 us |    19.40 us |   1060.96 KB |
-|           IEEE_57 | 1 |   2,991.8 us |     9.61 us |     8.99 us |   2719.81 KB |
-|          IEEE_118 | 1 |  10,039.9 us |    79.00 us |    73.89 us |    7752.3 KB |
-|     Nodes197_36PV | 1 |  22,446.4 us |   115.54 us |   108.07 us |  19371.28 KB |
-|     Nodes300_27PV | 1 |  48,320.5 us |   507.83 us |   475.03 us |  41102.71 KB |
-|     Nodes398_35PV | 1 |  70,086.5 us | 1,082.97 us | 1,013.01 us |  63564.71 KB |
-| Nodes398_35PV_ZIP | 1 |  71,307.6 us |   914.26 us |   855.20 us |  63784.93 KB |
-|    Nodes874_143PV | 1 | 531,092.9 us | 7,779.70 us | 6,896.50 us | 324037.43 KB |
-
-Another config:
-
-```ini
-BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19044.2604/21H2/November2021Update)
-Intel Core i5-4460 CPU 3.20GHz (Haswell), 1 CPU, 4 logical and 4 physical cores
 .NET SDK=7.0.302
   [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
 ```
 
-|            Method | N |         Mean |       Error |      StdDev |    Allocated |
-|------------------ |-- |-------------:|------------:|------------:|-------------:|
-|          Test_Ktr | 1 |     353.7 us |     1.19 us |     1.11 us |    327.08 KB |
-|        Nodes4_1PV | 1 |     239.1 us |     0.85 us |     0.79 us |    228.96 KB |
-|    Nodes4_1PV_ZIP | 1 |     201.3 us |     0.40 us |     0.35 us |     185.1 KB |
-|     Nodes5_2Slack | 1 |     218.6 us |     1.29 us |     1.21 us |    206.06 KB |
-|           IEEE_14 | 1 |     559.5 us |     0.99 us |     0.92 us |    543.07 KB |
-|       Nodes15_3PV | 1 |     965.5 us |     2.14 us |     2.00 us |    991.76 KB |
-|           IEEE_57 | 1 |   2,946.5 us |    17.96 us |    15.92 us |   2672.64 KB |
-|          IEEE_118 | 1 |  11,340.0 us |   220.31 us |   454.98 us |   7697.22 KB |
-|     Nodes197_36PV | 1 |  24,540.6 us |   237.38 us |   222.04 us |   19329.5 KB |
-|     Nodes300_27PV | 1 |  52,011.6 us |   856.60 us |   801.26 us |  41068.42 KB |
-|     Nodes398_35PV | 1 |  74,109.1 us |   793.10 us |   703.06 us |  63532.19 KB |
-| Nodes398_35PV_ZIP | 1 |  74,193.2 us | 1,314.34 us | 1,290.85 us |  63744.98 KB |
-|    Nodes874_143PV | 1 | 515,306.8 us | 3,904.37 us | 3,652.15 us | 323954.91 KB |
 
+|                    Method |         Mean |       Error |       StdDev |     Allocated |
+|-------------------------- |-------------:|------------:|-------------:|--------------:|
+|                  Test_Ktr |     395.1 us |     7.81 us |     11.20 us |     310.17 KB |
+|                Nodes4_1PV |     267.3 us |     4.71 us |      5.79 us |     216.51 KB |
+|            Nodes4_1PV_ZIP |     234.1 us |     2.61 us |      2.31 us |     174.43 KB |
+|             Nodes5_2Slack |     234.0 us |     4.65 us |      4.57 us |     189.67 KB |
+|                   IEEE_14 |     681.8 us |     8.71 us |      8.14 us |     533.23 KB |
+|               Nodes15_3PV |   1,175.2 us |    16.42 us |     14.55 us |     953.04 KB |
+|                   IEEE_57 |   1,641.9 us |     8.73 us |      8.16 us |   1,797.09 KB |
+|                  IEEE_118 |   3,817.6 us |    75.01 us |     70.16 us |   3,791.17 KB |
+|             Nodes197_36PV |   8,173.5 us |   111.74 us |     99.06 us |   7,952.82 KB |
+|             Nodes300_27PV |  10,527.5 us |   204.79 us |    191.56 us |  14,949.68 KB |
+|             Nodes398_35PV |  19,770.2 us |   394.81 us |    899.18 us |  20,009.07 KB |
+|         Nodes398_35PV_ZIP |  20,372.0 us |   406.05 us |    916.53 us |  20,230.34 KB |
+|            Nodes874_143PV |  47,848.1 us |   709.68 us |    629.11 us |  69,848.31 KB |
+|           Nodes1350_250PV | 100,878.8 us | 1,218.64 us |  1,080.29 us | 148,715.54 KB |
+|    Nodes2628_50PV (GS+NR) | 347,721.3 us | 6,920.34 us | 10,774.13 us | 468,412.63 KB |
 
 ## Parallel calculations :fire:
 
@@ -134,29 +113,16 @@ Config:
 ```ini
 BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2965/22H2/2022Update)
 AMD Ryzen 5 2600, 1 CPU, 12 logical and 6 physical cores
-.NET SDK=7.0.203
-  [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-```
-
-
-|                           Method | N |     Mean |   Error |  StdDev |        Gen0 |      Gen1 |      Gen2 | Allocated |
-|--------------------------------- |-- |---------:|--------:|--------:|------------:|----------:|----------:|----------:|
-|                   AllSampleGrids | 1 | 593.1 ms | 9.57 ms | 8.96 ms |      131000 |      6000 |      1000 | 512.47 MB |
-
-Another config:
-
-```ini
-BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19044.2604/21H2/November2021Update)
-Intel Core i5-4460 CPU 3.20GHz (Haswell), 1 CPU, 4 logical and 4 physical cores
 .NET SDK=7.0.302
   [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
 ```
 
-|                           Method | N |     Mean |   Error |  StdDev |        Gen0 |      Gen1 |      Gen2 | Allocated |
-|--------------------------------- |-- |---------:|--------:|--------:|------------:|----------:|----------:|----------:|
-|                   AllSampleGrids | 1 | 620.8 ms | 8.63 ms | 8.07 ms |       164000|      5000 |      1000 | 512.00 MB |
+
+|         Method |     Mean |   Error |   StdDev |  Gen0 |  Gen1 | Gen2 |   Allocated |
+|--------------- |---------:|--------:|---------:|------:|------:|-----:|------------:|
+| AllSampleGrids | 505.4 ms | 9.94 ms | 19.16 ms | 57000 | 22000 | 7000 | 1,011.37 MB |
+
 
 ## Large models collection :zap:
 
@@ -167,73 +133,67 @@ Config:
 ```ini
 BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2965/22H2/2022Update)
 AMD Ryzen 5 2600, 1 CPU, 12 logical and 6 physical cores
-.NET SDK=7.0.203
-  [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-```
-
-
-|                       Method |    N |    Mean |   Error |  StdDev |          Gen0 |        Gen1 |      Gen2 | Allocated |
-|----------------------------- |:----:|--------:|--------:|--------:|--------------:|------------:|----------:|----------:|
-|          CalculateSequential | 1000 | 49.82 s | 0.274 s | 0.256 s |      10458000 |      587000 |      1000 |   39.2 GB |
-|  CalculateParallel_100_items |   10 | 26.45 s | 0.180 s | 0.159 s |       9677000 |      858000 |      7000 |  39.16 GB |
-| CalculateParallel_1000_items |    1 | 26.95 s | 0.238 s | 0.211 s |       9627000 |      878000 |      9000 |  39.16 GB |
-
-Another config:
-
-```ini
-BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19044.2604/21H2/November2021Update)
-Intel Core i5-4460 CPU 3.20GHz (Haswell), 1 CPU, 4 logical and 4 physical cores
 .NET SDK=7.0.302
   [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
 ```
 
-
-|                       Method |    N |    Mean |   Error |  StdDev |          Gen0 |        Gen1 |      Gen2 | Allocated |
-|----------------------------- |:----:|--------:|--------:|--------:|--------------:|------------:|----------:|----------:|
-|          CalculateSequential | 1000 | 54.38 s | 0.160 s | 0.150 s |      13147000 |      924000 |      3000 |  39.16 GB |
-|  CalculateParallel_100_items |   10 | 26.62 s | 0.198 s | 0.185 s |      11427000 |      774000 |      3000 |   39.1 GB |
-| CalculateParallel_1000_items |    1 | 26.67 s | 0.398 s | 0.372 s |      11430000 |      865000 |      3000 |  39.11 GB |
+|                       Method |    N |     Mean |    Error |   StdDev |    Gen0 |   Gen1 |  Gen2 | Allocated |
+|----------------------------: |:----:|---------:|---------:|---------:|--------:|-------:|------:|----------:|
+|          CalculateSequential | 1000 |  10.41 s |  0.047 s | 0.0421 s | 1883000 | 645000 | 44000 |  14.25 GB |
+|  CalculateParallel_100_items |   10 |   5.67 s |  0.036 s | 0.0308 s | 1856000 | 482000 | 36000 |  14.22 GB |
+| CalculateParallel_1000_items |    1 |   5.72 s |  0.079 s | 0.0745 s | 1837000 | 483000 | 37000 |  14.22 GB |
 
 ## Multiple solvers :dizzy:
 
 Apply multiple solvers to calculate grid can provide different results within different model configuration.
 Following tests describe:
 
-* `NewtonRaphsonOnly`: use only Newton-Raphson solver;
-* `GaussThenNewtonRaphson`: make 5 iteration with Gauss-Seidel solver at first then solve by Newton-Raphson.
-	 
+* `NR`: use only Newton-Raphson solver;
+* `GS+NR`: make 5 iteration with Gauss-Seidel solver at first then solve by Newton-Raphson.
 
-|                               Method | N |        Mean |       Error |      StdDev | Ratio |   Allocated |
-|------------------------------------- |-- |------------:|------------:|------------:|------:|------------:|
-|            NewtonRaphsonOnly_IEEE_14 | 1 |    802.4 us |     7.41 us |     6.19 us |  1.00 |   580.96 KB |
-|       GaussThenNewtonRaphson_IEEE_14 | 1 |  1,343.3 us |    26.24 us |    35.91 us |  1.70 |   917.06 KB |
-|           NewtonRaphsonOnly_IEEE_118 | 1 | 10,286.6 us |    44.07 us |    41.22 us | 12.81 |  7742.73 KB |
-|      GaussThenNewtonRaphson_IEEE_118 | 1 | 18,560.3 us |   350.71 us |   328.05 us | 23.10 | 10387.72 KB |
-|      NewtonRaphsonOnly_Nodes300_27PV | 1 | 49,285.3 us |   717.81 us |   636.32 us | 61.48 | 41118.64 KB |
-| GaussThenNewtonRaphson_Nodes300_27PV | 1 | 74,563.9 us | 1,354.96 us | 1,267.43 us | 92.82 | 55861.42 KB |
+State:
+
+*  **conv** - converged
+*  **div**  - diverged
+
+
+
+|                    Method | State |         Mean |       Error |      StdDev |  Ratio |     Allocated |
+|-------------------------: |:----: |-------------:|------------:|------------:|-------:|--------------:|
+|              IEEE_14 (NR) |  conv |     674.5 us |     6.42 us |     6.01 us |   1.00 |     531.89 KB |
+|           IEEE_14 (GS+NR) |  conv |   1,001.8 us |    10.93 us |    10.22 us |   1.49 |     686.55 KB |
+|             IEEE_118 (NR) |  conv |   3,688.6 us |    66.22 us |    86.10 us |   5.50 |   3,790.91 KB |
+|          IEEE_118 (GS+NR) |  conv |   4,064.1 us |    24.06 us |    21.33 us |   6.03 |   3,484.84 KB |
+|        Nodes300_27PV (NR) |  conv |  10,405.8 us |   182.98 us |   171.16 us |  15.43 |  14,948.45 KB |
+|     Nodes300_27PV (GS+NR) |  conv |  21,518.5 us |   307.22 us |   272.34 us |  31.94 |  27,922.02 KB |
+|      Nodes1350_250PV (NR) |  conv |  99,562.9 us | 1,654.09 us | 1,547.23 us | 147.62 | 148,709.15 KB |
+|   Nodes1350_250PV (GS+NR) |  conv | 103,599.7 us |   985.46 us |   822.91 us | 153.66 | 132,841.87 KB |
+|       Nodes2628_50PV (NR) |  div  | 464,365.4 us | 9,186.43 us | 9,433.79 us | 689.65 | 746,114.87 KB |
+|    Nodes2628_50PV (GS+NR) |  conv | 366,879.3 us | 7,193.64 us | 6,728.94 us | 543.97 | 468,967.52 KB |
 
 
 ## Connectivity :o:
 
 Checks for graph connectivity:
 
-|            Method | N |           Mean |         Error |        StdDev |   Gen0 | Allocated |
-|------------------ |-- |---------------:|--------------:|--------------:|-------:|----------:|
-|          Test_Ktr | 1 |       1.64  us |     0.012  us |     0.011  us | 0.39   |   1.61 KB |
-|        Nodes4_1PV | 1 |       1.29  us |     0.006  us |     0.005  us | 0.35   |   1.46 KB |
-|    Nodes4_1PV_ZIP | 1 |       1.33  us |     0.009  us |     0.008  us | 0.35   |   1.46 KB |
-|     Nodes5_2Slack | 1 |       2.19  us |     0.012  us |     0.011  us | 0.44   |   1.83 KB |
-|           IEEE_14 | 1 |      12.08  us |     0.078  us |     0.073  us | 0.83   |   3.44 KB |
-|       Nodes15_3PV | 1 |      11.49  us |     0.046  us |     0.040  us | 0.83   |   3.48 KB |
-|           IEEE_57 | 1 |     189.28  us |     0.398  us |     0.373  us | 2.68   |  11.26 KB |
-|          IEEE_118 | 1 |   1,056.89  us |     2.723  us |     2.547  us | 3.90   |  21.88 KB |
-|     Nodes197_36PV | 1 |   3,384.69  us |    12.156  us |    10.776  us | 7.81   |  34.36 KB |
-|     Nodes300_27PV | 1 |   9,148.43  us |    11.015  us |    10.303  us |      - |  53.09 KB |
-|     Nodes398_35PV | 1 |  16,934.68  us |    55.310  us |    51.737  us |      - |   66.5 KB |
-| Nodes398_35PV_ZIP | 1 |  17,341.20  us |    16.776  us |    14.871  us |      - |   66.5 KB |
-|    Nodes874_143PV | 1 | 194,786.44  us | 1,440.719  us | 1,277.160  us |      - | 160.52 KB |
+|            Method |         Mean |      Error |     StdDev |     Gen0 |   Gen1 | Allocated |
+|------------------ |-------------:|-----------:|-----------:|---------:|-------:|----------:|
+|          Test_Ktr |      1.46 us |   0.004 us |   0.003 us |     0.51 |      - |   2.11 KB |
+|        Nodes4_1PV |      1.43 us |   0.021 us |   0.020 us |     0.52 |      - |   2.13 KB |
+|    Nodes4_1PV_ZIP |      1.46 us |   0.003 us |   0.002 us |     0.52 |      - |   2.13 KB |
+|     Nodes5_2Slack |      1.70 us |   0.022 us |   0.021 us |     0.55 |      - |   2.27 KB |
+|           IEEE_14 |      4.55 us |   0.008 us |   0.008 us |     1.01 |      - |   4.17 KB |
+|       Nodes15_3PV |      4.49 us |   0.028 us |   0.026 us |     1.03 |      - |   4.23 KB |
+|           IEEE_57 |     24.29 us |   0.105 us |   0.093 us |     3.20 |      - |  13.10 KB |
+|          IEEE_118 |     62.51 us |   0.293 us |   0.228 us |     6.46 |      - |  26.79 KB |
+|     Nodes197_36PV |     64.34 us |   0.741 us |   0.694 us |     9.27 |      - |  38.30 KB |
+|     Nodes300_27PV |    129.69 us |   0.414 us |   0.387 us |    14.64 |      - |  60.22 KB |
+|     Nodes398_35PV |    131.37 us |   1.286 us |   1.203 us |    17.33 |      - |  71.35 KB |
+| Nodes398_35PV_ZIP |    129.07 us |   0.576 us |   0.481 us |    17.33 |      - |  71.35 KB |
+|    Nodes874_143PV |    578.14 us |   1.057 us |   0.937 us |    41.99 |      - | 174.94 KB |
+|   Nodes1350_250PV |    779.17 us |   6.365 us |   5.954 us |    69.33 |      - | 284.33 KB |
+|    Nodes2628_50PV |  2,891.68 us |  32.027 us |  29.958 us |   121.09 |   7.81 | 497.96 KB |
 
 
 

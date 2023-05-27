@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
+using PowerFlowCore.Solvers;
 using System.Collections.Generic;
 
 namespace PowerFlowCore.Benchmark
@@ -32,6 +33,9 @@ namespace PowerFlowCore.Benchmark
             grids.Add(SampleGrids.Nodes398_35PV());
             grids.Add(SampleGrids.Nodes398_35PV_ZIP());
             grids.Add(SampleGrids.Nodes874_143PV());
+            grids.Add(SampleGrids.Nodes1350_250PV());
+            grids.Add(SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 4})
+                                                  .ApplySolver(SolverType.NewtonRaphson));
         }
 
         [Benchmark]

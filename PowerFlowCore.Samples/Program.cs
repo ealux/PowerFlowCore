@@ -30,35 +30,84 @@ namespace PowerFlowCore.Samples
 
             var timer = Stopwatch.StartNew();
 
+            #region Creation
+
+            //timer.Restart();
+            //_ = SampleGrids.Test_Ktr();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
+
+            //timer.Restart();
+            //_ = SampleGrids.BreakersScheme();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes4_1PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes4_1PV_ZIP();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes5_2Slack();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes5_2Slack
+
+            //timer.Restart();
+            //_ = SampleGrids.IEEE_14();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-14
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes15_3PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+
+            //timer.Restart();
+            //_ = SampleGrids.IEEE_57();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-57
+
+            //timer.Restart();
+            //_ = SampleGrids.IEEE_118();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // IEEE-118            
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes197_36PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes300_27PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes398_35PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV
+
+            //timer.Restart();
+            //_ = SampleGrids.Nodes398_35PV_ZIP();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes398_35PV_ZIP
+
+            ////for (int i = 0; i < 10; i++)
+            ////{
+            //timer.Restart();
+            //_ = SampleGrids.Nodes874_143PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV           
+            //                                                                        //}
+
+            ////for (int i = 0; i < 10; i++)
+            ////{
+            //timer.Restart();
+            //_ = SampleGrids.Nodes1350_250PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            //                                                                        //}           
+
+            ////for (int i = 0; i < 25; i++)
+            ////{
+            //    timer.Restart();
+            //    _ = SampleGrids.Nodes2628_50PV();
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            ////}
+
+            #endregion Creation
+
             #region Individual calcs     
-
-
-
-
-            //var lst = new List<SparceVector>();
-
-            //lst.Add(new SparceVector(new double[6] { 1, 0, 0, 0, 1, 0 }));
-            //lst.Add(new SparceVector(new double[6] { 0, 1, 1, 0, 0, 0 }));
-            //lst.Add(new SparceVector(new double[6] { 0, 0, 1, 0, 0, 0 }));
-            //lst.Add(new SparceVector(new double[6] { 0, 2, 0, 1, 0, 0 }));
-            //lst.Add(new SparceVector(new double[6] { 0, 0, 0, 0, 0, 0 }));
-            //lst.Add(new SparceVector(new double[6] { 0, 3, 0, 4, 0, 1 }));
-
-            //var csr = CSRMatrix.CreateFromRows(lst);
-
-            //for (int i = 0; i < csr.Rows; i++)
-            //{
-            //    var row = csr.GetRow(i);
-            //    Console.WriteLine(String.Join(" ", row));
-            //}
-
-            //var vc = lst[0].Concat(lst[0]);
-
-            //Console.WriteLine();
-            //Console.WriteLine("Length: " + vc.Length);
-            //Console.WriteLine("Indexes: " + String.Join(" ", vc.Indexes));
-            //Console.WriteLine("Values: " + String.Join(" ", vc.Values));
-
 
             timer.Restart();
             CalculateAndShow(SampleGrids.Test_Ktr());
@@ -113,17 +162,20 @@ namespace PowerFlowCore.Samples
 
             timer.Restart();
             CalculateAndShow(SampleGrids.Nodes874_143PV());
-            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV  
 
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    timer.Restart();
-            //    CalculateAndShow(SampleGrids.Nodes1350_250PV());
-            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
-            //}
+            timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes1350_250PV());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+
+            timer.Restart();
+            SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions { IterationsCount = 4 })
+                                        .ApplySolver(SolverType.NewtonRaphson)
+                                        .Calculate();
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+
 
             #endregion
-
 
             #region Parallel calcs            
 
@@ -140,7 +192,6 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
             #endregion
-
 
             #region Multiple solvers calcs
 
@@ -159,13 +210,25 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
 
             //timer.Restart();
+            //SampleGrids.IEEE_14().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
+            //SampleGrids.IEEE_118().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV_ZIP
+
+            //timer.Restart();
             //SampleGrids.Nodes197_36PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
             //                           .ApplySolver(SolverType.NewtonRaphson)
             //                           .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes197_36PV
 
             //timer.Restart();
-            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })
+            //SampleGrids.Nodes300_27PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
             //                           .ApplySolver(SolverType.NewtonRaphson)
             //                           .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes300_27PV
@@ -183,13 +246,19 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV
 
             //timer.Restart();
-            //SampleGrids.Nodes1350_250PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })
-            //                              .ApplySolver(SolverType.NewtonRaphson)
-            //                              .Calculate();
+            //SampleGrids.Nodes1350_250PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
+            //                             .ApplySolver(SolverType.NewtonRaphson)
+            //                             .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
 
-            #endregion
+            //timer.Restart();
+            //SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
+            //                            .ApplySolver(SolverType.NewtonRaphson)
+            //                            .Calculate();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
 
+
+            #endregion
 
             #region Graph inspects
 

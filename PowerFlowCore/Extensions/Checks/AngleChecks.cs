@@ -21,10 +21,12 @@ namespace PowerFlowCore.Data
         {
             double[] res = new double[grid.Branches.Count];
 
+            var nnds = grid.Nodes.ToDictionary(k =>k.Num);
+
             Parallel.ForEach(grid.Branches, (branch, _, i) =>
             {
-                var start_ph = grid.Nodes.Where(n => n.Num == branch.Start).First().U.Phase * 180 / Math.PI;
-                var end_ph = grid.Nodes.Where(n => n.Num == branch.End).First().U.Phase * 180 / Math.PI;
+                var start_ph = nnds[branch.Start].U.Phase * 180 / Math.PI;
+                var end_ph = nnds[branch.End].U.Phase * 180 / Math.PI;
 
                 res[(int)i] = Math.Abs(Math.Round(start_ph - end_ph, (int)precision));
             });        

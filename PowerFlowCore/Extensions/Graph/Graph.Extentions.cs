@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 
 using PowerFlowCore.Solvers;
+using System.Collections;
+using System.Threading.Tasks;
 
 namespace PowerFlowCore.Data
 {
@@ -46,51 +48,16 @@ namespace PowerFlowCore.Data
                 var orphans = string.Join(", ", FindOrphanNodes(grid).Select(n => n.Num));
                 Logger.LogWarning($"Grid graph is not connected. Orphan node: {orphans}");
                 return false;
-            }                         
+            }
 
-            List<int> linked = new List<int>(grid.Nodes.Count); // List for accepted nodes
-            
-            // Connected list for the first node
-            foreach (var b in branches) 
-            {
-                if (b.Start == exNodes[0]) linked.Add(b.End); 
-                else if (b.End == exNodes[0]) linked.Add(b.Start);
-            } 
-            // Remove first node from excluding list
-            exNodes.Remove(exNodes[0]);
+            var a = BreadthFirstWalk(grid);
 
-            // Run recursive finder
-            RecurseConnectionFinder(linked, ref exNodes);
-
-            if (exNodes.Count == 0)
-                return true;
+            if (a.Count == grid.Nodes.Count)
+                return true;         
 
             var orphanNodes = string.Join(", ", FindOrphanNodes(grid).Select(n=>n.Num));
             Logger.LogWarning($"Grid graph is not connected. Orphan node: {orphanNodes}");
             return false;
-
-
-            // Private recursive function for depth search
-            void RecurseConnectionFinder(List<int> Linked, ref List<int> Exnodes)
-            {
-                foreach (int j in Linked)
-                    if (Exnodes.Contains(j)) Exnodes.Remove(j);
-
-                if (Exnodes.Count == 0) return;
-
-                foreach (int link in Linked)
-                {
-                    var linker = new List<int>();
-
-                    foreach (var b in branches!)
-                    {
-                        if (b.Start == link & Exnodes.Contains(b.End)) linker.Add(b.End);
-                        else if (b.End == link & Exnodes.Contains(b.Start)) linker.Add(b.Start);
-                    }
-
-                    if (linker.Count != 0) RecurseConnectionFinder(new List<int>(linker), ref Exnodes);
-                }
-            }
         }
 
         /// <summary>
@@ -99,6 +66,46 @@ namespace PowerFlowCore.Data
         /// <param name="grid"><see cref="SolvableGrid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
         public static bool IsConnected(this SolvableGrid grid) => IsConnected(grid.Grid);
+
+
+        private static List<int> BreadthFirstWalk(Grid grid)
+        {
+            var visited = new HashSet<int>() { 0 };
+            var queue = new Queue<int>();
+            var listOfNodes = new List<int>(grid.Nodes.Count) { 0 };
+
+            queue.Enqueue(0);
+
+            while (queue.Count != 0)
+            {
+                var current = queue.Dequeue();
+                foreach (var adjacent in Neighbours(grid, current))
+                {
+                    if (!visited.Contains(adjacent))
+                    {
+                        listOfNodes.Add(adjacent);
+                        visited.Add(adjacent);
+                        queue.Enqueue(adjacent);
+                    }
+                }
+            }
+
+            return listOfNodes;
+        }
+
+        private static List<int> Neighbours(Grid grid, int nind)
+        {            
+            //var nind = grid.Nodes.IndexOf(node);
+            var neighbours = new List<int>(grid.Ysp.RowPtr[nind + 1] - grid.Ysp.RowPtr[nind]);
+
+            for (int i = grid.Ysp.RowPtr[nind]; i < grid.Ysp.RowPtr[nind + 1]; i++)
+            {
+                if (nind != grid.Ysp.ColIndex[i])
+                    neighbours.Add(grid.Ysp.ColIndex[i]);
+            }
+
+            return neighbours;
+        }
 
         #endregion
 
@@ -135,8 +142,6 @@ namespace PowerFlowCore.Data
             var branchesStart = grid.Branches.Select(b => b.Start).Concat(grid.Branches.Select(b => b.End)).Distinct();
             // Nodes list for excluding
             var nodes = grid.Nodes.Select(n=>n.Num).Except(branchesStart).ToList();
-
-
 
             if (nodes.Count > 0)
             {

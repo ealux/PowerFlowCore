@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
@@ -17,7 +18,22 @@ namespace PowerFlowCore.Algebra
         public int[] ColIndex;
         public int[] RowPtr;
 
-      
+        /// <summary>
+        /// Return i-th diagonal element
+        /// </summary>
+        public double this[int i]
+        {
+            get
+            {
+                int ind = Array.IndexOf(ColIndex, i, RowPtr[i], RowPtr[i + 1] - RowPtr[i]);
+                if (ind == -1)
+                    return 0.0;
+                else
+                    return Values[ind];
+            }
+        }
+
+
         #region Constructor
 
         private CSRMatrix()

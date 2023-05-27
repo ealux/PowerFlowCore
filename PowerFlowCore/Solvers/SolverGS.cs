@@ -3,6 +3,7 @@ using PowerFlowCore.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Solvers
@@ -53,7 +54,7 @@ namespace PowerFlowCore.Solvers
                         continue;  //Take Slack nodes
                 }
 
-                Uold       = U.Copy();        // Set as previous calculated voltages  
+                Uold       = U.Copy();         // Set as previous calculated voltages  
                 difference = dU.InfinityNorm();// Find the bigest defference
 
                 // Set new value to Nodes
@@ -152,22 +153,26 @@ namespace PowerFlowCore.Solvers
                                          double accRate)
         {
             // Summator
-            Complex sum = 0;    
+            Complex sum = 0;
+            var old = Uold[nodeNum];
 
             // Complete summator with non-self values
-            for (int j = 0; j < grid.Nodes.Count; j++)
-                if (nodeNum != j)
-                    sum += grid.Y[nodeNum, j] * U[j]; 
+            for (int j = grid.Ysp.RowPtr[nodeNum];j < grid.Ysp.RowPtr[nodeNum + 1]; j++)
+            {
+                if(nodeNum != grid.Ysp.ColIndex[j])
+                    sum += grid.Ysp.Values[j] * U[grid.Ysp.ColIndex[j]];
+            }
 
             // Calculate new voltage value in node
-            U[nodeNum] = (1 / grid.Y[nodeNum, nodeNum]) * 
-                         ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum); 
+            U[nodeNum] = (1 / grid.Ysp[nodeNum]) *
+                         ((grid.Ssp[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);  
 
             // Apply acceleration rate
-            U[nodeNum] = Uold[nodeNum] + accRate * (U[nodeNum] - Uold[nodeNum]);
+            U[nodeNum] = old + accRate * (U[nodeNum] - old);
 
             // Complete voltage difference vector
-            dU = U.Substract(Uold);
+            for (int i = 0; i < dU.Length; i++)
+                dU[i] = U[i] - Uold[i];
         }
 
 
@@ -192,9 +197,12 @@ namespace PowerFlowCore.Solvers
             var Q_new = 0.0;
 
             // Build new Q element
-            for (int j = 0; j < grid.Nodes.Count; j++)
-                Q_new -= U[nodeNum].Magnitude * U[j].Magnitude * grid.Y[nodeNum, j].Magnitude * 
-                         Math.Sin(grid.Y[nodeNum, j].Phase + U[j].Phase - U[nodeNum].Phase);
+            for (int j = grid.Ysp.RowPtr[nodeNum]; j < grid.Ysp.RowPtr[nodeNum + 1]; j++)
+            {
+                var col = grid.Ysp.ColIndex[j];
+                Q_new -= U[nodeNum].Magnitude * U[col].Magnitude * grid.Ysp.Values[j].Magnitude *
+                         Math.Sin(grid.Ysp.Values[j].Phase + U[col].Phase - U[nodeNum].Phase);
+            }
 
             Q_new += grid.Nodes[nodeNum].S_calc.Imaginary;
 
@@ -235,13 +243,16 @@ namespace PowerFlowCore.Solvers
                 // Summator
                 var sum = new Complex();
 
-                for (int j = 0; j < grid.Nodes.Count; j++)
-                    if (nodeNum != j)
-                        sum += grid.Y[nodeNum, j] * U[j];   // Recomplete summator with non-self values
+                for (int j = grid.Ysp.RowPtr[nodeNum]; j < grid.Ysp.RowPtr[nodeNum + 1]; j++)
+                {
+                    if (nodeNum != grid.Ysp.ColIndex[j])
+                        sum += grid.Ysp.Values[j] * U[grid.Ysp.ColIndex[j]];   // Recomplete summator with non-self values
+                }
 
                 // Calculate new voltage value
-                var voltage = (1 / grid.Y[nodeNum, nodeNum]) * 
-                              ((grid.S[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);
+                var voltage = (1 / grid.Ysp[nodeNum]) *
+                         ((grid.Ssp[nodeNum].Conjugate() / U[nodeNum].Conjugate()) - sum);
+
 
                 // Fix magnitude (Vpre), change angle
                 U[nodeNum] = Complex.FromPolarCoordinates(grid.Nodes[nodeNum].Vpre, voltage.Phase);
