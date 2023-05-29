@@ -55,7 +55,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Replaces branches with low or zero impedance with specific <see cref="BreakersTemplate"/> 
         /// </summary>
-        public bool UseBreakerImpedance { get; set; } = true;
+        internal bool UseBreakerImpedance { get; set; } = true;
 
         #endregion
     }

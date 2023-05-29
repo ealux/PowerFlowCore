@@ -73,6 +73,12 @@ namespace PowerFlowCore.Data
 
 
         /// <summary>
+        /// Collection of  <see cref="SolverType"/> and corresponded <see cref="CalculationOptions"/>
+        /// </summary>
+        internal Queue<(SolverType Name, CalculationOptions Options)> Solvers { get; set; } = new Queue<(SolverType, CalculationOptions)>();
+
+
+        /// <summary>
         /// PQ nodes amount
         /// </summary>
         public int PQ_Count { get; set; }
@@ -217,8 +223,8 @@ namespace PowerFlowCore.Data
             #region [Y calculation]
 
             //Calculation of admittance matrix
-            this.Ysp = new CSRMatrixComplex(Calc_Y(this.Nodes, this.Branches)); // Sparse Y
-            this.Ssp = new SparseVectorComplex(this.S);                         // Sparse S
+            this.Ysp = Calc_Y(this.Nodes, this.Branches); // Sparse Y            
+            this.Ssp = new SparseVectorComplex(this.S);   // Sparse S
 
             #endregion [Y calculation]
 
@@ -232,10 +238,15 @@ namespace PowerFlowCore.Data
         /// <param name="nodes">Collection of (transformed) <see cref="INode"/></param>
         /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
         /// <returns><see cref=Complex[,]"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
-        private Complex[,] Calc_Y(List<INode> nodes, List<IBranch> branches)
-        {
+        private CSRMatrixComplex Calc_Y(List<INode> nodes, List<IBranch> branches)
+        {           
             //Initialize admittance matrix
-            var Y = MatrixComplex.Create(nodes.Count, nodes.Count);
+            var Y = new Dictionary<int, Complex>[nodes.Count];
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                Y[i] = new Dictionary<int, Complex>();
+            }
 
             for (int i = 0; i < branches.Count; i++)
             {
@@ -245,35 +256,48 @@ namespace PowerFlowCore.Data
                 var ysh = branches[i].Ysh;
                 var kt = branches[i].Ktr.Magnitude <= 0 ? Complex.One : branches[i].Ktr;
 
+                if (!Y[start].ContainsKey(start))
+                    Y[start].Add(start, Complex.Zero);
+                if (!Y[start].ContainsKey(end))
+                    Y[start].Add(end, Complex.Zero);
+                if (!Y[end].ContainsKey(start))
+                    Y[end].Add(start, Complex.Zero);
+                if (!Y[end].ContainsKey(end))
+                    Y[end].Add(end, Complex.Zero);
+
                 if (kt == 1) // Condition for non-Transformer branches
                 {
-                    Y[start, end] -= (y / kt);
-                    Y[end, start] -= (y / kt);
-                    Y[start, start] -= -(y + ysh / 2);
-                    Y[end, end] -= -(y + ysh / 2);
+                    Y[start][end] -= (y / kt);
+                    Y[end][start] -= (y / kt);
+                    Y[start][start] -= -(y + ysh / 2);
+                    Y[end][end] -= -(y + ysh / 2);
                 }
                 else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude    // Condition for Transformer branches. At Start node Unom higher 
                         | nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) // Voltage-added Transformers
                 {
-                    Y[start, end] -= (y / kt);
-                    Y[end, start] -= (y / Complex.Conjugate(kt));
-                    Y[start, start] -= -(y + ysh);
-                    Y[end, end] -= -(y / (kt * Complex.Conjugate(kt)));
+                    Y[start][end] -= (y / kt);
+                    Y[end][start] -= (y / Complex.Conjugate(kt));
+                    Y[start][start] -= -(y + ysh);
+                    Y[end][end] -= -(y / (kt * Complex.Conjugate(kt)));
                 }
                 else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude)   // Condition for Transformer branches. At End node Unom higher
                 {
-                    Y[start, end] -= (y / Complex.Conjugate(kt));
-                    Y[end, start] -= (y / kt);
-                    Y[start, start] -= -(y / (kt * Complex.Conjugate(kt)));
-                    Y[end, end] -= -(y + ysh);
+                    Y[start][end] -= (y / Complex.Conjugate(kt));
+                    Y[end][start] -= (y / kt);
+                    Y[start][start] -= -(y / (kt * Complex.Conjugate(kt)));
+                    Y[end][end] -= -(y + ysh);
                 }
-            }
+            }            
+                
+            //var YY = new SparseVectorComplex[nodes.Count];
 
-            // Add shunt conductivities
-            for (int i = 0; i < nodes.Count; i++) 
-                Y[i, i] -= -nodes[i].Ysh;
+            //for (int i = 0; i < Y.Count; i++)
+            //{
+            //    Y[i][i] -= -nodes[i].Ysh;   // Add shunt conductivities
+            //    YY[i] = new SparseVectorComplex(Y[i], nodes.Count);
+            //}
 
-            return Y;
+            return CSRMatrixComplex.CreateFromRows(Y, nodes.Count);
         }
 
 

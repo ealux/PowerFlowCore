@@ -136,6 +136,34 @@ namespace PowerFlowCore.Algebra
             return res;
         }
 
+        public static CSRMatrix CreateFromRows(Dictionary<int, double>[] rows, int columns)
+        {
+            if (rows.Length == 0)
+                throw new ArgumentException("Rows have no values!");
+            if (columns <= 0)
+                throw new ArgumentException("Columns count is 0!");
+
+            var res = new CSRMatrix(rows.Length, columns, 0);
+
+            var tmpColInds = new List<int>();
+            var tmpVals = new List<double>();
+            var tmpRowPtr = new int[res.Rows + 1];
+
+            for (int i = 0; i < res.Rows; i++)
+            {
+                tmpColInds.AddRange(rows[i].Keys);
+                tmpVals.AddRange(rows[i].Values);
+                res.NNZ += rows[i].Count;
+                tmpRowPtr[i + 1] = res.NNZ;
+            }
+
+            res.ColIndex = tmpColInds.ToArray();
+            res.Values = tmpVals.ToArray();
+            res.RowPtr = tmpRowPtr;
+
+            return res;
+        }
+
         public static CSRMatrix CreateFromRows(IList<SparseVector> rows)
         {
             if (rows.Any(r => r.Length != rows[0].Length))

@@ -8,9 +8,9 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.13.2</Version>
+		<Version>0.13.3</Version>
 		<PackageReleaseNotes>
-			Major performance improvement.
+			Major performance improvement. Step 2.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

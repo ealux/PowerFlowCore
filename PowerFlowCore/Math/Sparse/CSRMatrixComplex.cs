@@ -49,6 +49,7 @@ namespace PowerFlowCore.Algebra
             ColIndex = new int[nnz];
             RowPtr = new int[rows + 1];
         }
+               
 
         private CSRMatrixComplex(CSRMatrixComplex matrix)
         {
@@ -95,6 +96,60 @@ namespace PowerFlowCore.Algebra
         #endregion Constructor
 
         #region Create
+
+        public static CSRMatrixComplex CreateFromRows(SparseVectorComplex[] rows)
+        {
+            if (rows.Any(r => r.Length != rows[0].Length))
+                throw new ArgumentException("Rows have different length vectors!");
+
+            var res = new CSRMatrixComplex(rows.Length, rows[0].Length, 0);
+
+            var tmpColInds = new List<int>();
+            var tmpVals = new List<Complex>();
+            var tmpRowPtr = new int[res.Rows + 1];
+
+            for (int i = 0; i < res.Rows; i++)
+            {
+                tmpColInds.AddRange(rows[i].Indexes);
+                tmpVals.AddRange(rows[i].Values);
+                res.NNZ += rows[i].Indexes.Length;
+                tmpRowPtr[i + 1] = res.NNZ;
+            }
+
+            res.ColIndex = tmpColInds.ToArray();
+            res.Values = tmpVals.ToArray();
+            res.RowPtr = tmpRowPtr;
+
+            return res;
+        }
+
+        public static CSRMatrixComplex CreateFromRows(Dictionary<int, Complex>[] rows, int columns)
+        {
+            if (rows.Length == 0)
+                throw new ArgumentException("Rows have no values!");
+            if (columns <= 0)
+                throw new ArgumentException("Columns count is 0!");
+
+            var res = new CSRMatrixComplex(rows.Length, columns, 0);
+
+            var tmpColInds = new List<int>();
+            var tmpVals = new List<Complex>();
+            var tmpRowPtr = new int[res.Rows + 1];
+
+            for (int i = 0; i < res.Rows; i++)
+            {
+                tmpColInds.AddRange(rows[i].Keys);
+                tmpVals.AddRange(rows[i].Values);
+                res.NNZ += rows[i].Count;
+                tmpRowPtr[i + 1] = res.NNZ;
+            }
+
+            res.ColIndex = tmpColInds.ToArray();
+            res.Values = tmpVals.ToArray();
+            res.RowPtr = tmpRowPtr;
+
+            return res;
+        }
 
         public static CSRMatrixComplex Eye(int n)
         {

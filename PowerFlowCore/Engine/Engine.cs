@@ -41,14 +41,50 @@ namespace PowerFlowCore
                 return (grid, false);
             calc.InitParameters(calc.Nodes, calc.Branches);
 
-            // Calculate
-            calc.SolverNR(calc.Uinit, Options, out bool suc);
+            bool success = false;
 
-            if (suc)
+            // Calculate
+            if (grid.Solvers.Count == 0)
+            {
+                calc.SolverNR(calc.Uinit, Options, out success);
+            }
+            else
+            {
+                // Voltage vector to initialialize calculations for each solver
+                Complex[] Uinitial = calc.Uinit.Copy();
+
+                foreach (var solver in grid.Solvers)
+                {
+                    if (success)
+                        continue;
+
+                    // Turn off constraints on all solvers except the last
+                    var constrTemp = solver.Item2.UseVoltageConstraint;
+                    solver.Item2.UseVoltageConstraint = false;
+                    if (solver == grid.Solvers.Last())
+                        solver.Item2.UseVoltageConstraint = constrTemp;
+
+                    // Calculate
+                    if (solver.Item1 == SolverType.GaussSeidel)
+                        calc.SolverGS(Uinitial, solver.Item2, out success);
+                    else if (solver.Item1 == SolverType.NewtonRaphson)
+                        calc.SolverNR(Uinitial, solver.Item2, out success);
+
+                    // Set next initialization
+                    Uinitial = calc.Ucalc;
+
+                    // Set constraints back
+                    solver.Item2.UseVoltageConstraint = constrTemp;
+                }
+
+                grid.Solvers.Clear();
+            }            
+
+            if (success)
             {
                 grid.Nodes = calc.DeepCopyNodes();
                 grid.CalculatePowerMatrix();    // Calculate power flows
-                return (grid, suc);             // On success
+                return (grid, success);             // On success
             }
             else
                 return (grid, false);    // On fault
@@ -75,7 +111,7 @@ namespace PowerFlowCore
         {
             _ = grids ?? throw new ArgumentNullException(nameof(grids));
 
-            IEnumerable<(Grid, bool)> list = grids.Select(g => (g, false));
+            IEnumerable<(Grid grid, bool success)> list = grids.Select(g => (g, false));
 
             list.AsParallel().ForAll( item =>
             {
@@ -97,11 +133,46 @@ namespace PowerFlowCore
                 }              
                 calc.InitParameters(calc.Nodes, calc.Branches);
 
+                bool success = false;
 
                 // Calculate
-                calc.SolverNR(calc.Uinit, Options, out bool suc);
+                if (item.grid.Solvers.Count == 0)
+                {
+                    calc.SolverNR(calc.Uinit, Options, out success);
+                }
+                else
+                {
+                    // Voltage vector to initialialize calculations for each solver
+                    Complex[] Uinitial = calc.Uinit.Copy();
 
-                if (suc)
+                    foreach (var solver in item.grid.Solvers)
+                    {
+                        if (success)
+                            continue;
+
+                        // Turn off constraints on all solvers except the last
+                        var constrTemp = solver.Item2.UseVoltageConstraint;
+                        solver.Item2.UseVoltageConstraint = false;
+                        if (solver == item.grid.Solvers.Last())
+                            solver.Item2.UseVoltageConstraint = constrTemp;
+
+                        // Calculate
+                        if (solver.Item1 == SolverType.GaussSeidel)
+                            calc.SolverGS(Uinitial, solver.Item2, out success);
+                        else if (solver.Item1 == SolverType.NewtonRaphson)
+                            calc.SolverNR(Uinitial, solver.Item2, out success);
+
+                        // Set next initialization
+                        Uinitial = calc.Ucalc;
+
+                        // Set constraints back
+                        solver.Item2.UseVoltageConstraint = constrTemp;
+                    }
+
+                    item.grid.Solvers.Clear();
+                }
+
+                if (success)
                 {
                     item.Item1.Nodes = calc.DeepCopyNodes();
                     item.Item1.CalculatePowerMatrix();    // Calculate power flows
@@ -163,15 +234,51 @@ namespace PowerFlowCore
                     return (grid, false);
                 calc.InitParameters(calc.Nodes, calc.Branches);
             }
-            
-            // Calculate
-            calc.SolverNR(calc.Uinit, options, out bool suc);
 
-            if (suc)
+            bool success = false;
+
+            // Calculate
+            if (grid.Solvers.Count == 0)
+            {
+                calc.SolverNR(calc.Uinit, options, out success);
+            }
+            else
+            {
+                // Voltage vector to initialialize calculations for each solver
+                Complex[] Uinitial = calc.Uinit.Copy();
+
+                foreach (var solver in grid.Solvers)
+                {
+                    if (success)
+                        continue;
+
+                    // Turn off constraints on all solvers except the last
+                    var constrTemp = solver.Item2.UseVoltageConstraint;
+                    solver.Item2.UseVoltageConstraint = false;
+                    if (solver == grid.Solvers.Last())
+                        solver.Item2.UseVoltageConstraint = constrTemp;
+
+                    // Calculate
+                    if (solver.Item1 == SolverType.GaussSeidel)
+                        calc.SolverGS(Uinitial, solver.Item2, out success);
+                    else if (solver.Item1 == SolverType.NewtonRaphson)
+                        calc.SolverNR(Uinitial, solver.Item2, out success);
+
+                    // Set next initialization
+                    Uinitial = calc.Ucalc;
+
+                    // Set constraints back
+                    solver.Item2.UseVoltageConstraint = constrTemp;
+                }
+
+                grid.Solvers.Clear();
+            }
+
+            if (success)
             {
                 grid.Nodes = calc.DeepCopyNodes();
                 grid.CalculatePowerMatrix();    // Calculate power flows
-                return (grid, suc);             // On success
+                return (grid, success);             // On success
             }
             else
                 return (grid, false);    // On fault 
@@ -203,7 +310,7 @@ namespace PowerFlowCore
             if(options == null)
                 options = Options ?? new CalculationOptions();
 
-            IEnumerable<(Grid, bool)> list = grids.Select(g => (g, false));
+            IEnumerable<(Grid grid, bool success)> list = grids.Select(g => (g, false));
 
             list.AsParallel().ForAll(item =>
             {
@@ -228,10 +335,46 @@ namespace PowerFlowCore
                     calc.InitParameters(calc.Nodes, calc.Branches);
                 }
 
-                // Calculate
-                calc.SolverNR(calc.Uinit, options, out bool suc);
+                bool success = false;
 
-                if (suc)
+                // Calculate
+                if (item.grid.Solvers.Count == 0)
+                {
+                    calc.SolverNR(calc.Uinit, options, out success);
+                }
+                else
+                {
+                    // Voltage vector to initialialize calculations for each solver
+                    Complex[] Uinitial = calc.Uinit.Copy();
+
+                    foreach (var solver in item.grid.Solvers)
+                    {
+                        if (success)
+                            continue;
+
+                        // Turn off constraints on all solvers except the last
+                        var constrTemp = solver.Item2.UseVoltageConstraint;
+                        solver.Item2.UseVoltageConstraint = false;
+                        if (solver == item.grid.Solvers.Last())
+                            solver.Item2.UseVoltageConstraint = constrTemp;
+
+                        // Calculate
+                        if (solver.Item1 == SolverType.GaussSeidel)
+                            calc.SolverGS(Uinitial, solver.Item2, out success);
+                        else if (solver.Item1 == SolverType.NewtonRaphson)
+                            calc.SolverNR(Uinitial, solver.Item2, out success);
+
+                        // Set next initialization
+                        Uinitial = calc.Ucalc;
+
+                        // Set constraints back
+                        solver.Item2.UseVoltageConstraint = constrTemp;
+                    }
+
+                    item.grid.Solvers.Clear();
+                }
+
+                if (success)
                 {
                     item.Item1.Nodes = calc.DeepCopyNodes();
                     item.Item1.CalculatePowerMatrix();    // Calculate power flows
@@ -266,275 +409,16 @@ namespace PowerFlowCore
 
         #endregion
 
-        #region Calc SolvableGrid
-
-        /// <summary>
-        /// Calculate grid
-        /// </summary>
-        /// <param name="grid">Input <see cref="SolvableGrid"/></param>
-        /// <returns>Tuple with <see cref="Grid"/> object and <see cref="bool"/> calculation result</returns>
-        public static (Grid Grid, bool Succsess) Calculate(this SolvableGrid grid)
-        {
-            _ = grid ?? throw new ArgumentNullException(nameof(grid));
-
-            // Validate grid
-            if (!grid.Grid.Validate())
-                return (grid, false);
-
-            // Calc grid
-            Grid calc = grid.Grid.DeepCopy().WithId(grid.Grid.Id);
-
-            // Set breaker impedance for calculus
-            if(grid.Solvers.Any(s => s.Item2.UseBreakerImpedance))
-            {
-                if (!calc.SetBreakers())
-                    return (grid.Grid, false);
-                calc.InitParameters(calc.Nodes, calc.Branches);
-            }          
-
-            // Voltage vector to initialialize calculations for each solver
-            Complex[] Uinitial = calc.Uinit.Copy();
-
-            // Solver aplication result
-            var success = false;
-
-            foreach (var solver in grid.Solvers)
-            {
-                if (success)
-                    continue;
-
-                // Turn off constraints on all solvers except the last
-                var constrTemp = solver.Item2.UseVoltageConstraint;
-                solver.Item2.UseVoltageConstraint = false;
-                if (solver == grid.Solvers.Last())
-                    solver.Item2.UseVoltageConstraint = constrTemp;
-
-                // Calculate
-                if (solver.Item1 == SolverType.GaussSeidel)
-                    calc.SolverGS(Uinitial, solver.Item2, out success);
-                else if (solver.Item1 == SolverType.NewtonRaphson)
-                    calc.SolverNR(Uinitial, solver.Item2, out success);
-
-                // Set next initialization
-                Uinitial = calc.Ucalc;
-
-                // Set constraints back
-                solver.Item2.UseVoltageConstraint = constrTemp;   
-            }
-
-            if (success)
-            {
-                grid.Grid.Nodes = calc.DeepCopyNodes();
-                grid.Grid.CalculatePowerMatrix(); // Calculate power flows
-                return (grid.Grid, true);         // On success
-            }
-            else
-                return (grid.Grid, false);    // On fault 
-
-        }
-
-        /// <summary>
-        /// Calculate grid
-        /// </summary>
-        /// <param name="grid">Input <see cref="SolvableGrid"/></param>
-        /// <param name="success">Calcutaion result</param>
-        /// <returns><see cref="Grid"/> object</returns>
-        public static Grid Calculate(this SolvableGrid grid, out bool success)
-        {
-            (grid.Grid, success) = Calculate(grid);
-            return grid.Grid;
-        }
-
-        /// <summary>
-        /// Calculate grids collections in parallel
-        /// </summary>
-        /// <param name="grids">Input <see cref="SolvableGrid"/> collection</param>
-        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<SolvableGrid> grids)
-        {
-            _ = grids ?? throw new ArgumentNullException(nameof(grids));
-
-            IEnumerable<(SolvableGrid, bool)> list = grids.Select(g => (g, false));
-
-            list.AsParallel().ForAll(item =>
-            {
-                // Validate grid
-                if (!item.Item1.Grid.Validate())
-                {
-                    item.Item2 = false;
-                    return;
-                }
-
-                // Calc grid
-                Grid calc = item.Item1.Grid.DeepCopy().WithId(item.Item1.Grid.Id);
-
-                // Set breaker impedance for calculus
-                if (item.Item1.Solvers.Any(s => s.Item2.UseBreakerImpedance))
-                {
-                    if (!calc.SetBreakers())
-                    {
-                        item.Item2 = false;
-                        return;
-                    }
-                    calc.InitParameters(calc.Nodes, calc.Branches);
-                }
-
-                // Voltage vector to initialialize calculations for each solver
-                Complex[] Uinitial = calc.Uinit.Copy();
-
-                // Solver aplication result
-                var success = false;
-
-                foreach (var solver in item.Item1.Solvers)
-                {
-                    if (success)
-                        continue;
-
-                    // Turn off constraints on all solvers except the last
-                    var constrTemp = solver.Item2.UseVoltageConstraint;
-                    solver.Item2.UseVoltageConstraint = false;
-                    if (solver == item.Item1.Solvers.Last())
-                        solver.Item2.UseVoltageConstraint = constrTemp;
-
-                    // Calculate
-                    if (solver.Item1 == SolverType.GaussSeidel)
-                        calc.SolverGS(Uinitial, solver.Item2, out success);
-                    else if (solver.Item1 == SolverType.NewtonRaphson)
-                        calc.SolverNR(Uinitial, solver.Item2, out success);
-
-                    // Set next initialization
-                    Uinitial = calc.Ucalc;
-
-                    // Set constraints back
-                    solver.Item2.UseVoltageConstraint = constrTemp;
-                }
-
-                if (success)
-                {
-                    item.Item1.Grid.Nodes = calc.DeepCopyNodes();
-                    item.Item1.Grid.CalculatePowerMatrix();    // Calculate power flows
-                    item.Item2 = true;
-                }
-                else
-                    item.Item2 = false;
-            });
-
-            return list.Select(item => (item.Item1.Grid, item.Item2));
-        }
-
-        /// <summary>
-        /// Calculate grids collections in parallel
-        /// </summary>
-        /// <param name="grids">Input <see cref="SolvableGrid"/> collection</param>
-        /// <param name="success">Calcutaion result. False if any grid calculation is failed</param>
-        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<SolvableGrid> grids, out bool success)
-        {
-            IEnumerable<(Grid, bool)> res;
-            success = true;
-
-            res = Calculate(grids);
-
-            if (res.Any(v => v.Item2 == false))
-                success = false;
-
-            return res;
-        }
-
-        #endregion
-
         #region Solver appliers
 
-        #region Grid
-
         /// <summary>
-        /// Creates new <see cref="SolvableGrid"/> object with selected solver
+        /// Add selected solver to grid solvers queue
         /// </summary>
         /// <param name="grid">Grid to apply solver</param>
         /// <param name="solver">Solver to be applied</param>
-        /// <returns><see cref="SolvableGrid"/> with selected solver and default options</returns>
+        /// <returns><see cref="Grid"/> with selected solver and default options</returns>
         /// <exception cref="ArgumentNullException">Return exception if <paramref name="grid"/> is null</exception>
-        public static SolvableGrid ApplySolver(this Grid grid, SolverType solver)
-        {
-            if (grid == null)
-                throw new ArgumentNullException(nameof(grid));
-
-            return new SolvableGrid(grid, solver, Options ?? new CalculationOptions());
-        }
-
-        /// <summary>
-        /// Creates new <see cref="SolvableGrid"/> object with selected solver and <see cref="CalculationOptions"/>
-        /// </summary>
-        /// <param name="grid">Grid to apply solver</param>
-        /// <param name="solver">Solver to be applied</param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied. Apply default if parameter is null</param>
-        /// <returns><see cref="SolvableGrid"/> with selected solver and options</returns>
-        /// <exception cref="ArgumentNullException">Return exception if <paramref name="grid"/> is null</exception>
-        public static SolvableGrid ApplySolver(this Grid grid, SolverType solver, CalculationOptions options)
-        {
-            if (grid == null)
-                throw new ArgumentNullException(nameof(grid));
-            if (options == null)
-                options = Options ?? new CalculationOptions();
-
-            return new SolvableGrid(grid, solver, options);
-        }
-
-        /// <summary>
-        /// Creates new <see cref="IEnumerable{SolvableGrid}"/> collection with selected solver
-        /// </summary>
-        /// <param name="grids">Collection of <see cref="Grid"/> to apply solver</param>
-        /// <param name="solver">Solver to be applied</param>
-        /// <returns>Collection of <see cref="SolvableGrid"/> with selected solver and default options</returns>
-        /// <exception cref="ArgumentNullException">Return exception if <paramref name="grids"/> is null</exception>
-        public static IEnumerable<SolvableGrid> ApplySolver(this IEnumerable<Grid> grids, SolverType solver)
-        {
-            if (grids == null)
-                throw new ArgumentNullException(nameof(grids));
-
-            var output = new List<SolvableGrid>(grids.Count());
-
-            foreach (var item in grids)
-                output.Add(new SolvableGrid(item, solver, Options ?? new CalculationOptions()));
-
-            return output.AsEnumerable();
-        }
-
-        /// <summary>
-        /// Creates new <see cref="IEnumerable{SolvableGrid}"/> collection with selected solver
-        /// </summary>
-        /// <param name="grids">Collection of <see cref="Grid"/> to apply solver</param>
-        /// <param name="solver">Solver to be applied</param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied. Apply default if parameter is null</param>
-        /// <returns>Collection of <see cref="SolvableGrid"/> with selected solver and default options</returns>
-        /// <exception cref="ArgumentNullException">Return exception if <paramref name="grids"/> is null</exception>
-        public static IEnumerable<SolvableGrid> ApplySolver(this IEnumerable<Grid> grids, SolverType solver, CalculationOptions options)
-        {
-            if (grids == null)
-                throw new ArgumentNullException(nameof(grids));
-            if (options == null)
-                options = Options ?? new CalculationOptions();
-
-            var output = new List<SolvableGrid>(grids.Count());
-
-            foreach (var item in grids)
-                output.Add(new SolvableGrid(item, solver, options));
-
-            return output.AsEnumerable();
-        }
-
-        #endregion
-
-        #region SolvableGrid
-
-        /// <summary>
-        /// Creates new <see cref="SolvableGrid"/> object with selected solver
-        /// </summary>
-        /// <param name="grid">Grid to apply solver</param>
-        /// <param name="solver">Solver to be applied</param>
-        /// <returns><see cref="SolvableGrid"/> with selected solver and default options</returns>
-        /// <exception cref="ArgumentNullException">Return exception if <paramref name="grid"/> is null</exception>
-        public static SolvableGrid ApplySolver(this SolvableGrid grid, SolverType solver)
+        public static Grid ApplySolver(this Grid grid, SolverType solver)
         {
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
@@ -545,14 +429,14 @@ namespace PowerFlowCore
         }
 
         /// <summary>
-        /// Creates new <see cref="SolvableGrid"/> object with selected solver and <see cref="CalculationOptions"/>
+        /// Add selected solver and <see cref="CalculationOptions"/> to grid solvers queue
         /// </summary>
         /// <param name="grid">Grid to apply solver</param>
         /// <param name="solver">Solver to be applied</param>
         /// <param name="options"><see cref="CalculationOptions"/> to be applied. Apply default if parameter is null</param>
-        /// <returns><see cref="SolvableGrid"/> with selected solver and options</returns>
+        /// <returns><see cref="Grid"/> with selected solver and options</returns>
         /// <exception cref="ArgumentNullException">Return exception if <paramref name="grid"/> is null</exception>
-        public static SolvableGrid ApplySolver(this SolvableGrid grid, SolverType solver, CalculationOptions options)
+        public static Grid ApplySolver(this Grid grid, SolverType solver, CalculationOptions options)
         {
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
@@ -565,45 +449,53 @@ namespace PowerFlowCore
         }
 
         /// <summary>
-        /// Creates new <see cref="IEnumerable{SolvableGrid}"/> collection with selected solver
+        /// Creates new <see cref="IEnumerable{Grid}"/> collection with added selected solver to grid solvers queue
         /// </summary>
-        /// <param name="grids">Collection of <see cref="SolvableGrid"/> to apply solver</param>
+        /// <param name="grids">Collection of <see cref="Grid"/> to apply solver</param>
         /// <param name="solver">Solver to be applied</param>
-        /// <returns>Collection of <see cref="SolvableGrid"/> with selected solver and default options</returns>
+        /// <returns>Collection of <see cref="Grid"/> with selected solver and default options</returns>
         /// <exception cref="ArgumentNullException">Return exception if <paramref name="grids"/> is null</exception>
-        public static IEnumerable<SolvableGrid> ApplySolver(this IEnumerable<SolvableGrid> grids, SolverType solver)
+        public static IEnumerable<Grid> ApplySolver(this IEnumerable<Grid> grids, SolverType solver)
         {
             if (grids == null)
                 throw new ArgumentNullException(nameof(grids));
 
-            foreach (var item in grids)
-                item.Solvers.Enqueue((solver, Options ?? new CalculationOptions()));
+            var output = new List<Grid>(grids.Count());
 
-            return grids;
+            foreach (var item in grids)
+            {
+                item.Solvers.Enqueue((solver, Options ?? new CalculationOptions()));
+                output.Add(item);
+            }
+
+            return output.AsEnumerable();
         }
 
         /// <summary>
-        /// Creates new <see cref="IEnumerable{SolvableGrid}"/> collection with selected solver
+        /// Creates new <see cref="IEnumerable{SolvableGrid}"/> collection with added selected solver to grid solvers queue
         /// </summary>
-        /// <param name="grids">Collection of <see cref="SolvableGrid"/> to apply solver</param>
+        /// <param name="grids">Collection of <see cref="Grid"/> to apply solver</param>
         /// <param name="solver">Solver to be applied</param>
         /// <param name="options"><see cref="CalculationOptions"/> to be applied. Apply default if parameter is null</param>
-        /// <returns>Collection of <see cref="SolvableGrid"/> with selected solver and default options</returns>
+        /// <returns>Collection of <see cref="Grid"/> with selected solver and default options</returns>
         /// <exception cref="ArgumentNullException">Return exception if <paramref name="grids"/> is null</exception>
-        public static IEnumerable<SolvableGrid> ApplySolver(this IEnumerable<SolvableGrid> grids, SolverType solver, CalculationOptions options)
+        public static IEnumerable<Grid> ApplySolver(this IEnumerable<Grid> grids, SolverType solver, CalculationOptions options)
         {
             if (grids == null)
                 throw new ArgumentNullException(nameof(grids));
             if (options == null)
                 options = Options ?? new CalculationOptions();
 
+            var output = new List<Grid>(grids.Count());
+
             foreach (var item in grids)
+            {
                 item.Solvers.Enqueue((solver, options));
+                output.Add(item);
+            }
 
-            return grids;
+            return output.AsEnumerable();
         }
-
-        #endregion
 
         #endregion
     }

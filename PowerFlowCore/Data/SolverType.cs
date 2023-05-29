@@ -1,4 +1,4 @@
-﻿namespace PowerFlowCore.Solvers
+﻿namespace PowerFlowCore.Data
 {
     /// <summary>
     /// Presents solver type to applied in grid calculation

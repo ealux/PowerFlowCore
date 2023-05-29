@@ -44,6 +44,16 @@ namespace PowerFlowCore.Algebra
             Length = length;
         }
 
+        public SparseVectorComplex(Dictionary<int, Complex> dict, int length)
+        {
+            if (length < 0)
+                throw new ArgumentException("Input length < 0", nameof(length));
+
+            Indexes = dict.Keys.ToArray();
+            Values = dict.Values.ToArray();
+            Length = length;
+        }
+
         public SparseVectorComplex(double[] vector)
         {
             if (vector.Length == 0)

@@ -47,8 +47,8 @@ namespace PowerFlowCore.Benchmark
             _Nodes398_35PV     = SampleGrids.Nodes398_35PV();
             _Nodes398_35PV_ZIP = SampleGrids.Nodes398_35PV_ZIP();
             _Nodes874_143PV    = SampleGrids.Nodes874_143PV();
-            _Nodes1350_250PV = SampleGrids.Nodes1350_250PV();
-            _Nodes2628_50PV = SampleGrids.Nodes2628_50PV();
+            _Nodes1350_250PV   = SampleGrids.Nodes1350_250PV();
+            _Nodes2628_50PV    = SampleGrids.Nodes2628_50PV();
         }
 
         [Benchmark]

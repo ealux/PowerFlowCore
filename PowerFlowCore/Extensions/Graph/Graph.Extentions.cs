@@ -60,13 +60,6 @@ namespace PowerFlowCore.Data
             return false;
         }
 
-        /// <summary>
-        /// Inspect <see cref="SolvableGrid"/> graphs on connectivity
-        /// </summary>
-        /// <param name="grid"><see cref="SolvableGrid"/> object</param>
-        /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
-        public static bool IsConnected(this SolvableGrid grid) => IsConnected(grid.Grid);
-
 
         private static List<int> BreadthFirstWalk(Grid grid)
         {
@@ -153,13 +146,6 @@ namespace PowerFlowCore.Data
 
             return Enumerable.Empty<(INode Node, int num)>();
         }
-
-        /// <summary>
-        /// Find all orphan nodes in <see cref="Grid"/>. If none - returns <see cref="IEnumerable{T}.Empty"/>
-        /// </summary>
-        /// <param name="grid"><see cref="SolvableGrid"/> object to find orphan nodes</param>
-        /// <returns>Collection of (<see cref="INode"/> node, <see cref="int"/> NodeNumber)</returns>
-        public static IEnumerable<(INode Node, int Num)> FindOrphanNodes(this SolvableGrid grid) => FindOrphanNodes(grid.Grid);
 
         #endregion
     }

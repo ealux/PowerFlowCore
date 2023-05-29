@@ -10,7 +10,10 @@
 
 ## What's new:
 
-* **0.13.2** - Major performance improvement.
+* **0.13.3** - Major performance improvement. Step 2.
+  * Improve performance again</li>
+  * Eliminate SolvableGrid class (move solvers list to Grid class)
+* 0.13.2 - Major performance improvement.
 * 0.13.1 - Sparse algebra. Performance improvement.
 * 0.12.1 - Samples. Stabilizing. Cleanup.
 
