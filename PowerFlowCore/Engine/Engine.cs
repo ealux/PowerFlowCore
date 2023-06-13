@@ -4,6 +4,7 @@ using PowerFlowCore.Solvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore
@@ -17,204 +18,15 @@ namespace PowerFlowCore
         /// Engine calculations static options. May be used in calculations
         /// </summary>
         public static CalculationOptions Options { get; set; } = new CalculationOptions();
-
-        #region Calc Grid default
-
-        /// <summary>
-        /// Calculate the grid with engine static <see cref="CalculationOptions"/>
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/></param>
-        /// <returns>Tuple with <see cref="Grid"/> object and <see cref="bool"/> calculation result</returns>
-        public static (Grid Grid, bool Succsess) Calculate(this Grid grid)
-        {
-            _ = grid ?? throw new ArgumentNullException(nameof(grid));
-
-            // Validate grid
-            if (!grid.Validate())
-                return (grid, false);
-
-            // Calc grid
-            Grid calc = grid.DeepCopy().WithId(grid.Id);
-
-            // Set breaker impedance for calculus. Checks
-            if (!calc.SetBreakers())
-                return (grid, false);
-            calc.InitParameters(calc.Nodes, calc.Branches);
-
-            bool success = false;
-
-            // Calculate
-            if (grid.Solvers.Count == 0)
-            {
-                calc.SolverNR(calc.Uinit, Options, out success);
-            }
-            else
-            {
-                // Voltage vector to initialialize calculations for each solver
-                Complex[] Uinitial = calc.Uinit.Copy();
-
-                foreach (var solver in grid.Solvers)
-                {
-                    if (success)
-                        continue;
-
-                    // Turn off constraints on all solvers except the last
-                    var constrTemp = solver.Item2.UseVoltageConstraint;
-                    solver.Item2.UseVoltageConstraint = false;
-                    if (solver == grid.Solvers.Last())
-                        solver.Item2.UseVoltageConstraint = constrTemp;
-
-                    // Calculate
-                    if (solver.Item1 == SolverType.GaussSeidel)
-                        calc.SolverGS(Uinitial, solver.Item2, out success);
-                    else if (solver.Item1 == SolverType.NewtonRaphson)
-                        calc.SolverNR(Uinitial, solver.Item2, out success);
-
-                    // Set next initialization
-                    Uinitial = calc.Ucalc;
-
-                    // Set constraints back
-                    solver.Item2.UseVoltageConstraint = constrTemp;
-                }
-
-                grid.Solvers.Clear();
-            }            
-
-            if (success)
-            {
-                grid.Nodes = calc.DeepCopyNodes();
-                grid.CalculatePowerMatrix();    // Calculate power flows
-                return (grid, success);             // On success
-            }
-            else
-                return (grid, false);    // On fault
-        }
-
-        /// <summary>
-        /// Calculate the grid with engine static <see cref="CalculationOptions"/>
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/></param>
-        /// <param name="success">Calcutaion result</param>
-        /// <returns><see cref="Grid"/> object</returns>
-        public static Grid Calculate(this Grid grid, out bool success)
-        {
-            (grid, success) = Calculate(grid);
-            return grid;
-        }
-
-        /// <summary>
-        /// Calculate grids collections in parallel with engine static <see cref="CalculationOptions"/>
-        /// </summary>
-        /// <param name="grids">Input <see cref="Grid"/> collection</param>
-        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids)
-        {
-            _ = grids ?? throw new ArgumentNullException(nameof(grids));
-
-            IEnumerable<(Grid grid, bool success)> list = grids.Select(g => (g, false));
-
-            list.AsParallel().ForAll( item =>
-            {
-                // Validate grid
-                if (!item.Item1.Validate())
-                {
-                    item.Item2 = false;
-                    return;
-                }                 
-
-                // Calc grid
-                Grid calc = item.Item1.DeepCopy().WithId(item.Item1.Id);
-
-                // Set breaker impedance for calculus
-                if (!calc.SetBreakers())
-                {
-                    item.Item2 = false;
-                    return;
-                }              
-                calc.InitParameters(calc.Nodes, calc.Branches);
-
-                bool success = false;
-
-                // Calculate
-                if (item.grid.Solvers.Count == 0)
-                {
-                    calc.SolverNR(calc.Uinit, Options, out success);
-                }
-                else
-                {
-                    // Voltage vector to initialialize calculations for each solver
-                    Complex[] Uinitial = calc.Uinit.Copy();
-
-                    foreach (var solver in item.grid.Solvers)
-                    {
-                        if (success)
-                            continue;
-
-                        // Turn off constraints on all solvers except the last
-                        var constrTemp = solver.Item2.UseVoltageConstraint;
-                        solver.Item2.UseVoltageConstraint = false;
-                        if (solver == item.grid.Solvers.Last())
-                            solver.Item2.UseVoltageConstraint = constrTemp;
-
-                        // Calculate
-                        if (solver.Item1 == SolverType.GaussSeidel)
-                            calc.SolverGS(Uinitial, solver.Item2, out success);
-                        else if (solver.Item1 == SolverType.NewtonRaphson)
-                            calc.SolverNR(Uinitial, solver.Item2, out success);
-
-                        // Set next initialization
-                        Uinitial = calc.Ucalc;
-
-                        // Set constraints back
-                        solver.Item2.UseVoltageConstraint = constrTemp;
-                    }
-
-                    item.grid.Solvers.Clear();
-                }
-
-                if (success)
-                {
-                    item.Item1.Nodes = calc.DeepCopyNodes();
-                    item.Item1.CalculatePowerMatrix();    // Calculate power flows
-                    item.Item2 = true;
-                }
-                else
-                    item.Item2 = false;
-            });           
-
-            return list; 
-        }
-
-        /// <summary>
-        /// Calculate grids collections in parallel with engine static <see cref="CalculationOptions"/>
-        /// </summary>
-        /// <param name="grids">Input <see cref="Grid"/> collection</param>
-        /// <param name="success">Calcutaion result. False if any grid calculation is failed</param>
-        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, out bool success)
-        {
-            IEnumerable<(Grid, bool)> res;
-            success = true;
-
-            res = Calculate(grids);
-
-            if(res.Any(v => v.Item2 == false))
-                success = false;
-
-            return res;
-        }
-
-        #endregion
-
-        #region Calc Grid optional
+        
 
         /// <summary>
         /// Calculate the grid
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/></param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
         /// <returns>Tuple with Grid object and bool calculation result</returns>
-        public static (Grid Grid, bool Succsess) Calculate(this Grid grid, CalculationOptions options)
+        public static (Grid Grid, bool Succsess) Calculate(this Grid grid, Complex[] uinit = null!, CalculationOptions options = null!)
         {
             _ = grid ?? throw new ArgumentNullException(nameof(grid));
             if (options == null)
@@ -237,16 +49,29 @@ namespace PowerFlowCore
 
             bool success = false;
 
+            // Voltage vector to initialialize calculations for each solver
+            Complex[] Uinitial = uinit != null ? 
+                                    uinit.Length == calc.Nodes.Count ? 
+                                        uinit:
+                                        calc.Uinit.Copy()
+                                    : calc.Uinit.Copy();
+
+
             // Calculate
             if (grid.Solvers.Count == 0)
             {
-                calc.SolverNR(calc.Uinit, options, out success);
+                try
+                {
+                    calc.SolverNR(Uinitial, options, out success);
+                }
+                catch (Exception)
+                {
+                    Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                    success = false;
+                }
             }
             else
-            {
-                // Voltage vector to initialialize calculations for each solver
-                Complex[] Uinitial = calc.Uinit.Copy();
-
+            {     
                 foreach (var solver in grid.Solvers)
                 {
                     if (success)
@@ -260,9 +85,31 @@ namespace PowerFlowCore
 
                     // Calculate
                     if (solver.Item1 == SolverType.GaussSeidel)
-                        calc.SolverGS(Uinitial, solver.Item2, out success);
+                    {
+                        try
+                        {
+                            calc.SolverGS(Uinitial, solver.Item2, out success);
+                        }
+                        catch (Exception)
+                        {
+                            Logger.LogCritical("Internal G-S solver error! Check inputs!");
+                            success = false;
+                        }
+                    }
+                        
                     else if (solver.Item1 == SolverType.NewtonRaphson)
-                        calc.SolverNR(Uinitial, solver.Item2, out success);
+                    {
+                        try
+                        {
+                            calc.SolverNR(Uinitial, solver.Item2, out success);
+                        }
+                        catch (Exception)
+                        {
+                            Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                            success = false;
+                        }
+                    }
+                        
 
                     // Set next initialization
                     Uinitial = calc.Ucalc;
@@ -276,7 +123,7 @@ namespace PowerFlowCore
 
             if (success)
             {
-                grid.Nodes = calc.DeepCopyNodes();
+                grid = calc;
                 grid.CalculatePowerMatrix();    // Calculate power flows
                 return (grid, success);             // On success
             }
@@ -289,12 +136,12 @@ namespace PowerFlowCore
         /// Calculate the grid
         /// </summary>
         /// <param name="grid">Input <see cref="Grid"/></param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
         /// <param name="success">Calcutaion result</param>
         /// <returns>Tuple with Grid object and bool calculation result</returns>
-        public static Grid Calculate(this Grid grid, CalculationOptions options, out bool success)
+        public static Grid Calculate(this Grid grid, out bool success, Complex[] uinit = null!, CalculationOptions options = null!)
         {
-            (grid, success) = Calculate(grid, options);
+            (grid, success) = Calculate(grid, uinit, options);
             return grid;
         }
 
@@ -302,12 +149,12 @@ namespace PowerFlowCore
         /// Calculate grids collections in parallel
         /// </summary>
         /// <param name="grids">Input <see cref="Grid"/> collection</param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, CalculationOptions options)
+        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, CalculationOptions options = null!)
         {
             _ = grids ?? throw new ArgumentNullException(nameof(grids));
-            if(options == null)
+            if (options == null)
                 options = Options ?? new CalculationOptions();
 
             IEnumerable<(Grid grid, bool success)> list = grids.Select(g => (g, false));
@@ -340,7 +187,15 @@ namespace PowerFlowCore
                 // Calculate
                 if (item.grid.Solvers.Count == 0)
                 {
-                    calc.SolverNR(calc.Uinit, options, out success);
+                    try
+                    {
+                        calc.SolverNR(calc.Uinit, options, out success);
+                    }
+                    catch (Exception)
+                    {
+                        Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                        success = false;
+                    }
                 }
                 else
                 {
@@ -360,9 +215,29 @@ namespace PowerFlowCore
 
                         // Calculate
                         if (solver.Item1 == SolverType.GaussSeidel)
-                            calc.SolverGS(Uinitial, solver.Item2, out success);
+                        {
+                            try
+                            {
+                                calc.SolverGS(Uinitial, solver.Item2, out success);
+                            }
+                            catch (Exception)
+                            {
+                                Logger.LogCritical("Internal G-S solver error! Check inputs!");
+                                success = false;
+                            }
+                        }
                         else if (solver.Item1 == SolverType.NewtonRaphson)
-                            calc.SolverNR(Uinitial, solver.Item2, out success);
+                        {
+                            try
+                            {
+                                calc.SolverNR(Uinitial, solver.Item2, out success);
+                            }
+                            catch (Exception)
+                            {
+                                Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                                success = false;
+                            }
+                        }
 
                         // Set next initialization
                         Uinitial = calc.Ucalc;
@@ -376,7 +251,7 @@ namespace PowerFlowCore
 
                 if (success)
                 {
-                    item.Item1.Nodes = calc.DeepCopyNodes();
+                    item.Item1 = calc;
                     item.Item1.CalculatePowerMatrix();    // Calculate power flows
                     item.Item2 = true;
                 }
@@ -391,10 +266,10 @@ namespace PowerFlowCore
         /// Calculate grids collections in parallel
         /// </summary>
         /// <param name="grids">Input <see cref="Grid"/> collection</param>
-        /// <param name="options"><see cref="CalculationOptions"/> to be applied</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
         /// <param name="success">Calcutaion result. False if any grid calculation is failed</param>
         /// <returns>Collection of Grid object and bool calculation result pairs</returns>
-        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, CalculationOptions options, out bool success)
+        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<Grid> grids, out bool success, CalculationOptions options = null!)
         {
             IEnumerable<(Grid, bool)> res;
             success = true;
@@ -407,9 +282,152 @@ namespace PowerFlowCore
             return res;
         }
 
-        #endregion
+        /// <summary>
+        /// Calculate grids collections in parallel
+        /// </summary>
+        /// <param name="gridsWithUinit">Input tuple of <see cref="Grid"/> and <see cref="Complex[]"/> voltage inital vector</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
+        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
+        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<(Grid grid, Complex[] uinit)> gridsWithUinit, CalculationOptions options = null!)
+        {
+            _ = gridsWithUinit ?? throw new ArgumentNullException(nameof(gridsWithUinit));
+            if (options == null)
+                options = Options ?? new CalculationOptions();
 
-        #region Solver appliers
+            IEnumerable<(Grid grid, bool success, Complex[] uinit)> list = gridsWithUinit.Select(g => (g.grid, false, g.uinit));
+            IEnumerable<(Grid grid, bool success)> calcs;
+
+            list.AsParallel().ForAll(item =>
+            {
+                // Validate grid
+                if (!item.grid.Validate())
+                {
+                    item.success = false;
+                    return;
+                }
+
+                // Calc grid
+                Grid calc = item.Item1.DeepCopy().WithId(item.Item1.Id);
+
+                // Set breaker impedance for calculus
+                if (options.UseBreakerImpedance)
+                {
+                    if (!calc.SetBreakers())
+                    {
+                        item.Item2 = false;
+                        return;
+                    }
+                    calc.InitParameters(calc.Nodes, calc.Branches);
+                }
+
+                bool success = false;
+                // Voltage vector to initialialize calculations for each solver
+                Complex[] Uinitial = item.uinit != null ?
+                                        item.uinit.Length == calc.Nodes.Count ?
+                                            item.uinit :
+                                            calc.Uinit.Copy()
+                                        : calc.Uinit.Copy();
+
+                // Calculate
+                if (item.grid.Solvers.Count == 0)
+                {
+                    try
+                    {
+                        calc.SolverNR(Uinitial, options, out success);
+                    }
+                    catch (Exception)
+                    {
+                        Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                        success = false;
+                    }
+                }
+                else
+                {
+                    foreach (var solver in item.grid.Solvers)
+                    {
+                        if (success)
+                            continue;
+
+                        // Turn off constraints on all solvers except the last
+                        var constrTemp = solver.Options.UseVoltageConstraint;
+                        solver.Options.UseVoltageConstraint = false;
+                        if (solver == item.grid.Solvers.Last())
+                            solver.Options.UseVoltageConstraint = constrTemp;
+
+                        // Calculate
+                        if (solver.Name == SolverType.GaussSeidel)
+                        {
+                            try
+                            {
+                                calc.SolverGS(Uinitial, solver.Options, out success);
+                            }
+                            catch (Exception)
+                            {
+                                Logger.LogCritical("Internal G-S solver error! Check inputs!");
+                                success = false;
+                            }
+                        }
+                        else if (solver.Name == SolverType.NewtonRaphson)
+                        {
+                            try
+                            {
+                                calc.SolverNR(Uinitial, solver.Options, out success);
+                            }
+                            catch (Exception)
+                            {
+                                Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                                success = false;
+                            }
+                        }
+
+                        // Set next initialization
+                        Uinitial = calc.Ucalc;
+
+                        // Set constraints back
+                        solver.Options.UseVoltageConstraint = constrTemp;
+                    }
+
+                    item.grid.Solvers.Clear();
+                }
+
+                if (success)
+                {
+                    item.grid = calc;
+                    item.grid.CalculatePowerMatrix();    // Calculate power flows
+                    item.success = true;
+                }
+                else
+                    item.success = false;
+            });
+
+            calcs = list.Select(g => (g.grid, g.success));
+
+            return calcs;
+        }
+
+        /// <summary>
+        /// Calculate grids collections in parallel
+        /// </summary>
+        /// <param name="gridsWithUinit">Input tuple of <see cref="Grid"/> and <see cref="Complex[]"/> voltage inital vector</param>
+        /// <param name="options"><see cref="CalculationOptions"/> to be applied (optional)</param>
+        /// <param name="success">Calcutaion result. False if any grid calculation is failed</param>
+        /// <returns>Collection of Grid object and bool calculation result pairs</returns>
+        public static IEnumerable<(Grid Grid, bool Succsess)> Calculate(this IEnumerable<(Grid grid, Complex[] uinit)> gridsWithUinit, out bool success, CalculationOptions options = null!)
+        {
+            IEnumerable<(Grid, bool)> res;
+            success = true;
+
+            res = Calculate(gridsWithUinit, options);
+
+            if (res.Any(v => v.Item2 == false))
+                success = false;
+
+            return res;
+        }
+
+
+
+        #region [Solver appliers]
 
         /// <summary>
         /// Add selected solver to grid solvers queue
@@ -497,6 +515,6 @@ namespace PowerFlowCore
             return output.AsEnumerable();
         }
 
-        #endregion
+        #endregion [Solver appliers]
     }
 }

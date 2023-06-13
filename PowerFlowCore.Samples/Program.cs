@@ -7,7 +7,6 @@ using Complex = System.Numerics.Complex;
 
 using PowerFlowCore.Data;
 using PowerFlowCore.Algebra;
-using PowerFlowCore.Solvers;
 
 
 
@@ -21,7 +20,7 @@ namespace PowerFlowCore.Samples
 
             var timer_global = Stopwatch.StartNew();
 
-            Logger.AddConsoleMode();                          // Log to Console
+            Logger.AddConsoleMode();                          // Log to Console 
             Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener (to Debug)
             //Logger.AddDebugMode();                          // Log to Debug
             //Logger.LogBroadcast += Logger_OnLogBroadcast;   // Logger event listener
@@ -100,9 +99,9 @@ namespace PowerFlowCore.Samples
 
             ////for (int i = 0; i < 25; i++)
             ////{
-            //    timer.Restart();
-            //    _ = SampleGrids.Nodes2628_50PV();
-            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            //timer.Restart();
+            //_ = SampleGrids.Nodes2628_50PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
             ////}
 
             #endregion Creation
@@ -114,9 +113,14 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Ktr test
 
             timer.Restart();
+            CalculateAndShow(SampleGrids.Nodes22_ShuntLoad());
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Complex Test_Arc
+
+            timer.Restart();
             CalculateAndShow(SampleGrids.BreakersScheme());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Breakers Scheme
 
+            timer.Restart();
             CalculateAndShow(SampleGrids.Nodes4_1PV());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes4_1PV
 
@@ -135,6 +139,13 @@ namespace PowerFlowCore.Samples
             timer.Restart();
             CalculateAndShow(SampleGrids.Nodes15_3PV());
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV
+
+            timer.Restart();
+            var orig = SampleGrids.Nodes15_3PV_Decoupled();
+            orig.Calculate();
+            var grds = orig.GetGridIslands().ToArray();
+            CalculateAndShow(grds);
+            Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes15_3PV_Decoupled
 
             timer.Restart();
             CalculateAndShow(SampleGrids.IEEE_57());
@@ -169,9 +180,8 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
 
             timer.Restart();
-            SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions { IterationsCount = 4 })
-                                        .ApplySolver(SolverType.NewtonRaphson)
-                                        .Calculate();
+            CalculateAndShow(SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions { IterationsCount = 4 })
+                                                         .ApplySolver(SolverType.NewtonRaphson));
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
 
             #endregion
@@ -186,8 +196,8 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
             //timer.Restart();
-            //var list = Create398NodesGridList(50);    // 398nodes Grids collection (25 items)
-            //list.Calculate();       // Parallel colection
+            //var list = Create398NodesGridList(1000);    // 398nodes Grids collection (25 items)
+            //list.Calculate(new CalculationOptions() { SolverInternalLogging=false});       // Parallel collection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
             #endregion
@@ -283,7 +293,7 @@ namespace PowerFlowCore.Samples
         /// <param name="grid"><see cref="Grid"/> object to be calculated</param>
         private static void CalculateAndShow(Grid grid)
         {
-            grid.Calculate();  //Performe calculations
+            grid = grid.Calculate().Grid;  //Performe calculations
 
             ////Voltage and angle
             //for (int i = 0; i < grid.Nodes.Count; i++)
@@ -312,12 +322,25 @@ namespace PowerFlowCore.Samples
             //Console.WriteLine("\nCurrents");
             //foreach (var item in grid.Branches)
             //    Console.WriteLine("Branch " + item.Start + "-" + item.End +
-            //                        "\tStart: " + item.I_start.ToString() +
-            //                        "\tEnd: " + item.I_end.ToString());
+            //                        "\tStart: " + (item.I_start.Magnitude * 1000).ToString() +
+            //                        "\tEnd: " + (item.I_end.Magnitude * 1000).ToString());
 
 
-            //Console.WriteLine(grid.GetVoltageDifference().ToVectorString());        // Show voltage differecne in nodes
-            //Console.WriteLine(grid.GetAngleAbsoluteDifference().ToVectorString());  // Show angle differecne in branches
+            //Console.WriteLine(String.Join(", ", grid.GetVoltageDifference()));        // Show voltage differecne in nodes
+            //Console.WriteLine(String.Join(", ", grid.GetAngleAbsoluteDifference()));  // Show angle differecne in branches
+        }
+
+
+        /// <summary>
+        /// Iterative calculation from collection
+        /// </summary>
+        /// <param name="grids"></param>
+        private static void CalculateAndShow(IEnumerable<Grid> grids)
+        {
+            foreach (var grid in grids)
+            {
+                CalculateAndShow(grid);
+            }
         }
 
 

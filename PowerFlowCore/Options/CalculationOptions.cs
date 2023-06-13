@@ -12,7 +12,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Solver residual accuracy
         /// </summary>
-        public double Accuracy { get; set; } = 1e-3;
+        public double Accuracy { get; set; } = 1e-6;
 
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace PowerFlowCore
         /// <summary>
         /// Gauss-Seidel solver acceleration rate
         /// </summary>
-        public double AccelerationRateGS { get; set; } = 1.0;
+        internal double AccelerationRateGS { get; set; } = 1.0;
 
         #endregion
 

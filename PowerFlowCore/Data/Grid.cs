@@ -1,5 +1,6 @@
 ﻿using PowerFlowCore.Algebra;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,7 +63,7 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Internal sparse Vector of Powers in Nodes (Generation - Load)
         /// </summary>
-        internal SparseVectorComplex Ssp { get; private set; }
+        internal SparseVectorComplex Ssp { get; set; }
 
 
 
@@ -141,43 +142,31 @@ namespace PowerFlowCore.Data
             //Initial calc
             ReBuildNodesBranches(renodes: nodes, rebranches: branches);
 
-
-            //S and Uinit vectors filling; PQ, PV and Slack nodes count    
-            this.Uinit    = VectorComplex.Create(this.Nodes.Count);
-
-            // Reset PV nodes to PQ modes if Vpre is not set
-            foreach (var node in Nodes)
+            // Initial values
+            if (setInitialByNominal)
             {
-                if (node.Type == NodeType.PV)
+                //Uinit vectors filling; PQ, PV and Slack nodes count    
+                this.Uinit = VectorComplex.Create(this.Nodes.Count);
+
+                // Set initial voltages(flat start)
+                var slackAngle = this.Nodes[PQ_Count + PV_Count].Unom.Phase;
+                for (int i = 0; i < this.Nodes.Count; i++)
                 {
-                    var vpreN = node.Vpre <= 0.0;
+                    var node = this.Nodes[i];
+                    if (node.S_calc == Complex.Zero) node.S_calc = node.S_load;  // Set load for calculus
 
-                    if (vpreN)
-                        node.Type = NodeType.PQ;
-                }
-            }
-
-
-            //Count nodes and Set initial voltages
-            for (int i = 0; i < this.Nodes.Count; i++)
-            {
-                var node = this.Nodes[i];
-                if(node.S_calc == Complex.Zero) node.S_calc = node.S_load;  // Set load for calculus
-
-                switch (node.Type)
-                {                                      
-                    case NodeType.PQ:
-                        this.PQ_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Unom;  //PQ-type case: Inital voltage is equal to nominal voltage level
-                        break;
-                    case NodeType.PV:
-                        this.PV_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Vpre;  //PV-type case: Inital voltage is equal to user-preset voltage level
-                        break;
-                    case NodeType.Slack:
-                        this.Slack_Count++;
-                        if (setInitialByNominal == true) Uinit[i] = node.Unom;  //Slack-type case: Inital voltage is equal to nominal voltage level (constant)
-                        break;
+                    switch (node.Type)
+                    {
+                        case NodeType.PQ:
+                            Uinit[i] = Complex.FromPolarCoordinates(node.Unom.Magnitude, slackAngle);  //PQ-type case: Inital voltage is equal to nominal voltage level
+                            break;
+                        case NodeType.PV:
+                            Uinit[i] = Complex.FromPolarCoordinates(node.Vpre, slackAngle);  //PV-type case: Inital voltage is equal to user-preset voltage level
+                            break;
+                        case NodeType.Slack:
+                            Uinit[i] = node.Unom;  //Slack-type case: Inital voltage is equal to nominal voltage level (constant)
+                            break;
+                    }
                 }
             }
         }
@@ -195,18 +184,48 @@ namespace PowerFlowCore.Data
             //Counter for nodes renumber
             int counter = 0;
 
+            // Nodes count
+            PQ_Count = PV_Count = Slack_Count = 0;
+            foreach (var node in renodes)
+            {
+                switch (node.Type)
+                {
+                    case NodeType.PQ:
+                        this.PQ_Count++;
+                        break;
+                    case NodeType.PV:
+                        var vpreN = node.Vpre <= 0.0;
+                        if (vpreN)
+                        {
+                            Logger.LogWarning($"Voltage of PV Node {node.Num} is less or equals 0.0! Node type is changed to PQ");
+                            node.Type = NodeType.PQ;
+                            this.PQ_Count++;
+                        }
+                        else
+                        {
+                            this.PV_Count++;
+                        }
+                        break;
+                    case NodeType.Slack:
+                        this.Slack_Count++;
+                        break;
+                }
+            }
+
             //Nodes sort and renumber
             this.Nodes = renodes.OrderBy(_n => _n.Type)
-                                .ThenBy(_n => _n.Unom.Magnitude)
-                                .ToList();
+                                .ThenBy(_n => _n.Num)
+                                .ToList();           
+
+            // Calc nums
             this.Nodes.ForEach(_n => _n.Num_calc = counter++);
 
             // Branches to list
             this.Branches = rebranches.ToList();
 
-            // Transform breakers branches
-            foreach (var item in this.Branches.Where(b => b.Y == 0.0))
-                item.Y = 1 / new Complex(0, 0.001);
+            //// Transform breakers branches
+            //foreach (var item in this.Branches.Where(b => b.Y == 0.0))
+            //    item.Y = 1 / new Complex(0, 0.001);
 
             var numNodes = this.Nodes.Select(n=>n.Num).ToArray();
 
@@ -226,9 +245,7 @@ namespace PowerFlowCore.Data
             this.Ysp = Calc_Y(this.Nodes, this.Branches); // Sparse Y            
             this.Ssp = new SparseVectorComplex(this.S);   // Sparse S
 
-            #endregion [Y calculation]
-
-            PQ_Count = PV_Count = Slack_Count = 0;
+            #endregion [Y calculation]            
         }
 
 
@@ -269,37 +286,34 @@ namespace PowerFlowCore.Data
                 {
                     Y[start][end] -= (y / kt);
                     Y[end][start] -= (y / kt);
-                    Y[start][start] -= -(y + ysh / 2);
-                    Y[end][end] -= -(y + ysh / 2);
+                    Y[start][start] += (y + ysh / 2);
+                    Y[end][end] += (y + ysh / 2);
                 }
                 else if (nodes[start].Unom.Magnitude > nodes[end].Unom.Magnitude    // Condition for Transformer branches. At Start node Unom higher 
                         | nodes[start].Unom.Magnitude == nodes[end].Unom.Magnitude) // Voltage-added Transformers
                 {
                     Y[start][end] -= (y / kt);
                     Y[end][start] -= (y / Complex.Conjugate(kt));
-                    Y[start][start] -= -(y + ysh);
-                    Y[end][end] -= -(y / (kt * Complex.Conjugate(kt)));
+                    Y[start][start] += (y + ysh);
+                    Y[end][end] += (y / (kt * Complex.Conjugate(kt)));
                 }
                 else if (nodes[start].Unom.Magnitude < nodes[end].Unom.Magnitude)   // Condition for Transformer branches. At End node Unom higher
                 {
                     Y[start][end] -= (y / Complex.Conjugate(kt));
                     Y[end][start] -= (y / kt);
-                    Y[start][start] -= -(y / (kt * Complex.Conjugate(kt)));
-                    Y[end][end] -= -(y + ysh);
+                    Y[start][start] += (y / (kt * Complex.Conjugate(kt)));
+                    Y[end][end] += (y + ysh);
                 }
-            }            
-                
-            //var YY = new SparseVectorComplex[nodes.Count];
+            }
 
-            //for (int i = 0; i < Y.Count; i++)
-            //{
-            //    Y[i][i] -= -nodes[i].Ysh;   // Add shunt conductivities
-            //    YY[i] = new SparseVectorComplex(Y[i], nodes.Count);
-            //}
+            // Add shunt conductivities
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                Y[i][i] += nodes[i].Ysh.Conjugate();  
+            }
 
             return CSRMatrixComplex.CreateFromRows(Y, nodes.Count);
         }
-
 
 
         #endregion [Build Scheme]       

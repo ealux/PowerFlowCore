@@ -17,12 +17,8 @@ namespace PowerFlowCore.Data
             if (grid.Nodes == null || grid.Branches == null)
                 return false;
 
-            bool isConnected = true;
-
             // Conectivity
-            isConnected  = grid.IsConnected();
-
-            return isConnected;
+            return grid.IsConnected();
         }
 
         /// <summary>
@@ -40,8 +36,8 @@ namespace PowerFlowCore.Data
 
             bool success = true;
 
-            // Validate Nodes and Branches. Conectivity
-            nodesSuccess = ValidateNodes(nodes);
+            // Validate input Nodes and Branches
+            nodesSuccess = ValidateNodes(nodes, branches);
             branchesSuccess = ValidateBranches(nodes, branches);
 
             if (!nodesSuccess || !branchesSuccess)

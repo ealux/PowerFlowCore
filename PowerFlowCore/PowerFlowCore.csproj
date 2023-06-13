@@ -8,9 +8,9 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.13.3</Version>
+		<Version>0.13.4</Version>
 		<PackageReleaseNotes>
-			Major performance improvement. Step 2.
+			Uinits assumptions. Fix bugs on power flows and currents, load models. Grid connectivity checks and islands finding.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

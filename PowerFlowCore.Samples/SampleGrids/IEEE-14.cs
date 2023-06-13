@@ -16,7 +16,7 @@ namespace PowerFlowCore.Samples
 
             List<INode> nodes = new List<INode>()
             {
-                new Node(){Num = 1,  Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(243.8, 0)},
+                new Node(){Num = 1,  Type = NodeType.Slack, Unom=Complex.FromPolarCoordinates(243.8, 0 * Math.PI/180)},
                 new Node(){Num = 2,  Type = NodeType.PV,    Unom=230, Vpre = 240.35,   S_load = new Complex(21.7, 12.7),  S_gen = new Complex(40, 0), Q_min = -40, Q_max = 50},
                 new Node(){Num = 3,  Type = NodeType.PV,    Unom=230, Vpre = 232.30,   S_load = new Complex(94.2, 19.0),  S_gen = new Complex(0, 0),  Q_min = 0.0, Q_max = 40},
                 new Node(){Num = 4,  Type = NodeType.PQ,    Unom=230, S_load = new Complex(47.8, -3.9)},

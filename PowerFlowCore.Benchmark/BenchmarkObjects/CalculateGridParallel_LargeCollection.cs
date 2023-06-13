@@ -13,15 +13,18 @@ namespace PowerFlowCore.Benchmark
     public class CalculateGridParallel_LargeModel
     {
         private readonly List<Grid> grids_1000 = new List<Grid>(1000);
-        private readonly List<Grid> grids_100 = new List<Grid>(1000);
+        private readonly List<Grid> grids_100 = new List<Grid>(100);
+        private readonly List<Grid> grids_10 = new List<Grid>(10);
         private readonly Grid model;
 
 
         public CalculateGridParallel_LargeModel()
         {
             model = SampleGrids.Nodes300_27PV();
+            for (int i = 0; i < 10; i++)
+                grids_10.Add(SampleGrids.Nodes300_27PV());
             for (int i = 0; i < 100; i++)
-                grids_100.Add(SampleGrids.Nodes300_27PV());
+                grids_100.Add(SampleGrids.Nodes300_27PV());            
             for (int i = 0; i < 1000; i++)
                 grids_1000.Add(SampleGrids.Nodes300_27PV());
         }
@@ -35,6 +38,15 @@ namespace PowerFlowCore.Benchmark
             }
         }
 
+        [Benchmark]
+        public void CalculateParallel_10_items()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Engine.Calculate(grids_10);
+            }
+        }
+
 
         [Benchmark]
         public void CalculateParallel_100_items()
@@ -44,6 +56,7 @@ namespace PowerFlowCore.Benchmark
                 Engine.Calculate(grids_100);
             }
         }
+        
 
         [Benchmark]
         public void CalculateParallel_1000_items()

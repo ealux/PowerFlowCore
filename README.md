@@ -10,8 +10,14 @@
 
 ## What's new:
 
-* **0.13.3** - Major performance improvement. Step 2.
-  * Improve performance again</li>
+* **0.13.4** - Fix bugs. U initial assumption usage. Grid islands. Stabilizing.
+  * Fix voltage default initial value on grid initialization. Add Calculate() methods with Uinit assumption
+  * Fix bug on LoadModel usage
+  * Fix bug on power flows and currents calculations
+  * Rebuild validation scheme
+  * Add islands check and method for grid islands representing
+* 0.13.3 - Major performance improvement. Step 2.
+  * Improve performance again
   * Eliminate SolvableGrid class (move solvers list to Grid class)
 * 0.13.2 - Major performance improvement.
 * 0.13.1 - Sparse algebra. Performance improvement.
@@ -64,20 +70,28 @@ Inspect connectivity:
 bool connected = grid.IsConnected();
 ```
 
+Get islands (ienumerable):
+
+```csharp
+var islands = grid.GetGridIslands();
+```
+
 Calculate grid (for more details look [Calculate()](https://github.com/ealux/PowerFlowCore/blob/master/PowerFlowCore/Engine/Engine.cs) methods):
 
 ```csharp
-bool success = false;           // To save calculation result
+bool success = false; // To save calculation result
 
-grid.Calculate();               // Default calculation
+grid = grid.Calculate(); // Default calculation
 // or
-(grid, success) = grid.Calculate(new CalculationOptions() { IterationsCount = 5 }});        // Calculation with options and saving results
+(grid, success) = grid.Calculate(options:new CalculationOptions() { IterationsCount = 5 });  // Calculation with options
 // or
-grid.Calculate(out success);    // Calculate with result short saving 
+grid = grid.Calculate(uinit: grid.Ucalc).Grid; // Calculation initial voltage from previous successfull calculation (taking back Grid)
 // or
-grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })  // Apply multiple solvers
-    .ApplySolver(SolverType.NewtonRaphson)
-    .Calculate(out success);
+grid = grid.Calculate(out success); // Calculate with result short saving 
+// or
+grid = grid.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 }) // Apply multiple solvers
+           .ApplySolver(SolverType.NewtonRaphson)
+           .Calculate(out success);
 ```
 
 ## Basic concepts

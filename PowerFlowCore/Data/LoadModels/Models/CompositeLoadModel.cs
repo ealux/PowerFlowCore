@@ -146,7 +146,7 @@ namespace PowerFlowCore.Data
                     continue;
                 }
 
-                q = item.ApplyModel(node.S_load.Imaginary, node.U.Magnitude, node.Unom.Magnitude) ?? 0.0;
+                q = item!.ApplyModel(node.S_load.Imaginary, node.U.Magnitude, node.Unom.Magnitude) ?? 0.0;
                 break;
             }
 

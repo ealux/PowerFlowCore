@@ -51,7 +51,7 @@ namespace PowerFlowCore.Solvers
 
                 // Rebuild scheme if needed
                 if (crossLimits)
-                    grid.InitParameters(grid.Nodes, grid.Branches);
+                    grid.InitParameters(grid.Nodes, grid.Branches, false);
 
                 // Set up voltages after rebuilding
                 U = grid.Ucalc.Copy();
@@ -73,7 +73,7 @@ namespace PowerFlowCore.Solvers
                 grid.Nodes.First(n => n.Num == gensOnLimits[i]).Type = NodeType.PV;
 
             //Re - building scheme back
-            grid.InitParameters(grid.Nodes, grid.Branches);
+            grid.InitParameters(grid.Nodes, grid.Branches, false);
 
             // Constraints
             if (options.UseVoltageConstraint)
@@ -134,15 +134,15 @@ namespace PowerFlowCore.Solvers
                 (J, dPQ) = Sparse_J_and_dPQ_Polar(grid, U);
 
                 // Calculation of increments
-                double[] dx = CSCMatrixSolver.Solve(J, dPQ.Negative());
+                double[] dx = CSCMatrixSolver.Solve(J, dPQ);
 
                 // Update angles
                 for (int j = 0; j < (grid.PQ_Count + grid.PV_Count); j++)
-                    ph[j] -= dx[j];
+                    ph[j] += dx[j];
 
                 // Update magnitudes
                 for (int j = 0; j < grid.PQ_Count; j++)
-                    Um[j] -= dx[grid.PQ_Count + grid.PV_Count + j];
+                    Um[j] += dx[grid.PQ_Count + grid.PV_Count + j];
 
                 // Save old and calc new voltages
                 Uold = U.Copy();
@@ -154,6 +154,7 @@ namespace PowerFlowCore.Solvers
 
                 // Evaluate static load model
                 EvaluateLoadModel(grid);
+                
 
 #region [Logging on iteration]
 
@@ -197,11 +198,15 @@ namespace PowerFlowCore.Solvers
         /// <param name="grid">input grid</param>
         private static void EvaluateLoadModel(Grid grid)
         {
-            if(grid.LoadModels.Count == 0) 
+            if(grid.LoadModels.Count == 0 || !grid.Nodes.Any(n => n.LoadModelNum.HasValue))
                 return;
-
+            
+            // Apply models 
             foreach (var item in grid.Nodes.Where(n => n.LoadModelNum.HasValue))
                 grid.LoadModels[item.LoadModelNum!.Value].ApplyModel(item);
+
+            // Recalc power injections
+            grid.Ssp = new SparseVectorComplex(grid.S);
         }
 
 
@@ -345,167 +350,6 @@ namespace PowerFlowCore.Solvers
             return crossLimits;
         }
 
-
-        #region Dense
-
-        ///// <summary>
-        ///// Jacobian matrix calculation (Parallel) on each iteration
-        ///// </summary>
-        ///// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        ///// <param name="U">Present <see cref="Complex[]"/> voltage value</param>
-        ///// <returns>Jacobian matrix</returns>
-        //private static double[,] Jacobian_Polar(Grid grid, Complex[] U)
-        //{
-        //    var dim = grid.PQ_Count + grid.PV_Count;
-
-        //    var Um  = U.Map(u => u.Magnitude);
-        //    var Uph = U.Map(u => u.Phase);
-
-        //    var P_Delta = MatrixDouble.Create(dim, dim);
-        //    var P_V     = MatrixDouble.Create(dim, grid.PQ_Count);
-        //    var Q_Delta = MatrixDouble.Create(grid.PQ_Count, dim);
-        //    var Q_V     = MatrixDouble.Create(grid.PQ_Count, grid.PQ_Count);
-
-            
-        //    Parallel.For(0, dim, (i) =>
-        //    {
-        //        //P_Delta
-        //        for (int j = 0; j < dim; j++)
-        //        {
-        //            if (i != j)
-        //            {
-        //                P_Delta[i, j] = -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-        //                                Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //            }
-                        
-        //            else
-        //            {
-        //                // Component to DELETE from sum (i==j)
-        //                P_Delta[i, j] = -grid.Y[i, j].Magnitude *
-        //                                Math.Pow(Um[i], 2) *
-        //                                Math.Sin(grid.Y[i, j].Phase);
-
-        //                // Basic sum (i==j)
-        //                for (int k = 0; k < dim + grid.Slack_Count; k++)
-        //                    P_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude *
-        //                                     Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-        //            }
-        //        }
-        //        //P_V
-        //        for (int j = 0; j < grid.PQ_Count; j++)
-        //        {
-        //            if (i != j)
-        //                P_V[i, j] = Um[i] * grid.Y[i, j].Magnitude *
-        //                            Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //            else
-        //            {
-        //                // Component with deleted part (one of two) (i==j)
-        //                P_V[i, j] = Um[i] * grid.Y[i, j].Magnitude *
-        //                            Math.Cos(grid.Y[i, j].Phase);
-
-        //                // Basic sum (i==j)
-        //                for (int k = 0; k < dim + grid.Slack_Count; k++)
-        //                    P_V[i, j] += Um[k] * grid.Y[i, k].Magnitude *
-        //                                 Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-        //            }
-        //        }
-        //    });
-
-
-        //    Parallel.For(0, grid.PQ_Count, (i) =>
-        //    {
-        //        //Q_Delta
-        //        for (int j = 0; j < dim; j++)
-        //        {
-        //            if (i != j)
-        //                Q_Delta[i, j] = -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-        //                                Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //            else
-        //            {
-        //                // Component to DELETE from sum (i==j)
-        //                Q_Delta[i, j] = -grid.Y[i, j].Magnitude *
-        //                                Math.Pow(Um[i], 2) *
-        //                                Math.Cos(grid.Y[i, j].Phase);
-
-        //                // Basic sum (i==j)
-        //                for (int k = 0; k < dim + grid.Slack_Count; k++)
-        //                    Q_Delta[i, j] += Um[i] * Um[k] * grid.Y[i, k].Magnitude *
-        //                                     Math.Cos(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-        //            }
-        //        }
-        //        //Q_V
-        //        for (int j = 0; j < grid.PQ_Count; j++)
-        //        {
-        //            if (i != j)
-        //                Q_V[i, j] = -Um[i] * grid.Y[i, j].Magnitude *
-        //                            Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //            else
-        //            {
-        //                // Component with deleted part (one of two) (i==j)
-        //                Q_V[i, j] = -Um[i] * grid.Y[i, j].Magnitude *
-        //                            Math.Sin(grid.Y[i, j].Phase);
-
-        //                // Basic sum (i==j)
-        //                for (int k = 0; k < dim + grid.Slack_Count; k++)
-        //                    Q_V[i, j] -= Um[k] * grid.Y[i, k].Magnitude *
-        //                                 Math.Sin(grid.Y[i, k].Phase + Uph[k] - Uph[i]);
-        //            }
-        //        }
-        //    });
-
-        //    // Form result matrix
-        //    var res = MatrixDouble.CreateFromArray(new[,] { { P_Delta, P_V }, { Q_Delta, Q_V } });
-
-        //    return res;
-        //}
-
-        ///// <summary>
-        ///// Power residuals vector
-        ///// </summary>
-        ///// <param name="grid">Input <see cref="Grid"/> for calculus</param>
-        ///// <param name="U">Present voltage value</param>
-        ///// <returns> Power residuals vector</returns>
-        //private static double[] Resuduals_Polar(Grid grid, Complex[] U)
-        //{
-        //    var dim = grid.PQ_Count + grid.PV_Count;
-
-        //    var G = grid.Y.Real();
-        //    var B = grid.Y.Imaginary();
-
-        //    var Um = U.Map(u => u.Magnitude);
-        //    var Uph = U.Map(u => u.Phase);
-
-        //    var dP = VectorDouble.Create(dim);
-        //    var dQ = VectorDouble.Create(grid.PQ_Count);
-
-        //    //dP
-        //    Parallel.For(0, dim, i =>
-        //    {
-        //        dP[i] = grid.S[i].Real;
-        //        for (int j = 0; j < dim + grid.Slack_Count; j++)
-        //            dP[i] -= Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-        //                     Math.Cos(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //    });
-
-        //    //dQ
-        //    Parallel.For(0, grid.PQ_Count, i =>
-        //    {
-        //        dQ[i] = grid.S[i].Imaginary;
-        //        for (int j = 0; j < dim + grid.Slack_Count; j++)
-        //            dQ[i] -= -Um[i] * Um[j] * grid.Y[i, j].Magnitude *
-        //                      Math.Sin(grid.Y[i, j].Phase + Uph[j] - Uph[i]);
-        //    });
-
-        //    // Form result vector
-        //    var res = VectorDouble.Create(dP.Concat(dQ));
-
-        //    return res;
-        //}
-
-        #endregion
-
-        #region Sparse       
-
         private static (CSCMatrix, double[]) Sparse_J_and_dPQ_Polar(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
@@ -518,7 +362,7 @@ namespace PowerFlowCore.Solvers
             var dP = VectorDouble.Create(dim);
             var dQ = VectorDouble.Create(grid.PQ_Count);
 
-            // 0 -> dim
+            // calcs
             Parallel.For(0, dim, (i) =>
             {                
                 dP[i] = grid.Ssp[i].Real;
@@ -637,8 +481,6 @@ namespace PowerFlowCore.Solvers
 
             return (resJ, resdPQ);
         }
-
-        #endregion
 
 
         /// <summary>

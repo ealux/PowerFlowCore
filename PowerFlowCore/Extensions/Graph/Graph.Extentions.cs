@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-
-using PowerFlowCore.Solvers;
-using System.Collections;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace PowerFlowCore.Data
 {
@@ -16,7 +12,7 @@ namespace PowerFlowCore.Data
         #region Connectivity
 
         /// <summary>
-        /// Inspect <see cref="Grid"/> graph connectivity
+        /// Inspect <see cref="Grid"/> graph connectivity. If not connected - show islands.
         /// </summary>
         /// <param name="grid"><see cref="Grid"/> object</param>
         /// <returns><see cref="true"/> if connected, esle <see cref="false"/></returns>
@@ -28,39 +24,119 @@ namespace PowerFlowCore.Data
                 case 0:
                     Logger.LogWarning($"Nodes count is equals 0!");
                     return false;
+
                 case 1:
                     Logger.LogWarning($"Grid graph is not connected. Only one node is presented");
                     return false;
             }
             // Check branches
-            if(grid.Branches.Count == 0)
+            if (grid.Branches.Count == 0)
             {
                 Logger.LogWarning($"Branhces count is equals 0!");
                 return false;
             }
-            
-            var branches = grid.Branches.Distinct(new BranchEqualityComparer()).OrderBy(b => b.Start).ToList(); // Unique branches list
-            var exNodes  = grid.Nodes.OrderBy(n => n.Num).Select(n => n.Num).ToList();                          // Nodes list for excluding
-            
-            // If first node is orphan
-            if (!branches.Any(b => (b.Start == exNodes[0]) | (b.End == exNodes[0])))
+
+            var components = new List<List<int>>();
+            var visited = new HashSet<int>();
+
+            // Get connected components using BFS
+            for (int i = 0; i < grid.Nodes.Count; i++)
             {
-                var orphans = string.Join(", ", FindOrphanNodes(grid).Select(n => n.Num));
-                Logger.LogWarning($"Grid graph is not connected. Orphan node: {orphans}");
+                if (!visited.Contains(i))
+                    components.Add(BFSConnectedComponent(grid, i, ref visited));
+            }
+
+            if (components.Count > 1)
+            {
+                Logger.LogWarning($"Grid has {components.Count} independent islands:");
+                for (int i = 0; i < components.Count; i++)
+                {
+                    if (components[i].Count > 4)
+                    {
+                        Logger.LogWarning($"Island {i + 1}: {components[i].Count} nodes ({grid.Nodes[components[i][0]].Num}, {grid.Nodes[components[i][1]].Num} ... {grid.Nodes[components[i][components[i].Count - 1]].Num})");
+                    }
+                    else
+                    {
+                        var nodes = components[i].Select(i => grid.Nodes[i].Num).ToArray();
+                        Logger.LogWarning($"Island {i + 1}: {components[i].Count} nodes ({string.Join(", ", nodes)})");
+                    }
+                }
+                Logger.LogCritical($"Grid graph is not connected.");
                 return false;
             }
 
-            var a = BreadthFirstWalk(grid);
-
-            if (a.Count == grid.Nodes.Count)
-                return true;         
-
-            var orphanNodes = string.Join(", ", FindOrphanNodes(grid).Select(n=>n.Num));
-            Logger.LogWarning($"Grid graph is not connected. Orphan node: {orphanNodes}");
-            return false;
+            return true;
         }
 
+        /// <summary>
+        /// Return the connected components in grid as collection of grids.
+        /// Each grid is connected component.
+        /// </summary>
+        public static IEnumerable<Grid> GetGridIslands(this Grid grid)
+        {
+            var components = new List<List<int>>();
+            var visited = new HashSet<int>();
 
+            // Validate the graph parameter
+            _ = grid ?? throw new ArgumentNullException(nameof(grid));
+
+            // Check nodes
+            switch (grid.Nodes.Count)
+            {
+                case 0:
+                    Logger.LogWarning($"Nodes count is equals 0!");
+                    return Enumerable.Empty<Grid>();
+
+                case 1:
+                    Logger.LogWarning($"Grid graph is not connected. Only one node is presented");
+                    return Enumerable.Empty<Grid>();
+            }
+            if (grid.Branches.Count == 0)
+            {
+                Logger.LogWarning($"Branhces count is equals 0!");
+                return Enumerable.Empty<Grid>();
+            }
+
+            // Get connected components using BFS
+            for (int i = 0; i < grid.Nodes.Count; i++)
+            {
+                if (!visited.Contains(i))
+                    components.Add(BFSConnectedComponent(grid, i, ref visited));
+            }
+
+            var res = new List<Grid>(components.Count);
+
+            for (int i = 0; i < components.Count; i++)
+            {
+                var nodes = components[i].Select(num => grid.Nodes[num]).ToArray();
+                var nums = nodes.Select(n => n.Num).ToArray();
+                var branches = grid.Branches.Where(br => nums.Contains(br.Start) || nums.Contains(br.End)).ToArray();
+
+                res.Add(new Grid(nodes, branches));
+                if (res[i].Nodes == null)
+                {
+                    if (components[i].Count > 4)
+                    {
+                        Logger.LogCritical($"Check the input data on island {i + 1}! (nodes: {grid.Nodes[components[i][0]].Num}, {grid.Nodes[components[i][1]].Num} ... {grid.Nodes[components[i][components[i].Count - 1]].Num})");
+                    }
+                    else
+                    {
+                        var IslandNodes = components[i].Select(i => grid.Nodes[i].Num).ToArray();
+                        Logger.LogWarning($"Check the input data on island {i + 1}! ({string.Join(", ", IslandNodes)})");
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        #region [Private methods]
+
+        /// <summary>
+        /// Breadth first search grid graph
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/></param>
+        /// <returns>List of visited Nodes indexes</returns>
         private static List<int> BreadthFirstWalk(Grid grid)
         {
             var visited = new HashSet<int>() { 0 };
@@ -86,8 +162,14 @@ namespace PowerFlowCore.Data
             return listOfNodes;
         }
 
+        /// <summary>
+        /// Look neighbours of node by its index in list
+        /// </summary>
+        /// <param name="grid">Graph to search with</param>
+        /// <param name="nind">Index of Node in nodes list</param>
+        /// <returns>List of neighbours nodes indexes</returns>
         private static List<int> Neighbours(Grid grid, int nind)
-        {            
+        {
             //var nind = grid.Nodes.IndexOf(node);
             var neighbours = new List<int>(grid.Ysp.RowPtr[nind + 1] - grid.Ysp.RowPtr[nind]);
 
@@ -100,7 +182,36 @@ namespace PowerFlowCore.Data
             return neighbours;
         }
 
-        #endregion
+        /// <summary>
+        /// Find a connected component and return from a source vertex in a graph.
+        /// </summary>
+        private static List<int> BFSConnectedComponent(Grid grid, int nind, ref HashSet<int> visited)
+        {
+            var component = new List<int>();
+            var queue = new Queue<int>();
+
+            queue.Enqueue(nind);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                if (!visited.Contains(current))
+                {
+                    component.Add(current);
+                    visited.Add(current);
+
+                    foreach (var adjacent in Neighbours(grid, current))
+                        if (!visited.Contains(adjacent))
+                            queue.Enqueue(adjacent);
+                }
+            }
+
+            return component;
+        }
+
+        #endregion [Private methods]
+
+        #endregion Connectivity
 
         #region Orphan Nodes
 
@@ -117,6 +228,7 @@ namespace PowerFlowCore.Data
                 case 0:
                     Logger.LogWarning($"Nodes count is equals 0!");
                     return Enumerable.Empty<(INode Node, int num)>();
+
                 case 1:
                     Logger.LogWarning($"Grid graph is not connected. Only one node is presented");
                     return new List<(INode Node, int num)>() { (grid.Nodes[0], grid.Nodes[0].Num) }.AsEnumerable();
@@ -134,7 +246,7 @@ namespace PowerFlowCore.Data
             // Branches unique nums (from start and end)
             var branchesStart = grid.Branches.Select(b => b.Start).Concat(grid.Branches.Select(b => b.End)).Distinct();
             // Nodes list for excluding
-            var nodes = grid.Nodes.Select(n=>n.Num).Except(branchesStart).ToList();
+            var nodes = grid.Nodes.Select(n => n.Num).Except(branchesStart).ToList();
 
             if (nodes.Count > 0)
             {
@@ -147,7 +259,52 @@ namespace PowerFlowCore.Data
             return Enumerable.Empty<(INode Node, int num)>();
         }
 
-        #endregion
+        /// <summary>
+        /// Find all orphan nodes from input enumerable nodes and branches. If none - returns <see cref="IEnumerable{T}.Empty"/>
+        /// </summary>
+        /// <returns>Collection of (<see cref="INode"/> node, <see cref="int"/> NodeNumber)</returns>
+        public static IEnumerable<(INode Node, int Num)> FindOrphanNodes(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
+        {
+            // Check nodes
+            var renodes = nodes.ToArray();
+
+            switch (renodes.Count())
+            {
+                case 0:
+                    Logger.LogWarning($"Nodes count is equals 0!");
+                    return Enumerable.Empty<(INode Node, int num)>();
+
+                case 1:
+                    Logger.LogWarning($"Grid graph is not connected. Only one node is presented");
+                    return new List<(INode Node, int num)>() { (renodes[0], renodes[0].Num) }.AsEnumerable();
+            }
+            // Check branches
+            if (branches.Count() == 0)
+            {
+                Logger.LogWarning($"Branhces count is equals 0!");
+                var outList = new List<(INode Node, int num)>();
+                foreach (var item in renodes)
+                    outList.Add((item, item.Num));
+                return outList.AsEnumerable();
+            }
+
+            // Branches unique nums (from start and end)
+            var branchesStart = branches.Select(b => b.Start).Concat(branches.Select(b => b.End)).Distinct();
+            // Nodes list for excluding
+            var new_nodes = renodes.Select(n => n.Num).Except(branchesStart).ToList();
+
+            if (new_nodes.Count > 0)
+            {
+                var resultOut = new List<(INode Node, int num)>();
+                foreach (var item in new_nodes)
+                    resultOut.Add(renodes.Where(n => n.Num == item).Select(n => (n, n.Num)).First());
+                return resultOut.AsEnumerable();
+            }
+
+            return Enumerable.Empty<(INode Node, int num)>();
+        }
+
+        #endregion Orphan Nodes
     }
 
     #region [IEqualityComparer interface block]

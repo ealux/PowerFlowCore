@@ -10,46 +10,6 @@ namespace PowerFlowCore.Data
     /// </summary>
     public static partial class ExtensionsMethods
     {
-        #region Grid Initialization
-
-        /// <summary>
-        /// Set custom voltage initial vector
-        /// </summary>
-        /// <param name="grid">Input <see cref="Grid"/> object</param>
-        /// <param name="Uinit">Input <see cref="Complex[]"/> of Uinit valus</param>
-        /// <returns>Modified <see cref="Grid"/> object</returns>
-        public static Grid SetUinit(this Grid grid, Complex[] Uinit = default)
-        {
-            // If grid Uinit doesn't exist
-            if (grid.Uinit == null)
-                grid.Uinit = VectorComplex.Create(grid.Unominal.Length);
-
-            // If input Uinit is null or broken
-            if ((Uinit == null) || (Uinit.Length != grid.Unominal.Length))
-            {
-                for (int i = 0; i < grid.Nodes.Count; i++)
-                {
-                    switch (grid.Nodes[i].Type)
-                    {
-                        case NodeType.Slack:
-                        case NodeType.PQ:
-                            grid.Uinit[i] = grid.Unominal[i];       // Slack and PQ nodes = nominal
-                            break;
-                        case NodeType.PV:
-                            grid.Uinit[i] = grid.Nodes[i].Vpre;     // PV nodes = Vpre
-                            break;
-                    }
-                }
-            }
-            // If input is normal
-            else
-                Uinit.CopyTo(grid.Uinit);
-
-            return grid;
-        }
-
-        #endregion
-
         #region Grid DeepCopy
 
         /// <summary>

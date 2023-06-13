@@ -8,7 +8,7 @@ namespace PowerFlowCore.Algebra
 {
     public class SparseVector
     {
-        public const double Prec = 1e-6;
+        public const double Prec = 1e-16;
 
         public int Length;
 
