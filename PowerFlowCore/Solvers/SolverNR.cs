@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Solvers
@@ -232,7 +231,7 @@ namespace PowerFlowCore.Solvers
                     // Current node
                     var Node = grid.Nodes[nodeNum];
 
-#region [Calc new Q value]
+                    #region [Calc new Q value]
 
                     // New Q element
                     var Q_new = Node.S_calc.Imaginary;
@@ -253,7 +252,7 @@ namespace PowerFlowCore.Solvers
                     var qmin = Node.Q_min;
                     var qmax = Node.Q_max;
 
-#endregion
+                    #endregion
 
                     // On PQ state
                     if (Node.Type == NodeType.PQ)
@@ -350,7 +349,12 @@ namespace PowerFlowCore.Solvers
             return crossLimits;
         }
 
-        private static (CSCMatrix, double[]) Sparse_J_and_dPQ_Polar(Grid grid, Complex[] U)
+        /// <summary>
+        /// Calculate Jacobian matrix and Residuals vector
+        /// </summary>
+        /// <param name="grid">Input <see cref="Grid"/> to calculate</param>
+        /// <param name="U">Voltage vector at current state</param>
+        private static (CSCMatrix J, double[] dPQ) Sparse_J_and_dPQ_Polar(Grid grid, Complex[] U)
         {
             var dim = grid.PQ_Count + grid.PV_Count;
 
@@ -359,12 +363,12 @@ namespace PowerFlowCore.Solvers
 
             var rows = new SparseVector[dim + grid.PQ_Count];
 
-            var dP = VectorDouble.Create(dim);
-            var dQ = VectorDouble.Create(grid.PQ_Count);
+            var dP = new double[dim];
+            var dQ = new double[grid.PQ_Count];
 
             // calcs
             Parallel.For(0, dim, (i) =>
-            {                
+            {
                 dP[i] = grid.Ssp[i].Real;
 
                 var dimDiap = grid.Ysp.RowPtr[i + 1] - grid.Ysp.RowPtr[i];
@@ -373,37 +377,34 @@ namespace PowerFlowCore.Solvers
                                               .Where(ind => ind < grid.PQ_Count)
                                               .Count();
 
-                Dictionary<int, double> P_Delta = new Dictionary<int, double>(grid.Ysp.RowPtr[i + 1] - grid.Ysp.RowPtr[i]);
+                Dictionary<int, double> P_Delta = new Dictionary<int, double>(dimDiap);
                 Dictionary<int, double> P_V = new Dictionary<int, double>(pqDiap);
-
+                                
                 Dictionary<int, double> Q_Delta = new Dictionary<int, double>();
                 Dictionary<int, double> Q_V = new Dictionary<int, double>();
 
                 var diagY = grid.Ysp[i];
+                var diagYsin = Math.Sin(diagY.Phase);
+                var diagYcos = Math.Cos(diagY.Phase);
 
                 //P_Delta
-                P_Delta[i] = -diagY.Magnitude *
-                               Math.Pow(Um[i], 2) *
-                               Math.Sin(diagY.Phase);
+                P_Delta[i] = -diagY.Magnitude * Math.Pow(Um[i], 2) * diagYsin;
 
                 if (i < grid.PQ_Count)
                 {
                     //P_V
-                    P_V[i] = Um[i] * diagY.Magnitude *
-                                    Math.Cos(diagY.Phase);
+                    P_V[i] = Um[i] * diagY.Magnitude * diagYcos;
 
                     //dQ
                     dQ[i] = grid.Ssp[i].Imaginary;
 
-                    Q_Delta = new Dictionary<int, double>(grid.Ysp.RowPtr[i + 1] - grid.Ysp.RowPtr[i]);
+                    Q_Delta = new Dictionary<int, double>(dimDiap);
                     Q_V = new Dictionary<int, double>(pqDiap);
 
-                    Q_Delta[i] = -diagY.Magnitude *
-                                        Math.Pow(Um[i], 2) *
-                                        Math.Cos(diagY.Phase);
+                    //Q_Delta
+                    Q_Delta[i] = -diagY.Magnitude * Math.Pow(Um[i], 2) * diagYcos;
                     //Q_V
-                    Q_V[i] = -Um[i] * diagY.Magnitude *
-                                    Math.Sin(diagY.Phase);
+                    Q_V[i] = -Um[i] * diagY.Magnitude * diagYsin;
                 }
                     
 
@@ -462,18 +463,18 @@ namespace PowerFlowCore.Solvers
                     }
                 }
 
+                var v1 = new SparseVector(P_Delta, dim);
+                var v2 = new SparseVector(P_V, grid.PQ_Count);
+
+                rows[i] = v1.Concat(v2);
+
                 if (i < grid.PQ_Count)
                 {
                     var v3 = new SparseVector(Q_Delta, dim);
                     var v4 = new SparseVector(Q_V, grid.PQ_Count);
 
                     rows[dim + i] = v3.Concat(v4);
-                }
-
-                var v1 = new SparseVector(P_Delta, dim);
-                var v2 = new SparseVector(P_V, grid.PQ_Count);
-
-                rows[i] = v1.Concat(v2);
+                }               
             });
 
             var resJ = CSRMatrix.CreateFromRows(rows).ToCSC();
@@ -481,7 +482,6 @@ namespace PowerFlowCore.Solvers
 
             return (resJ, resdPQ);
         }
-
 
         /// <summary>
         /// Find maximum residuals of P and Q with corresponded nodes

@@ -124,10 +124,10 @@ namespace PowerFlowCore.Solvers
                 if (outOfVoltageOverflow.Any() || outOfVoltageLack.Any())
                 {
                     success = false;
-                    foreach (var item in outOfVoltageOverflow.OrderByDescending(i => i.Item2))
-                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} (+{item.Item2}%)", grid.Id);
-                    foreach (var item in outOfVoltageLack.OrderByDescending(i => i.Item2))
-                        Logger.LogWarning($"Voltage constraints is violated in node {item.Item1.Num} ({item.Item2}%)", grid.Id);
+                    foreach (var item in outOfVoltageOverflow.OrderByDescending(i => i.diff))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.node.Num} (+{item.diff}%)", grid.Id);
+                    foreach (var item in outOfVoltageLack.OrderByDescending(i => i.diff))
+                        Logger.LogWarning($"Voltage constraints is violated in node {item.node.Num} ({item.diff}%)", grid.Id);
                     Logger.LogCritical($"Calculation failed due to voltage restrictions violation", grid.Id);
                 }
             }
@@ -170,9 +170,12 @@ namespace PowerFlowCore.Solvers
             // Apply acceleration rate
             U[nodeNum] = old + accRate * (U[nodeNum] - old);
 
+            //// Complete voltage difference vector
+            //for (int i = 0; i < dU.Length; i++)
+            //    dU[i] = U[i] - Uold[i];
+
             // Complete voltage difference vector
-            for (int i = 0; i < dU.Length; i++)
-                dU[i] = U[i] - Uold[i];
+            dU[nodeNum] = U[nodeNum] - Uold[nodeNum];
         }
 
 

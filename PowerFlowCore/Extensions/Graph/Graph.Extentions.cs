@@ -168,15 +168,14 @@ namespace PowerFlowCore.Data
         /// <param name="grid">Graph to search with</param>
         /// <param name="nind">Index of Node in nodes list</param>
         /// <returns>List of neighbours nodes indexes</returns>
-        private static List<int> Neighbours(Grid grid, int nind)
+        private static int[] Neighbours(Grid grid, int nind)
         {
-            //var nind = grid.Nodes.IndexOf(node);
-            var neighbours = new List<int>(grid.Ysp.RowPtr[nind + 1] - grid.Ysp.RowPtr[nind]);
+            var neighbours = new int[grid.Ysp.RowPtr[nind + 1] - grid.Ysp.RowPtr[nind] - 1];
 
-            for (int i = grid.Ysp.RowPtr[nind]; i < grid.Ysp.RowPtr[nind + 1]; i++)
+            for (int j = 0, i = grid.Ysp.RowPtr[nind]; i < grid.Ysp.RowPtr[nind + 1]; i++)
             {
                 if (nind != grid.Ysp.ColIndex[i])
-                    neighbours.Add(grid.Ysp.ColIndex[i]);
+                    neighbours[j++] = grid.Ysp.ColIndex[i];
             }
 
             return neighbours;

@@ -31,14 +31,14 @@ namespace PowerFlowCore.Benchmark
 
         
         [Benchmark(Baseline=true)]
-        public void NewtonRaphsonOnly_IEEE_14()
+        public void NR_IEEE_14()
         {
             for (int i = 0; i < N; i++)
                 _IEEE_14.Calculate();
         }
 
         [Benchmark]
-        public void GaussThenNewtonRaphson_IEEE_14()
+        public void GSandNR_IEEE_14()
         {
             for (int i = 0; i < N; i++)
                 _IEEE_14.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
@@ -47,14 +47,14 @@ namespace PowerFlowCore.Benchmark
         }
 
         [Benchmark]
-        public void NewtonRaphsonOnly_IEEE_118()
+        public void NR_IEEE_118()
         {
             for (int i = 0; i < N; i++)
                 _IEEE_118.Calculate();
         }
 
         [Benchmark]
-        public void GaussThenNewtonRaphson_IEEE_118()
+        public void GSandNR_IEEE_118()
         {
             for (int i = 0; i < N; i++)
                 _IEEE_118.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
@@ -63,14 +63,14 @@ namespace PowerFlowCore.Benchmark
         }
 
         [Benchmark]
-        public void NewtonRaphsonOnly_Nodes300_27PV()
+        public void NR_Nodes300_27PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes300_27PV.Calculate();
         }
 
         [Benchmark]
-        public void GaussThenNewtonRaphson_Nodes300_27PV()
+        public void GSandNR_Nodes300_27PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes300_27PV.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
@@ -79,14 +79,14 @@ namespace PowerFlowCore.Benchmark
         }
 
         [Benchmark]
-        public void NewtonRaphsonOnly_Nodes1350_250PV()
+        public void NR_Nodes1350_250PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes1350_250PV.Calculate();
         }
 
         [Benchmark]
-        public void GaussThenNewtonRaphson_Nodes1350_250PV()
+        public void GSandNR_Nodes1350_250PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes1350_250PV.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })
@@ -95,14 +95,14 @@ namespace PowerFlowCore.Benchmark
         }
 
         [Benchmark]
-        public void NewtonRaphsonOnly_Nodes2628_50PV()
+        public void NR_Nodes2628_50PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes2628_50PV.Calculate();
         }
 
         [Benchmark]
-        public void GaussThenNewtonRaphson_Nodes2628_50PV()
+        public void GSandNR_Nodes2628_50PV()
         {
             for (int i = 0; i < N; i++)
                 _Nodes2628_50PV.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 5 })

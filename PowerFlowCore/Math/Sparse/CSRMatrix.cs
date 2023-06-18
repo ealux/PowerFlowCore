@@ -112,26 +112,30 @@ namespace PowerFlowCore.Algebra
 
         public static CSRMatrix CreateFromRows(SparseVector[] rows)
         {
-            if (rows.Any(r => r.Length != rows[0].Length))
-                throw new ArgumentException("Rows have different length vectors!");
+            var cnt = rows[0].Indexes.Length;
+
+            for (int i = 1; i < rows.Length; i++)
+            {
+                if(rows[i].Length != rows[0].Length)
+                    throw new ArgumentException("Rows have different length vectors!");
+                cnt += rows[i].Indexes.Length;
+            }
 
             var res = new CSRMatrix(rows.Length, rows[0].Length, 0);
 
-            var tmpColInds = new List<int>();
-            var tmpVals = new List<double>();
-            var tmpRowPtr = new int[res.Rows + 1];
+            res.ColIndex = new int[cnt];
+            res.Values = new double[cnt];
+            res.RowPtr = new int[res.Rows + 1];
 
-            for (int i = 0; i < res.Rows; i++)
+            for (int i = 0, offset = 0; i < res.Rows; i++)
             {
-                tmpColInds.AddRange(rows[i].Indexes);
-                tmpVals.AddRange(rows[i].Values);
+                Array.Copy(rows[i].Indexes, 0, res.ColIndex, offset, rows[i].Indexes.Length);
+                Array.Copy(rows[i].Values, 0, res.Values, offset, rows[i].Values.Length);
                 res.NNZ += rows[i].Indexes.Length;
-                tmpRowPtr[i + 1] = res.NNZ;
-            }
+                res.RowPtr[i + 1] = res.NNZ;
 
-            res.ColIndex = tmpColInds.ToArray();
-            res.Values = tmpVals.ToArray();
-            res.RowPtr = tmpRowPtr;
+                offset += rows[i].Indexes.Length;
+            }
 
             return res;
         }
@@ -286,7 +290,7 @@ namespace PowerFlowCore.Algebra
             var res = new CSCMatrix(Cols, Rows, NNZ);
 
             var T = this.Transpose();
-            res.ColPtr = T.RowPtr; 
+            res.ColPtr = T.RowPtr;
             res.Values = T.Values;
             res.RowIndex = T.ColIndex;
 

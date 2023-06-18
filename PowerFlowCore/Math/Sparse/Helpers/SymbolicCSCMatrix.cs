@@ -26,7 +26,7 @@ namespace PowerFlowCore.Algebra
         public int[] ColumnPointers;
 
         /// <summary>
-        /// Row indices (size = NonZerosCount)
+        /// Row indices (size = NNZ)
         /// </summary>
         public int[] RowIndices;
 

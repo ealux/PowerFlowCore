@@ -1,6 +1,7 @@
 ﻿using PowerFlowCore.Algebra;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -256,7 +257,7 @@ namespace PowerFlowCore.Data
         /// <param name="branches">Collection of (transformed) <see cref="IBranch"/></param>
         /// <returns><see cref=Complex[,]"/> -> Admittance matrix with <see cref="Complex"/> data</returns>
         private CSRMatrixComplex Calc_Y(List<INode> nodes, List<IBranch> branches)
-        {           
+        {
             //Initialize admittance matrix
             var Y = new Dictionary<int, Complex>[nodes.Count];
 
@@ -309,7 +310,7 @@ namespace PowerFlowCore.Data
             // Add shunt conductivities
             for (int i = 0; i < nodes.Count; i++)
             {
-                Y[i][i] += nodes[i].Ysh.Conjugate();  
+                Y[i][i] += nodes[i].Ysh.Conjugate();
             }
 
             return CSRMatrixComplex.CreateFromRows(Y, nodes.Count);

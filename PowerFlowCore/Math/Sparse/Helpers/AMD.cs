@@ -13,7 +13,7 @@ namespace PowerFlowCore.Algebra
         /// error or for natural ordering</returns>
         public static int[] Generate(CSCMatrix A, int order)
         {
-            int[] Cp, Ci, P, W, nv, next, head, elen, degree, w, hhead;
+            int[] P, W, nv, next, head, elen, degree, w, hhead;
 
             int d, dk, dext, lemax = 0, e, elenk, eln, i, j, k, k1,
                 k2, k3, jlast, ln, dense, nzmax, mindeg = 0, nvi, nvj, nvk, mark, wnvi,
@@ -25,13 +25,12 @@ namespace PowerFlowCore.Algebra
 
             if (order == 0)
             {
-                // TODO: return null here?
                 return Permutations.Create(n);
             }
 
             var C = ConstructMatrix(SymbolicCSCMatrix.Create(A), order);
 
-            Cp = C.ColumnPointers;
+            var Cp = C.ColumnPointers;
             cnz = Cp[n];
 
             // Find dense threshold
@@ -53,17 +52,16 @@ namespace PowerFlowCore.Algebra
             for (k = 0; k < n; k++)
             {
                 W[k] = Cp[k + 1] - Cp[k];
+                P[k] = -1;
+                w[k] = 1; // node i is alive
+                degree[k] = W[k]; // degree of node i
             }
             W[n] = 0;
+            P[n] = -1;
+            w[n] = 1;
+            degree[n] = 0;
             nzmax = C.RowIndices.Length;
-            Ci = C.RowIndices;
-
-            for (i = 0; i <= n; i++)
-            {
-                P[i] = -1;
-                w[i] = 1; // node i is alive
-                degree[i] = W[i]; // degree of node i
-            }
+            var Ci = C.RowIndices;
 
             next = new int[n + 1];
             hhead = new int[n + 1];

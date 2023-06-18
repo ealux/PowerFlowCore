@@ -9,8 +9,10 @@ namespace PowerFlowCore.Benchmark
     /// <summary>
     /// Calculate sample grids several times for performance tests
     /// </summary>
+    //[SimpleJob(RuntimeMoniker.Net472, baseline: true)]
     [SimpleJob(RuntimeMoniker.Net60)]
-    [MemoryDiagnoser(false)]
+    //[SimpleJob(RuntimeMoniker.Net70)]
+    [MemoryDiagnoser(true)]
     public class CalculateGrid
     {
         [Params(1)]//, 10, 100)]

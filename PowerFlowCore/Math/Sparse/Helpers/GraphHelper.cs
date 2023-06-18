@@ -16,20 +16,26 @@ namespace PowerFlowCore.Algebra
         /// <param name="offset">the index of the first element in array pstack</param>
         /// <param name="pinv">mapping of rows to columns of G, ignored if null</param>
         /// <returns>new value of top, -1 on error</returns>
+#if (NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
+        public static int DepthFirstSearch(int j, Span<int> Gp, Span<int> Gi, int top, Span<int> xi,
+            Span<int> pstack, int offset, Span<int> pinv)
+#else
         public static int DepthFirstSearch(int j, int[] Gp, int[] Gi, int top, int[] xi,
             int[] pstack, int offset, int[] pinv)
+#endif
         {
-            int i, p, p2, jnew, head = 0;
+            int p2, jnew, head = 0;
             bool done;
 
-            if (xi == null || pstack == null) return -1;
+            if (xi == null || pstack == null) 
+                return -1;
 
             xi[0] = j; // initialize the recursion stack
             while (head >= 0)
             {
                 j = xi[head]; // get j from the top of the recursion stack
-                jnew = pinv != null ? (pinv[j]) : j;
-                if (!(Gp[j] < 0))
+                jnew = pinv != null ? pinv[j] : j;
+                if (Gp[j] >= 0)
                 {
                     //CS_MARK(Gp, j);
                     Gp[j] = -(Gp[j]) - 2; // mark node j as visited
@@ -40,9 +46,9 @@ namespace PowerFlowCore.Algebra
                 p2 = (jnew < 0) ? 0 : // CS_UNFLIP(Gp[jnew + 1]);
                     ((Gp[jnew + 1] < 0) ? -Gp[jnew + 1] - 2 : Gp[jnew + 1]);
 
-                for (p = pstack[offset + head]; p < p2; p++) // examine all neighbors of j
+                for (int p = pstack[offset + head]; p < p2; p++) // examine all neighbors of j
                 {
-                    i = Gi[p]; // consider neighbor node i
+                    int i = Gi[p]; // consider neighbor node i
                     if (Gp[i] < 0) continue; // skip visited node i
                     pstack[offset + head] = p; // pause depth-first search of node j
                     xi[++head] = i; // start dfs at node i
@@ -55,7 +61,7 @@ namespace PowerFlowCore.Algebra
                     xi[--top] = j; // and place in the output stack
                 }
             }
-            return (top);
+            return top;
         }
 
         /// <summary>
@@ -72,14 +78,14 @@ namespace PowerFlowCore.Algebra
             int i, k, p, inext;
 
             int[] parent = new int[n]; // allocate result
-
             int[] ancestor = new int[n];
             int[] prev = null;
 
             if (ata)
             {
                 prev = new int[m];
-                for (i = 0; i < m; i++) prev[i] = -1;
+                for (i = 0; i < m; i++) 
+                    prev[i] = -1;
             }
 
             for (k = 0; k < n; k++)
@@ -95,7 +101,8 @@ namespace PowerFlowCore.Algebra
                         ancestor[i] = k; // path compression
                         if (inext == -1) parent[i] = k; // no anc., parent is k
                     }
-                    if (ata) prev[rowind[p]] = k;
+                    if (ata) 
+                        prev[rowind[p]] = k;
                 }
             }
             return parent;
@@ -298,7 +305,11 @@ namespace PowerFlowCore.Algebra
 
         // xi [top...n-1] = nodes reachable from graph of G*P' via nodes in B(:,k).
         // xi [n...2n-1] used as workspace
+#if (NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
+        public static int Reach(Span<int> Gp, Span<int> Gi, Span<int> Bp, Span<int> Bi, int n, int k, Span<int> xi, Span<int> pinv)
+#else
         public static int Reach(int[] Gp, int[] Gi, int[] Bp, int[] Bi, int n, int k, int[] xi, int[] pinv)
+#endif
         {
             if (xi == null) 
                 return -1; // check inputs

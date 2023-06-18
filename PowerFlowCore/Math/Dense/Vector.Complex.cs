@@ -486,10 +486,7 @@ namespace PowerFlowCore.Algebra
 
             var res = new double[vec.Length];
 
-            Parallel.For(0, vec.Length, i =>
-            {
-                res[i] = func(vec[i]);
-            });
+            Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
 
             return res;
         }

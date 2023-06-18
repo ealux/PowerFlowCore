@@ -188,6 +188,9 @@ namespace PowerFlowCore.Algebra
             return res;
         }
 
+        /// <summary>
+        /// Create dense matrix with diagonal elements only
+        /// </summary>
         public Complex[,] ToDiagonal()
         {
             var diag = GetDiagonal();
@@ -200,6 +203,7 @@ namespace PowerFlowCore.Algebra
 
             return res;
         }
+
 
         internal bool Resize(int size)
         {

@@ -97,11 +97,11 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
             //                                                                        //}           
 
-            ////for (int i = 0; i < 25; i++)
+            ////for (int i = 0; i < 250; i++)
             ////{
-            //timer.Restart();
-            //_ = SampleGrids.Nodes2628_50PV();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            //    timer.Restart();
+            //    _ = SampleGrids.Nodes2628_50PV();
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
             ////}
 
             #endregion Creation
@@ -184,6 +184,7 @@ namespace PowerFlowCore.Samples
                                                          .ApplySolver(SolverType.NewtonRaphson));
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
 
+
             #endregion
 
             #region Parallel calcs            
@@ -197,7 +198,7 @@ namespace PowerFlowCore.Samples
 
             //timer.Restart();
             //var list = Create398NodesGridList(1000);    // 398nodes Grids collection (25 items)
-            //list.Calculate(new CalculationOptions() { SolverInternalLogging=false});       // Parallel collection
+            //list.Calculate(new CalculationOptions() { SolverInternalLogging = false });       // Parallel collection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
             #endregion
@@ -207,7 +208,7 @@ namespace PowerFlowCore.Samples
             //// ---- Multiple solvers calcs ----
             //timer.Restart();
             //var list = CreateSamplesList();    // Sample Grids collection
-            //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 1 })   // Parallel with multi solver
+            //list.ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 3 })   // Parallel with multi solver
             //    .ApplySolver(SolverType.NewtonRaphson)
             //    .Calculate();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
@@ -273,8 +274,11 @@ namespace PowerFlowCore.Samples
 
             //// ---- IsConnected checks ----
             //var list = CreateSamplesList();    // Sample Grid collection
+
+            //timer.Restart();
             //foreach (var item in list)
             //    Console.WriteLine(item.Nodes.Count + " nodes - " + item.IsConnected());    // Check connectivity
+            //Logger.LogInfo("Calc End with: " + timer.Elapsed);
 
             #endregion
 

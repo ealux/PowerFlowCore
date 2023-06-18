@@ -10,7 +10,8 @@
 
 ## What's new:
 
-* **0.13.4** - Fix bugs. U initial assumption usage. Grid islands. Stabilizing.
+* **0.13.5** - GS performance improvement. Minor optimisations.
+* 0.13.4 - Fix bugs. U initial assumption usage. Grid islands. Stabilizing.
   * Fix voltage default initial value on grid initialization. Add Calculate() methods with Uinit assumption
   * Fix bug on LoadModel usage
   * Fix bug on power flows and currents calculations
@@ -31,6 +32,8 @@
 * Algorithms on graphs (connectivity etc.)
 * Network operational limits control
 * Parallel calculations from box 
+
+Available on [NuGet](https://www.nuget.org/packages/PowerFlowCore).
 
 Samples are presented in [PowerFlowCore.Samples](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Samples) project. Library benchmarking is presented in [PowerFlowCore.Benchmark](https://github.com/ealux/PowerFlowCore/tree/master/PowerFlowCore.Benchmark) project.
 

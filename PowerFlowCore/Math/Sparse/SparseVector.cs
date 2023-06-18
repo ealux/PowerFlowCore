@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace PowerFlowCore.Algebra
 {
@@ -50,8 +51,14 @@ namespace PowerFlowCore.Algebra
             if (length < 0)
                 throw new ArgumentException("Input length < 0", nameof(length));
 
-            Indexes = dict.Keys.ToArray();
-            Values = dict.Values.ToArray();
+            var count = dict.Keys.Count;
+
+            Indexes = new int[count];
+            Values = new double[count];
+
+            dict.Keys.CopyTo(Indexes, 0);
+            dict.Values.CopyTo(Values, 0);
+
             Length = length;
         }
 
@@ -90,14 +97,20 @@ namespace PowerFlowCore.Algebra
             }
             else if(Indexes.Length == 0 & vector.Indexes.Length != 0)
             {
-                var tmpInds = vector.Indexes.Select(i => i + Length).ToArray();
+                var tmpInds = new int[vector.Indexes.Length];
+                for (int i = 0; i < vector.Indexes.Length; i++)
+                    tmpInds[i] = vector.Indexes[i] + Length;
                 Array.Copy(tmpInds, 0, res.Indexes, 0, vector.Indexes.Length);
                 Array.Copy(vector.Values, 0, res.Values, 0, vector.Values.Length);
             }
             else if(Indexes.Length != 0 & vector.Indexes.Length != 0)
             {
                 Array.Copy(Indexes, 0, res.Indexes, 0, Indexes.Length);
-                var tmpInds = vector.Indexes.Select(i => i + Length).ToArray();
+
+                var tmpInds = new int[vector.Indexes.Length];
+                for (int i = 0; i < vector.Indexes.Length; i++)
+                    tmpInds[i] = vector.Indexes[i] + Length;
+
                 Array.Copy(tmpInds, 0, res.Indexes, Indexes.Length, vector.Indexes.Length);
 
                 Array.Copy(Values, 0, res.Values, 0, Values.Length);

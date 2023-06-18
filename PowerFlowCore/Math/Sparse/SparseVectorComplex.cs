@@ -18,8 +18,10 @@ namespace PowerFlowCore.Algebra
         { 
             get
             {
-                var pos = Array.IndexOf(Indexes, i);
-                if (pos == -1)
+                //var pos = Array.IndexOf(Indexes, i);
+                //if (pos == -1)
+                var pos = Array.BinarySearch(Indexes, i);
+                if (pos < 0)
                 {
                     return Complex.Zero;
                 }

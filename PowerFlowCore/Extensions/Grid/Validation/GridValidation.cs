@@ -24,7 +24,6 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Validate <see cref="Grid"/> Nodes and Branches
         /// </summary>
-        /// <param name="grid">input <see cref="Grid"/> object</param>
         /// <returns><see cref="true"/> if valid</returns>
         public static bool ValidateInput(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {

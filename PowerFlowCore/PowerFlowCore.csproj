@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
+	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
      <OutputType>Library</OutputType>
 	 <Nullable>enable</Nullable>
 	 <LangVersion>8</LangVersion>
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.13.4</Version>
+		<Version>0.13.5</Version>
 		<PackageReleaseNotes>
-			Uinits assumptions. Fix bugs on power flows and currents, load models. Grid connectivity checks and islands finding.
+			GS performance improvement. Minor optimisations.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

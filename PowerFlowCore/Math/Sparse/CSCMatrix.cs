@@ -34,8 +34,6 @@ namespace PowerFlowCore.Algebra
             }
         }
 
-
-
         #region Constructor
 
         public CSCMatrix()

@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
 {
-    internal class SparseLU
+    internal class LU
     {
-        readonly int n;
+        private readonly int n;
 
-        SymbolicFactorization S;
-        CSCMatrix L, U;
-        int[] pinv; // partial pivoting
+        private SymbolicFactorization S;
+        private CSCMatrix L, U;
+        private int[] pinv;     // partial pivoting
 
-        double[] temp; // workspace
+        private double[] temp; // workspace
 
         #region Static methods
 
@@ -21,7 +22,7 @@ namespace PowerFlowCore.Algebra
         /// <param name="order">Ordering method to use (natural or A+A').</param>
         /// <param name="tol">Partial pivoting tolerance (form 0.0 to 1.0).</param>
         /// <param name="progress">Report progress (range from 0.0 to 1.0).</param>
-        public static SparseLU Create(CSCMatrix A, int order, double tol)
+        public static LU Create(CSCMatrix A, int order, double tol)
         {
             return Create(A, AMD.Generate(A, order), tol);
         }
@@ -32,14 +33,14 @@ namespace PowerFlowCore.Algebra
         /// <param name="A">Column-compressed matrix, must be square.</param>
         /// <param name="p">Fill-reducing column permutation.</param>
         /// <param name="tol">Partial pivoting tolerance (form 0.0 to 1.0).</param>
-        public static SparseLU Create(CSCMatrix A, int[] p, double tol)
-        {     
+        public static LU Create(CSCMatrix A, int[] p, double tol)
+        {
             int n = A.Cols;
 
             // Ensure tol is in range.
             tol = Math.Min(Math.Max(tol, 0.0), 1.0);
 
-            var C = new SparseLU(n);
+            var C = new LU(n);
 
             // Ordering and symbolic analysis
             C.SymbolicAnalysis(A, p);
@@ -50,9 +51,9 @@ namespace PowerFlowCore.Algebra
             return C;
         }
 
-        #endregion
+        #endregion Static methods
 
-        private SparseLU(int n)
+        private LU(int n)
         {
             this.n = n;
             this.temp = new double[n];
@@ -61,7 +62,7 @@ namespace PowerFlowCore.Algebra
         /// <summary>
         /// Gets the number of nonzeros in both L and U factors together.
         /// </summary>
-        public int NonZerosCount
+        public int NNZ
         {
             get { return (L.NNZ + U.NNZ - n); }
         }
@@ -146,9 +147,6 @@ namespace PowerFlowCore.Algebra
             int[] up = U.ColPtr;
             double[] lx, ux;
 
-            double current = 0.0;
-            double step = n / 100.0;
-
             // Now compute L(:,k) and U(:,k)
             for (int k = 0; k < n; k++)
             {
@@ -189,7 +187,7 @@ namespace PowerFlowCore.Algebra
 
                 if (ipiv == -1 || a <= 0.0)
                 {
-                    //throw new Exception("No pivot element found.");
+                    throw new Exception("No pivot element found.");
                 }
 
                 if (pinv[col] < 0 && Math.Abs(x[col]) >= a * tol)
@@ -220,10 +218,9 @@ namespace PowerFlowCore.Algebra
             lp[n] = lnz;
             up[n] = unz;
             li = L.RowIndex; // fix row indices of L for final pinv
+
             for (p = 0; p < lnz; p++)
-            {
                 li[p] = pinv[li[p]];
-            }
 
             // Remove extra space from L and U
             L.Resize(0);
@@ -262,6 +259,15 @@ namespace PowerFlowCore.Algebra
         {
             if (xi == null || x == null) return -1;
 
+        #if(NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
+            var gp = G.ColPtr.AsSpan();
+            var gi = G.RowIndex.AsSpan();
+            var gx = G.Values.AsSpan();
+
+            var bp = B.ColPtr.AsSpan();
+            var bi = B.RowIndex.AsSpan();
+            var bx = B.Values.AsSpan();
+        #else
             var gp = G.ColPtr;
             var gi = G.RowIndex;
             var gx = G.Values;
@@ -269,6 +275,7 @@ namespace PowerFlowCore.Algebra
             var bp = B.ColPtr;
             var bi = B.RowIndex;
             var bx = B.Values;
+        #endif
 
             int n = G.Cols;
 
@@ -291,7 +298,8 @@ namespace PowerFlowCore.Algebra
             {
                 j = xi[px]; // x(j) is nonzero
                 J = pinv != null ? (pinv[j]) : j; // j maps to col J of G
-                if (J < 0) continue; // column J is empty
+                if (J < 0) 
+                    continue; // column J is empty
                 x[j] /= gx[lo ? (gp[J]) : (gp[J + 1] - 1)]; // x(j) /= G(j,j)
                 p = lo ? (gp[J] + 1) : (gp[J]); // lo: L(j,j) 1st entry
                 q = lo ? (gp[J + 1]) : (gp[J + 1] - 1); // up: U(j,j) last entry
@@ -306,7 +314,7 @@ namespace PowerFlowCore.Algebra
         }
 
         #region SolverHelpers
-        
+
         /// <summary>
         /// Solve a lower triangular system by forward elimination, Lx=b.
         /// </summary>
@@ -333,7 +341,6 @@ namespace PowerFlowCore.Algebra
                 }
             }
         }
-        
 
         /// <summary>
         /// Solve L'x=b where x and b are dense.
@@ -362,7 +369,6 @@ namespace PowerFlowCore.Algebra
             }
         }
 
-
         /// <summary>
         /// Solve an upper triangular system by backward elimination, Ux=b.
         /// </summary>
@@ -389,7 +395,6 @@ namespace PowerFlowCore.Algebra
                 }
             }
         }
-
 
         /// <summary>
         /// Solve U'x=b where x and b are dense.
@@ -418,6 +423,6 @@ namespace PowerFlowCore.Algebra
             }
         }
 
-        #endregion
+        #endregion SolverHelpers
     }
 }
