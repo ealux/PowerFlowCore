@@ -1,5 +1,6 @@
 ﻿using PowerFlowCore.Algebra;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
@@ -39,6 +40,7 @@ namespace PowerFlowCore.Data
                 {
                     var start = item.Start_calc;
                     var end = item.End_calc;
+
                     var kt = item.Ktr.Magnitude <= 0 ? Complex.One : item.Ktr;
 
                     //Lines or Breakers

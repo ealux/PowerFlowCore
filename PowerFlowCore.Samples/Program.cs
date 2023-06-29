@@ -90,19 +90,19 @@ namespace PowerFlowCore.Samples
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV           
             //                                                                        //}
 
+            //for (int i = 0; i < 250; i++)
+            //{
+                timer.Restart();
+                _ = SampleGrids.Nodes1350_250PV();
+                Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            //}
+
             ////for (int i = 0; i < 10; i++)
             ////{
             //timer.Restart();
-            //_ = SampleGrids.Nodes1350_250PV();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
-            //                                                                        //}           
-
-            ////for (int i = 0; i < 250; i++)
-            ////{
-            //    timer.Restart();
-            //    _ = SampleGrids.Nodes2628_50PV();
-            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
-            ////}
+            //_ = SampleGrids.Nodes2628_50PV();
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            //                                                                        //}  
 
             #endregion Creation
 
@@ -185,6 +185,7 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
 
 
+
             #endregion
 
             #region Parallel calcs            
@@ -196,8 +197,8 @@ namespace PowerFlowCore.Samples
             //Engine.Calculate(list);       // Parallel colection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
-            //timer.Restart();
             //var list = Create398NodesGridList(1000);    // 398nodes Grids collection (25 items)
+            //timer.Restart();
             //list.Calculate(new CalculationOptions() { SolverInternalLogging = false });       // Parallel collection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 

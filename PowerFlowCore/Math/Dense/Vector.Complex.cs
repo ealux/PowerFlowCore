@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -378,8 +379,26 @@ namespace PowerFlowCore.Algebra
 
             Complex res = Complex.Zero;
 
-            for (int i = 0; i < vec.Length; i++)
-                res += vec[i] * other[i];
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res += vec[i] * other[i];
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res += vec[i] * other[i]);
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res += vec[i] * other[i];
+                    }
+                });
+            }
+
             return res;
         }
         /// <summary>
@@ -395,8 +414,26 @@ namespace PowerFlowCore.Algebra
 
             Complex res = Complex.Zero;
 
-            for (int i = 0; i < vec.Length; i++)
-                res += vec[i] * other[i];
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res += vec[i] * other[i];
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res += vec[i] * other[i]);
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res += vec[i] * other[i];
+                    }
+                });
+            }
+
             return res;
         }
 
@@ -463,10 +500,25 @@ namespace PowerFlowCore.Algebra
 
             Complex[] res = new Complex[vec.Length];
 
-            Parallel.For(0, vec.Length, i =>
+            if (vec.Length <= 5000)
             {
-                res[i] = func(vec[i]);
-            });
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -486,7 +538,25 @@ namespace PowerFlowCore.Algebra
 
             var res = new double[vec.Length];
 
-            Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -506,10 +576,25 @@ namespace PowerFlowCore.Algebra
 
             Complex[] res = new Complex[vec.Length];
 
-            Parallel.For(0, vec.Length, i =>
+            if (vec.Length <= 5000)
             {
-                res[i] = func(vec[i]);
-            });
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -531,10 +616,25 @@ namespace PowerFlowCore.Algebra
 
             Complex[] res = new Complex[vec.Length];
 
-            Parallel.For(0, vec.Length, i =>
+            if (vec.Length <= 5000)
             {
-                res[i] = func(vec[i], other[i]);
-            });
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i], other[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i], other[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i], other[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -556,10 +656,25 @@ namespace PowerFlowCore.Algebra
 
             Complex[] res = new Complex[vec.Length];
 
-            Parallel.For(0, vec.Length, i =>
+            if (vec.Length <= 5000)
             {
-                res[i] = func(vec[i], other[i]);
-            });
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i], other[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i], other[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i], other[i]);
+                    }
+                });
+            }
 
             return res;
         }

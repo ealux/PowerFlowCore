@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -168,6 +169,19 @@ namespace PowerFlowCore.Algebra
             return vec;
         }
 
+        public static double[] Concat(this double[] vec, double[] other)
+        {
+            _ = vec ?? throw new ArgumentNullException(nameof(vec));
+            _ = other ?? throw new ArgumentNullException(nameof(vec));
+
+            var res = new double[vec.Length + other.Length];
+
+            Array.Copy(vec, res, vec.Length);
+            Array.Copy(other, 0, res, vec.Length, other.Length);
+
+            return res;
+        }
+
         #endregion
 
         #region Norm
@@ -306,7 +320,25 @@ namespace PowerFlowCore.Algebra
 
             double res = 0d;
 
-            Parallel.For(0, vec.Length, i => res += vec[i] * other[i]);
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res += vec[i] * other[i];
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res += vec[i] * other[i]);
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res += vec[i] * other[i];
+                    }
+                });
+            }
 			
             return res;
         }
@@ -374,7 +406,25 @@ namespace PowerFlowCore.Algebra
 
             double[] res = new double[vec.Length];
 
-            Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            if(vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i]);
+            }
+            else if(vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -394,7 +444,25 @@ namespace PowerFlowCore.Algebra
 
             double[] res = new double[vec.Length];
 
-            Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i]);
+                    }
+                });
+            }
 
             return res;
         }
@@ -416,7 +484,25 @@ namespace PowerFlowCore.Algebra
 
             double[] res = new double[vec.Length];
 
-            Parallel.For(0, vec.Length, i => res[i] = func(vec[i], other[i]));
+            if (vec.Length <= 5000)
+            {
+                for (int i = 0; i < vec.Length; i++)
+                    res[i] = func(vec[i], other[i]);
+            }
+            else if (vec.Length > 5000 & vec.Length <= 10_000)
+            {
+                Parallel.For(0, vec.Length, i => res[i] = func(vec[i], other[i]));
+            }
+            else
+            {
+                Parallel.ForEach(Partitioner.Create(0, vec.Length), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        res[i] = func(vec[i], other[i]);
+                    }
+                });
+            }
 
             return res;
         }

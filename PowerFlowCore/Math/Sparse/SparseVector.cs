@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace PowerFlowCore.Algebra
 {
@@ -31,7 +28,6 @@ namespace PowerFlowCore.Algebra
                 }
             }
         }
-
 
         #region Constructor
 
@@ -62,6 +58,42 @@ namespace PowerFlowCore.Algebra
             Length = length;
         }
 
+        public SparseVector(Dictionary<int, double> dict1, int length1, Dictionary<int, double> dict2, int length2)
+        {
+            if (length1 < 0 || length2 < 0)
+                throw new ArgumentException("Input length < 0");
+
+            var count1 = dict1.Keys.Count;
+            var count2 = dict2.Keys.Count;
+
+            Indexes = new int[count1 + count2];
+            Values = new double[count1 + count2];
+
+            Length = length1 + length2;
+
+            if(count1 != 0 & count2 == 0)
+            {
+                dict1.Keys.CopyTo(Indexes, 0);
+                dict1.Values.CopyTo(Values, 0);
+            }
+            else if (count1 == 0 & count2 != 0)
+            {
+                dict2.Keys.CopyTo(Indexes, 0);
+                for (int i = 0; i < count2; i++)
+                    Indexes[i] += length1;
+                dict2.Values.CopyTo(Values, 0);
+            }
+            else if (count1 != 0 & count2 != 0)
+            {
+                dict1.Keys.CopyTo(Indexes, 0);
+                dict2.Keys.CopyTo(Indexes, count1);
+                for (int i = count1; i < count1 + count2; i++)
+                    Indexes[i] += length1;
+                dict1.Values.CopyTo(Values, 0);
+                dict2.Values.CopyTo(Values, count1);
+            }
+        }
+
         public SparseVector(double[] vector)
         {
             if (vector.Length == 0)
@@ -85,6 +117,15 @@ namespace PowerFlowCore.Algebra
         }
 
         #endregion Constructor
+
+        public double[] ToDense()
+        {
+            var res = new double[Length];
+
+            for (int i = 0; i < Indexes.Length; i++)
+                res[Indexes[i]] = Values[i];
+            return res;
+        }
 
         public SparseVector Concat(SparseVector vector)
         {

@@ -372,16 +372,18 @@ namespace PowerFlowCore.Solvers
                 dP[i] = grid.Ssp[i].Real;
 
                 var dimDiap = grid.Ysp.RowPtr[i + 1] - grid.Ysp.RowPtr[i];
-                var pqDiap = grid.Ysp.ColIndex.Skip(grid.Ysp.RowPtr[i])
-                                              .Take(grid.Ysp.RowPtr[i + 1] - grid.Ysp.RowPtr[i])
-                                              .Where(ind => ind < grid.PQ_Count)
-                                              .Count();
+                var pqDiap = 0;
+                for (int k = grid.Ysp.RowPtr[i]; k < grid.Ysp.RowPtr[i + 1]; k++)
+                {
+                    if (grid.Ysp.ColIndex[k] < grid.PQ_Count)
+                        pqDiap++;
+                }
 
                 Dictionary<int, double> P_Delta = new Dictionary<int, double>(dimDiap);
                 Dictionary<int, double> P_V = new Dictionary<int, double>(pqDiap);
                                 
-                Dictionary<int, double> Q_Delta = new Dictionary<int, double>();
-                Dictionary<int, double> Q_V = new Dictionary<int, double>();
+                Dictionary<int, double> Q_Delta = null!;
+                Dictionary<int, double> Q_V = null!;
 
                 var diagY = grid.Ysp[i];
                 var diagYsin = Math.Sin(diagY.Phase);
@@ -415,7 +417,6 @@ namespace PowerFlowCore.Solvers
                     var ymag = grid.Ysp.Values[j].Magnitude;
                     var cos = Math.Cos(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
                     var sin = Math.Sin(grid.Ysp.Values[j].Phase + Uph[col] - Uph[i]);
-
 
                     //dP
                     dP[i] -= Um[i] * Um[col] * ymag * cos;
@@ -463,18 +464,10 @@ namespace PowerFlowCore.Solvers
                     }
                 }
 
-                var v1 = new SparseVector(P_Delta, dim);
-                var v2 = new SparseVector(P_V, grid.PQ_Count);
-
-                rows[i] = v1.Concat(v2);
+                rows[i] = new SparseVector(P_Delta, dim, P_V, grid.PQ_Count);
 
                 if (i < grid.PQ_Count)
-                {
-                    var v3 = new SparseVector(Q_Delta, dim);
-                    var v4 = new SparseVector(Q_V, grid.PQ_Count);
-
-                    rows[dim + i] = v3.Concat(v4);
-                }               
+                    rows[dim + i] = new SparseVector(Q_Delta, dim, Q_V, grid.PQ_Count);
             });
 
             var resJ = CSRMatrix.CreateFromRows(rows).ToCSC();
@@ -492,7 +485,8 @@ namespace PowerFlowCore.Solvers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static (INode maxPnode, double max_dP, INode maxQnode, double max_dQ) GetMaximumResiduals(this Grid grid, double[] dPQ)
         {
-            var dP = dPQ.SubVector(0, grid.PQ_Count + grid.PV_Count);
+            //var dP = dPQ.SubVector(0, grid.PQ_Count + grid.PV_Count);
+            var dP = dPQ.SubVector(grid.PQ_Count + grid.PV_Count);
             var dQ = dPQ.SubVector(grid.PQ_Count + grid.PV_Count, grid.PQ_Count);
 
             var index_p  = dP.Map(r => Math.Abs(r)).MaximumIndex();

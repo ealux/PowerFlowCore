@@ -60,15 +60,15 @@ namespace PowerFlowCore
             // Calculate
             if (grid.Solvers.Count == 0)
             {
-                try
-                {
+                //try
+                //{
                     calc.SolverNR(Uinitial, options, out success);
-                }
-                catch (Exception)
-                {
-                    Logger.LogCritical("Internal N-R solver error! Check inputs!");
-                    success = false;
-                }
+                //}
+                //catch (Exception)
+                //{
+                //    Logger.LogCritical("Internal N-R solver error! Check inputs!");
+                //    success = false;
+                //}
             }
             else
             {     

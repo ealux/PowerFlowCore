@@ -74,7 +74,7 @@ namespace PowerFlowCore.Data
             var nlist = nodes.Select(n => n.Num).ToArray();
             Array.Sort(nlist);
 
-            Parallel.ForEach(branches, branch =>
+            foreach (var branch in branches)
             {
                 // Nodes existence
                 var start = branch.Start;
@@ -101,7 +101,7 @@ namespace PowerFlowCore.Data
                                         $"Check the input data!");
                     success = false;
                 }
-            });
+            }
 
             return success;
         }

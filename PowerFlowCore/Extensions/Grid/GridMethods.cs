@@ -8,7 +8,7 @@ namespace PowerFlowCore.Data
     /// <summary>
     /// Methods for Grid object extension
     /// </summary>
-    public static partial class ExtensionsMethods
+    public static partial class ExtensionMethods
     {
         #region Grid DeepCopy
 

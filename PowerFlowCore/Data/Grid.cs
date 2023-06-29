@@ -224,18 +224,29 @@ namespace PowerFlowCore.Data
             // Branches to list
             this.Branches = rebranches.ToList();
 
-            //// Transform breakers branches
-            //foreach (var item in this.Branches.Where(b => b.Y == 0.0))
-            //    item.Y = 1 / new Complex(0, 0.001);
-
             var numNodes = this.Nodes.Select(n=>n.Num).ToArray();
 
-            Parallel.For(0, this.Branches.Count, i =>
+            if (numNodes.Length > 500)
             {
-                var br = this.Branches[i];
-                br.Start_calc = this.Nodes[Array.IndexOf(numNodes, br.Start)].Num_calc;
-                br.End_calc = this.Nodes[Array.IndexOf(numNodes, br.End)].Num_calc;
-            });
+                Parallel.ForEach(Partitioner.Create(0, this.Branches.Count, this.Branches.Count / Environment.ProcessorCount), range =>
+                {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        var br = this.Branches[i];
+                        br.Start_calc = this.Nodes[Array.IndexOf(numNodes, br.Start)].Num_calc;
+                        br.End_calc = this.Nodes[Array.IndexOf(numNodes, br.End)].Num_calc;
+                    }
+                });
+            }
+            else
+            {
+                for (int i = 0; i < this.Branches.Count; i++)
+                {
+                    var br = this.Branches[i];
+                    br.Start_calc = this.Nodes[Array.IndexOf(numNodes, br.Start)].Num_calc;
+                    br.End_calc = this.Nodes[Array.IndexOf(numNodes, br.End)].Num_calc;
+                }
+            }
 
             #endregion [Nodes and Branhces transformation]
 

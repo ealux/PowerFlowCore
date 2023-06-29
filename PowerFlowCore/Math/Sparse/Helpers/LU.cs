@@ -142,10 +142,18 @@ namespace PowerFlowCore.Algebra
             double pivot;
             double a, t;
 
+#if (NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
+            Span<int> li, ui;
+            Span<int> lp = L.ColPtr;
+            Span<int> up = U.ColPtr;
+            Span<double> lx, ux;
+#else
             int[] li, ui;
             int[] lp = L.ColPtr;
             int[] up = U.ColPtr;
             double[] lx, ux;
+#endif
+
 
             // Now compute L(:,k) and U(:,k)
             for (int k = 0; k < n; k++)
@@ -161,6 +169,7 @@ namespace PowerFlowCore.Algebra
                 ui = U.RowIndex;
                 lx = L.Values;
                 ux = U.Values;
+
                 col = q != null ? (q[k]) : k;
                 top = SolveSp(L, A, col, xi, x, pinv, true);  // x = L\A(:,col)
 
@@ -255,7 +264,11 @@ namespace PowerFlowCore.Algebra
         /// <param name="pinv">mapping of rows to columns of G, ignored if null</param>
         /// <param name="lo">true if lower triangular, false if upper</param>
         /// <returns>top, -1 if error</returns>
+#if (NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
+        private int SolveSp(CSCMatrix G, CSCMatrix B, int k, Span<int> xi, Span<double> x, Span<int> pinv, bool lo)
+#else
         private int SolveSp(CSCMatrix G, CSCMatrix B, int k, int[] xi, double[] x, int[] pinv, bool lo)
+#endif
         {
             if (xi == null || x == null) return -1;
 

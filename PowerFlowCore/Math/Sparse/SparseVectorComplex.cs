@@ -83,8 +83,8 @@ namespace PowerFlowCore.Algebra
             if (vector.Length == 0)
                 throw new ArgumentException("Input vector has 0-length", nameof(vector));
 
-            var tmpVals = new List<Complex>();
-            var tmpInds = new List<int>();
+            var tmpVals = new List<Complex>(vector.Length);
+            var tmpInds = new List<int>(vector.Length);
 
             for (int i = 0; i < vector.Length; i++)
             {
@@ -101,6 +101,15 @@ namespace PowerFlowCore.Algebra
         }
 
         #endregion Constructor
+
+        public Complex[] ToDense()
+        {
+            var res = new Complex[Length];
+
+            for (int i = 0; i < Indexes.Length; i++)
+                res[Indexes[i]] = Values[i];
+            return res;
+        }
 
         public SparseVectorComplex Concat(SparseVectorComplex vector)
         {

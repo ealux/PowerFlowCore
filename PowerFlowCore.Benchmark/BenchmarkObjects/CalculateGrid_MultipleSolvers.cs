@@ -1,14 +1,17 @@
 ﻿using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 
 namespace PowerFlowCore.Benchmark
 {
     /// <summary>
     /// Calculate grids with single and multiple solvers
     /// </summary>
-    [MemoryDiagnoser]
-    [MarkdownExporterAttribute.Default]
+    //[SimpleJob(RuntimeMoniker.Net472, baseline: true)]
+    [SimpleJob(RuntimeMoniker.Net60)]
+    //[SimpleJob(RuntimeMoniker.Net70)]
+    [MemoryDiagnoser(true)]
     public class CalculateGrid_MultipleSolvers
     {
         [Params(1)]

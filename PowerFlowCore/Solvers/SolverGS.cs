@@ -170,10 +170,6 @@ namespace PowerFlowCore.Solvers
             // Apply acceleration rate
             U[nodeNum] = old + accRate * (U[nodeNum] - old);
 
-            //// Complete voltage difference vector
-            //for (int i = 0; i < dU.Length; i++)
-            //    dU[i] = U[i] - Uold[i];
-
             // Complete voltage difference vector
             dU[nodeNum] = U[nodeNum] - Uold[nodeNum];
         }

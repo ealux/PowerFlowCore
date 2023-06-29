@@ -132,8 +132,8 @@ namespace PowerFlowCore.Algebra
 
             var res = new CSRMatrixComplex(rows.Length, columns, 0);
 
-            var tmpColInds = new List<int>();
-            var tmpVals = new List<Complex>();
+            var tmpColInds = new List<int>(columns);
+            var tmpVals = new List<Complex>(columns);
             var tmpRowPtr = new int[res.Rows + 1];
 
             for (int i = 0; i < res.Rows; i++)

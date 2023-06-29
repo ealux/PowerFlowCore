@@ -35,7 +35,7 @@ namespace PowerFlowCore.Data
             }
 
             // Orphans
-            var orphans = string.Join(", ", Graph.FindOrphanNodes(nodes, branches).Select(n => n.Num));
+            var orphans = string.Join(", ", Graph.FindOrphanNodes(nodes, branches));
             if(orphans.Length > 0)
             {
                 Logger.LogWarning($"Orphan node: {orphans}");

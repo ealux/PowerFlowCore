@@ -49,7 +49,8 @@ namespace PowerFlowCore.Algebra
                 for (int p = pstack[offset + head]; p < p2; p++) // examine all neighbors of j
                 {
                     int i = Gi[p]; // consider neighbor node i
-                    if (Gp[i] < 0) continue; // skip visited node i
+                    if (Gp[i] < 0) 
+                        continue; // skip visited node i
                     pstack[offset + head] = p; // pause depth-first search of node j
                     xi[++head] = i; // start dfs at node i
                     done = false; // node j is not done
@@ -300,7 +301,7 @@ namespace PowerFlowCore.Algebra
                     stack[top] = i; // start dfs on child node i
                 }
             }
-            return (k);
+            return k;
         }
 
         // xi [top...n-1] = nodes reachable from graph of G*P' via nodes in B(:,k).
@@ -331,7 +332,7 @@ namespace PowerFlowCore.Algebra
                 Gp[xi[p]] = -(Gp[xi[p]]) - 2; // restore G
             }
 
-            return (top);
+            return top;
         }
 
         /// <summary>

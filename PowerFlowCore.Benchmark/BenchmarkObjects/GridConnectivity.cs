@@ -8,10 +8,9 @@ namespace PowerFlowCore.Benchmark
     /// Check grid samples connectivity
     /// </summary>
     [MemoryDiagnoser]
-    [MarkdownExporterAttribute.Default]
     public class GridConnectivity
     {
-        [Params(1)]//, 10)]
+        [Params(1)]
         public int N;
 
         private readonly Grid _Test_Ktr;

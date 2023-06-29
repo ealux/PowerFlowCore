@@ -8,9 +8,9 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.13.5</Version>
+		<Version>0.13.6</Version>
 		<PackageReleaseNotes>
-			GS performance improvement. Minor optimisations.
+			Minor memory optimisations.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

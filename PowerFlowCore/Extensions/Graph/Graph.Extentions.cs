@@ -261,46 +261,39 @@ namespace PowerFlowCore.Data
         /// <summary>
         /// Find all orphan nodes from input enumerable nodes and branches. If none - returns <see cref="IEnumerable{T}.Empty"/>
         /// </summary>
-        /// <returns>Collection of (<see cref="INode"/> node, <see cref="int"/> NodeNumber)</returns>
-        public static IEnumerable<(INode Node, int Num)> FindOrphanNodes(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
+        /// <returns>Collection of Node numbers</returns>
+        public static IEnumerable<int> FindOrphanNodes(IEnumerable<INode> nodes, IEnumerable<IBranch> branches)
         {
             // Check nodes
             var renodes = nodes.ToArray();
 
-            switch (renodes.Count())
+            switch (renodes.Length)
             {
                 case 0:
                     Logger.LogWarning($"Nodes count is equals 0!");
-                    return Enumerable.Empty<(INode Node, int num)>();
+                    return Enumerable.Empty<int>();
 
                 case 1:
                     Logger.LogWarning($"Grid graph is not connected. Only one node is presented");
-                    return new List<(INode Node, int num)>() { (renodes[0], renodes[0].Num) }.AsEnumerable();
+                    return renodes.Select(n => n.Num).AsEnumerable();
             }
             // Check branches
             if (branches.Count() == 0)
             {
                 Logger.LogWarning($"Branhces count is equals 0!");
-                var outList = new List<(INode Node, int num)>();
-                foreach (var item in renodes)
-                    outList.Add((item, item.Num));
-                return outList.AsEnumerable();
+                return renodes.Select(n => n.Num).AsEnumerable();
             }
 
-            // Branches unique nums (from start and end)
-            var branchesStart = branches.Select(b => b.Start).Concat(branches.Select(b => b.End)).Distinct();
             // Nodes list for excluding
-            var new_nodes = renodes.Select(n => n.Num).Except(branchesStart).ToList();
+            var new_nodes = renodes.Select(n => n.Num)
+                                   .Except(branches.Select(b => b.Start)
+                                                   .Concat(branches.Select(b => b.End))
+                                                   .Distinct());
 
-            if (new_nodes.Count > 0)
-            {
-                var resultOut = new List<(INode Node, int num)>();
-                foreach (var item in new_nodes)
-                    resultOut.Add(renodes.Where(n => n.Num == item).Select(n => (n, n.Num)).First());
-                return resultOut.AsEnumerable();
-            }
+            if (new_nodes.Any())
+                return new_nodes.AsEnumerable();
 
-            return Enumerable.Empty<(INode Node, int num)>();
+            return Enumerable.Empty<int>();
         }
 
         #endregion Orphan Nodes

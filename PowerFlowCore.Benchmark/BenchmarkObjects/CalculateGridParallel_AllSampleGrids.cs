@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
 using PowerFlowCore.Solvers;
@@ -9,8 +10,10 @@ namespace PowerFlowCore.Benchmark
     /// <summary>
     /// Calculate in parallel sample grids several times for performance tests
     /// </summary>
-    [MemoryDiagnoser]
-    [MarkdownExporterAttribute.Default]
+    //[SimpleJob(RuntimeMoniker.Net472, baseline: true)]
+    [SimpleJob(RuntimeMoniker.Net60)]
+    //[SimpleJob(RuntimeMoniker.Net70)]
+    [MemoryDiagnoser(true)]
     public class CalculateGridParallel_AllSampleGrids
     {
         [Params(1)]
@@ -36,6 +39,16 @@ namespace PowerFlowCore.Benchmark
             grids.Add(SampleGrids.Nodes1350_250PV());
             grids.Add(SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions() { IterationsCount = 4})
                                                   .ApplySolver(SolverType.NewtonRaphson));
+        }
+
+        [Benchmark(Baseline=true)]
+        public void CalculateSeq_AllSampleGrids()
+        {
+            foreach (var item in grids)
+            {
+                Engine.Calculate(item);
+            }
+                
         }
 
         [Benchmark]
