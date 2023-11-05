@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Complex = System.Numerics.Complex;
 
 namespace PowerFlowCore.Algebra
 {
-    public class SparseVectorComplex
+    public struct SparseVectorComplex
     {
         public const double Prec = 1e-16;
 
@@ -15,7 +16,8 @@ namespace PowerFlowCore.Algebra
         public Complex[] Values;
 
         public Complex this[int i] 
-        { 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 //var pos = Array.IndexOf(Indexes, i);
@@ -35,9 +37,7 @@ namespace PowerFlowCore.Algebra
 
         #region Constructor
 
-        private SparseVectorComplex()
-        {
-        }
+        //public SparseVectorComplex() { }
 
         public SparseVectorComplex(int count, int length)
         {
@@ -122,14 +122,18 @@ namespace PowerFlowCore.Algebra
             }
             else if(Indexes.Length == 0 & vector.Indexes.Length != 0)
             {
-                var tmpInds = vector.Indexes.Select(i => i + Length).ToArray();
+                var tmpInds = new int[vector.Indexes.Length];
+                for (int i = 0; i < vector.Indexes.Length; i++)
+                    tmpInds[i] = vector.Indexes[i] + Length;
                 Array.Copy(tmpInds, 0, res.Indexes, 0, vector.Indexes.Length);
                 Array.Copy(vector.Values, 0, res.Values, 0, vector.Values.Length);
             }
             else if(Indexes.Length != 0 & vector.Indexes.Length != 0)
             {
                 Array.Copy(Indexes, 0, res.Indexes, 0, Indexes.Length);
-                var tmpInds = vector.Indexes.Select(i => i + Length).ToArray();
+                var tmpInds = new int[vector.Indexes.Length];
+                for (int i = 0; i < vector.Indexes.Length; i++)
+                    tmpInds[i] = vector.Indexes[i] + Length;
                 Array.Copy(tmpInds, 0, res.Indexes, Indexes.Length, vector.Indexes.Length);
 
                 Array.Copy(Values, 0, res.Values, 0, Values.Length);

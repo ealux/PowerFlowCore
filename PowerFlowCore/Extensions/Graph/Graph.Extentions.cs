@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace PowerFlowCore.Data
@@ -278,7 +279,7 @@ namespace PowerFlowCore.Data
                     return renodes.Select(n => n.Num).AsEnumerable();
             }
             // Check branches
-            if (branches.Count() == 0)
+            if (!branches.Any())
             {
                 Logger.LogWarning($"Branhces count is equals 0!");
                 return renodes.Select(n => n.Num).AsEnumerable();

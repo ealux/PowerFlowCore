@@ -47,5 +47,6 @@ namespace PowerFlowCore.Algebra
         /// # entries in U for LU; in R for QR
         /// </summary>
         public int unz;
+
     }
 }

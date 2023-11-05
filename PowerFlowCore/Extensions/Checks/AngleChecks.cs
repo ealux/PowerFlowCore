@@ -22,14 +22,15 @@ namespace PowerFlowCore.Data
             double[] res = new double[grid.Branches.Count];
 
             var nnds = grid.Nodes.ToDictionary(k =>k.Num);
+            int i = 0;
 
-            Parallel.ForEach(grid.Branches, (branch, _, i) =>
+            foreach (var branch in grid.Branches)
             {
                 var start_ph = nnds[branch.Start].U.Phase * 180 / Math.PI;
                 var end_ph = nnds[branch.End].U.Phase * 180 / Math.PI;
 
-                res[(int)i] = Math.Abs(Math.Round(start_ph - end_ph, (int)precision));
-            });        
+                res[i++] = Math.Abs(Math.Round(start_ph - end_ph, (int)precision));
+            }
 
             return VectorDouble.Create(res);
         }

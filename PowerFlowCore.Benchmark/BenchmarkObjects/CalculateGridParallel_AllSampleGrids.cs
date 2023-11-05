@@ -4,6 +4,7 @@ using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
 using PowerFlowCore.Solvers;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PowerFlowCore.Benchmark
 {
@@ -56,6 +57,14 @@ namespace PowerFlowCore.Benchmark
         {
             for (int i = 0; i < N; i++)
                 Engine.Calculate(grids);
+        }
+
+        [Benchmark]
+        public async Task CalculateParallel_AllSampleGrids_Async()
+        {
+            for (int i = 0; i < N; i++)
+                _ = await Engine.CalculateAsync(grids);
+            
         }
     }
 }

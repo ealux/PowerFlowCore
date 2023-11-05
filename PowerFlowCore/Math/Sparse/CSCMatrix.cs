@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -24,6 +25,7 @@ namespace PowerFlowCore.Algebra
         /// </summary>
         public double this[int i]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 int ind = Array.IndexOf(RowIndex, i, ColPtr[i], ColPtr[i + 1] - ColPtr[i]);
@@ -189,7 +191,7 @@ namespace PowerFlowCore.Algebra
             return res;
         }
 
-        internal bool Resize(int size)
+        internal void Resize(int size)
         {
             if (size <= 0)
             {
@@ -198,8 +200,6 @@ namespace PowerFlowCore.Algebra
 
             Array.Resize(ref this.RowIndex, size);
             Array.Resize(ref this.Values, size);
-
-            return true;
         }
 
         #endregion

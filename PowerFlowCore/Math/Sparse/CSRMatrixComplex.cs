@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Complex = System.Numerics.Complex;
 
@@ -23,6 +24,7 @@ namespace PowerFlowCore.Algebra
         /// </summary>
         public Complex this[int i]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 int ind = Array.IndexOf(ColIndex, i, RowPtr[i], RowPtr[i + 1] - RowPtr[i]);
@@ -99,29 +101,34 @@ namespace PowerFlowCore.Algebra
 
         public static CSRMatrixComplex CreateFromRows(SparseVectorComplex[] rows)
         {
-            if (rows.Any(r => r.Length != rows[0].Length))
-                throw new ArgumentException("Rows have different length vectors!");
+            var cnt = rows[0].Indexes.Length;
+
+            for (int i = 1; i < rows.Length; i++)
+            {
+                if (rows[i].Length != rows[0].Length)
+                    throw new ArgumentException("Rows have different length vectors!");
+                cnt += rows[i].Indexes.Length;
+            }
 
             var res = new CSRMatrixComplex(rows.Length, rows[0].Length, 0);
 
-            var tmpColInds = new List<int>();
-            var tmpVals = new List<Complex>();
-            var tmpRowPtr = new int[res.Rows + 1];
+            res.ColIndex = new int[cnt];
+            res.Values = new Complex[cnt];
+            res.RowPtr = new int[res.Rows + 1];
 
-            for (int i = 0; i < res.Rows; i++)
+            for (int i = 0, offset = 0; i < res.Rows; i++)
             {
-                tmpColInds.AddRange(rows[i].Indexes);
-                tmpVals.AddRange(rows[i].Values);
+                Array.Copy(rows[i].Indexes, 0, res.ColIndex, offset, rows[i].Indexes.Length);
+                Array.Copy(rows[i].Values, 0, res.Values, offset, rows[i].Values.Length);
                 res.NNZ += rows[i].Indexes.Length;
-                tmpRowPtr[i + 1] = res.NNZ;
-            }
+                res.RowPtr[i + 1] = res.NNZ;
 
-            res.ColIndex = tmpColInds.ToArray();
-            res.Values = tmpVals.ToArray();
-            res.RowPtr = tmpRowPtr;
+                offset += rows[i].Indexes.Length;
+            }
 
             return res;
         }
+
 
         public static CSRMatrixComplex CreateFromRows(Dictionary<int, Complex>[] rows, int columns)
         {
@@ -147,20 +154,6 @@ namespace PowerFlowCore.Algebra
             res.ColIndex = tmpColInds.ToArray();
             res.Values = tmpVals.ToArray();
             res.RowPtr = tmpRowPtr;
-
-            return res;
-        }
-
-        public static CSRMatrixComplex Eye(int n)
-        {
-            var res = new CSRMatrixComplex(n, n, n);
-
-            for (int i = 0; i < n; i++)
-            {
-                res.Values[i] = 1;
-                res.ColIndex[i] = i;
-                res.RowPtr[i + 1] = i + 1;
-            }
 
             return res;
         }

@@ -21,7 +21,7 @@ namespace PowerFlowCore.Samples
             var timer_global = Stopwatch.StartNew();
 
             Logger.AddConsoleMode();                          // Log to Console 
-            Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener (to Debug)
+            //Logger.AddCustomMode(new CustomLoggerListener()); // Test custom listener (to Debug)
             //Logger.AddDebugMode();                          // Log to Debug
             //Logger.LogBroadcast += Logger_OnLogBroadcast;   // Logger event listener
 
@@ -88,21 +88,21 @@ namespace PowerFlowCore.Samples
             //timer.Restart();
             //_ = SampleGrids.Nodes874_143PV();
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes874_143PV           
-            //                                                                        //}
+            ////}
 
-            //for (int i = 0; i < 250; i++)
-            //{
-                timer.Restart();
-                _ = SampleGrids.Nodes1350_250PV();
-                Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
-            //}
+            ////for (int i = 0; i < 20; i++)
+            ////{
+            //    timer.Restart();
+            //    _ = SampleGrids.Nodes1350_250PV();
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            ////}
 
             ////for (int i = 0; i < 10; i++)
             ////{
-            //timer.Restart();
-            //_ = SampleGrids.Nodes2628_50PV();
-            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
-            //                                                                        //}  
+            //    timer.Restart();
+            //    _ = SampleGrids.Nodes2628_50PV();
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            ////}
 
             #endregion Creation
 
@@ -185,6 +185,20 @@ namespace PowerFlowCore.Samples
             Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
 
 
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    timer.Restart();
+            //    CalculateAndShow(SampleGrids.Nodes1350_250PV());
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes1350_250PV
+            //}
+
+            //for (int i = 0; i < 50; i++)
+            //{
+            //    timer.Restart();
+            //    CalculateAndShow(SampleGrids.Nodes2628_50PV().ApplySolver(SolverType.GaussSeidel, new CalculationOptions { IterationsCount = 4 })
+            //                                                 .ApplySolver(SolverType.NewtonRaphson));
+            //    Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");  // Nodes2628_50PV
+            //}
 
             #endregion
 
@@ -197,9 +211,17 @@ namespace PowerFlowCore.Samples
             //Engine.Calculate(list);       // Parallel colection
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
-            //var list = Create398NodesGridList(1000);    // 398nodes Grids collection (25 items)
+            //var list = Create398NodesGridList(250);    // 398nodes Grids collection (25 items)
             //timer.Restart();
             //list.Calculate(new CalculationOptions() { SolverInternalLogging = false });       // Parallel collection
+            //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
+
+            //list = Create398NodesGridList(250);    // 398nodes Grids collection (25 items)
+            //timer.Restart();
+            //Task.Run(async () =>
+            //{
+            //    await list.CalculateAsync(new CalculationOptions() { SolverInternalLogging = false });       // Parallel collection async
+            //}); 
             //Logger.LogInfo("Calc End with: " + timer.ElapsedMilliseconds + " ms");
 
             #endregion

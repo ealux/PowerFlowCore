@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
 {
+    /// <summary>
+    /// Contatins tools for LU factorization and its results
+    /// </summary>
     internal class LU
     {
         private readonly int n;
@@ -142,17 +145,10 @@ namespace PowerFlowCore.Algebra
             double pivot;
             double a, t;
 
-#if (NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
-            Span<int> li, ui;
-            Span<int> lp = L.ColPtr;
-            Span<int> up = U.ColPtr;
-            Span<double> lx, ux;
-#else
             int[] li, ui;
             int[] lp = L.ColPtr;
             int[] up = U.ColPtr;
             double[] lx, ux;
-#endif
 
 
             // Now compute L(:,k) and U(:,k)
@@ -272,15 +268,6 @@ namespace PowerFlowCore.Algebra
         {
             if (xi == null || x == null) return -1;
 
-        #if(NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER)
-            var gp = G.ColPtr.AsSpan();
-            var gi = G.RowIndex.AsSpan();
-            var gx = G.Values.AsSpan();
-
-            var bp = B.ColPtr.AsSpan();
-            var bi = B.RowIndex.AsSpan();
-            var bx = B.Values.AsSpan();
-        #else
             var gp = G.ColPtr;
             var gi = G.RowIndex;
             var gx = G.Values;
@@ -288,7 +275,6 @@ namespace PowerFlowCore.Algebra
             var bp = B.ColPtr;
             var bi = B.RowIndex;
             var bx = B.Values;
-        #endif
 
             int n = G.Cols;
 

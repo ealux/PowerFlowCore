@@ -154,7 +154,8 @@ namespace PowerFlowCore.Data
                 for (int i = 0; i < this.Nodes.Count; i++)
                 {
                     var node = this.Nodes[i];
-                    if (node.S_calc == Complex.Zero) node.S_calc = node.S_load;  // Set load for calculus
+                    if(setInitialByNominal)
+                        node.S_calc = node.S_load;  // Set load for calculus
 
                     switch (node.Type)
                     {
@@ -254,10 +255,10 @@ namespace PowerFlowCore.Data
             #region [Y calculation]
 
             //Calculation of admittance matrix
-            this.Ysp = Calc_Y(this.Nodes, this.Branches); // Sparse Y            
-            this.Ssp = new SparseVectorComplex(this.S);   // Sparse S
+            this.Ysp = Calc_Y(this.Nodes, this.Branches); // Y matrix 
+            this.Ssp = new SparseVectorComplex(this.S);   // S vector
 
-            #endregion [Y calculation]            
+#endregion [Y calculation]            
         }
 
 
@@ -326,7 +327,6 @@ namespace PowerFlowCore.Data
 
             return CSRMatrixComplex.CreateFromRows(Y, nodes.Count);
         }
-
 
         #endregion [Build Scheme]       
 

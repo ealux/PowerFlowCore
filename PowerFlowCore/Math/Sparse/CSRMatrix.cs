@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PowerFlowCore.Algebra
@@ -23,6 +24,7 @@ namespace PowerFlowCore.Algebra
         /// </summary>
         public double this[int i]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 int ind = Array.IndexOf(ColIndex, i, RowPtr[i], RowPtr[i + 1] - RowPtr[i]);
@@ -138,7 +140,7 @@ namespace PowerFlowCore.Algebra
             }
 
             return res;
-        }
+        }   
 
         public static CSRMatrix CreateFromRows(Dictionary<int, double>[] rows, int columns)
         {

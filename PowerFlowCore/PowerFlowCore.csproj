@@ -8,9 +8,9 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.13.6</Version>
+		<Version>0.14.0</Version>
 		<PackageReleaseNotes>
-			Minor memory optimisations.
+			S_calc bug fix (calculated with load model). Add async parallel calculation api. Reduce memory allocation
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
@@ -25,9 +25,8 @@
 		<PackageProjectUrl>https://github.com/ealux/PowerFlowCore</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/ealux/PowerFlowCore.git</RepositoryUrl>
 		<Description>
-			Solver for Power Flow Problem.
-			Power grid steady-state analysis.</Description>
-		<PackageTags>Power Systems;Electrical Grids;PowerFlow;Newton-Raphson;Gauss-Seidel</PackageTags>
+			Solver for Power Flow Problem. Power grid steady-state analysis.</Description>
+		<PackageTags>Power Systems;Electrical Grids; PowerFlow;Newton-Raphson; Gauss-Seidel</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>

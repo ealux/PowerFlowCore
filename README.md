@@ -10,7 +10,8 @@
 
 ## What's new:
 
-* **0.13.6** - Minor memory optimisations.
+* **0.14.0** - *S_calc* bug fix (calculated with load model). Add async parallel calculation api. Reduce memory allocation.
+* 0.13.6 - Minor memory optimisations.
 * 0.13.5 - GS performance improvement. Minor optimisations.
 * 0.13.4 - Fix bugs. U initial assumption usage. Grid islands. Stabilizing.
   * Fix voltage default initial value on grid initialization. Add Calculate() methods with Uinit assumption
