@@ -9,8 +9,9 @@ namespace PowerFlowCore.Benchmark
     /// Calculate grids with single and multiple solvers
     /// </summary>
     //[SimpleJob(RuntimeMoniker.Net472, baseline: true)]
-    [SimpleJob(RuntimeMoniker.Net60)]
+    //[SimpleJob(RuntimeMoniker.Net60)]
     //[SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net80)]
     [MemoryDiagnoser(true)]
     public class CalculateGrid_MultipleSolvers
     {

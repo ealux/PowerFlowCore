@@ -16,7 +16,7 @@ namespace PowerFlowCore.Benchmark
             //BenchmarkRunner.Run<CalculateGrid_MultipleSolvers>();
             //BenchmarkRunner.Run<GridConnectivity>();
 
-            Console.ReadKey();  
+            Console.ReadKey();
         }
     }
 }

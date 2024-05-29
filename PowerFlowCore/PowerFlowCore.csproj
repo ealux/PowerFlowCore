@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
+	 <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
      <OutputType>Library</OutputType>
 	 <Nullable>enable</Nullable>
 	 <LangVersion>8</LangVersion>
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.14.0</Version>
+		<Version>0.14.1</Version>
 		<PackageReleaseNotes>
-			S_calc bug fix (calculated with load model). Add async parallel calculation api. Reduce memory allocation
+			Add net 8.0 support
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
