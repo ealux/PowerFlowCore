@@ -1,12 +1,14 @@
-﻿using PowerFlowCore.Data;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
+using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
-using BenchmarkDotNet.Attributes;
 
 namespace PowerFlowCore.Benchmark
 {
     /// <summary>
     /// Check grid samples connectivity
     /// </summary>
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [MemoryDiagnoser]
     public class GridConnectivity
     {

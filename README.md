@@ -10,7 +10,8 @@
 
 ## What's new:
 
-* **0.14.1** - Add net 8.0 support.
+* **0.14.2** - Add net 10.0 support.
+* 0.14.1 - Add net 8.0 support.
 * 0.14.0 - *S_calc* bug fix (calculated with load model). Add async parallel calculation api. Reduce memory allocation.
 * 0.13.6 - Minor memory optimisations.
 * 0.13.5 - GS performance improvement. Minor optimisations.

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-	  <TargetFrameworks>net8.0;net6.0;netframework4.7.2</TargetFrameworks>
+	  <TargetFrameworks>net10.0;net8.0;net6.0;netframework4.7.2</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

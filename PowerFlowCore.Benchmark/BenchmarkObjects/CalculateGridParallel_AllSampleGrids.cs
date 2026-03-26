@@ -14,7 +14,8 @@ namespace PowerFlowCore.Benchmark
     //[SimpleJob(RuntimeMoniker.Net472, baseline: true)]
     //[SimpleJob(RuntimeMoniker.Net60)]
     //[SimpleJob(RuntimeMoniker.Net70)]
-    [SimpleJob(RuntimeMoniker.Net80)]
+    //[SimpleJob(RuntimeMoniker.Net80)]
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [MemoryDiagnoser(true)]
     public class CalculateGridParallel_AllSampleGrids
     {

@@ -1,11 +1,13 @@
-﻿using PowerFlowCore.Samples;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
+using PowerFlowCore.Samples;
 
 namespace PowerFlowCore.Benchmark
 {
     /// <summary>
     /// Create sample grids several times for performance tests
     /// </summary>
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [MemoryDiagnoser]
     [MarkdownExporterAttribute.Default]
     public class CreateGrid

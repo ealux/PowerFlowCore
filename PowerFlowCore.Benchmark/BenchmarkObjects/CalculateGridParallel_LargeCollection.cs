@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using PowerFlowCore.Data;
 using PowerFlowCore.Samples;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace PowerFlowCore.Benchmark
     /// <summary>
     /// Calculate 1000 items 300 nodes grid collection in different ways for performance tests
     /// </summary>
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [MemoryDiagnoser]
     public class CalculateGridParallel_LargeModel
     {
